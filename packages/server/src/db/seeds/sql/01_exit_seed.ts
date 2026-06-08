@@ -105,6 +105,29 @@ export async function seed(knex: Knex): Promise<void> {
     { id: q.mgmt, template_id: interviewTpl, question_text: "How would you rate management support?", question_type: "rating", sort_order: 4, is_required: 0 },
   ]);
 
+  // Letter templates (Handlebars bodies; {{name}}, {{designation}}, etc. are
+  // rendered at generation time). Gives the Letters tab something to generate.
+  await knex("letter_templates").insert([
+    {
+      id: uuidv4(), organization_id: ORG_ID, letter_type: "relieving", name: "Relieving Letter",
+      body_template:
+        "<h2>Relieving Letter</h2><p>This is to certify that <b>{{name}}</b> ({{designation}}) was employed with {{organization}} and has been relieved from their duties effective {{last_working_date}}.</p><p>We wish them success in their future endeavours.</p>",
+      is_default: 1, is_active: 1,
+    },
+    {
+      id: uuidv4(), organization_id: ORG_ID, letter_type: "experience", name: "Experience Letter",
+      body_template:
+        "<h2>Experience Letter</h2><p>This is to certify that <b>{{name}}</b> served at {{organization}} as {{designation}}. During their tenure they demonstrated professionalism and dedication.</p>",
+      is_default: 1, is_active: 1,
+    },
+    {
+      id: uuidv4(), organization_id: ORG_ID, letter_type: "service_certificate", name: "Service Certificate",
+      body_template:
+        "<h2>Service Certificate</h2><p>This certifies the service of <b>{{name}}</b> at {{organization}} in the capacity of {{designation}}.</p>",
+      is_default: 0, is_active: 1,
+    },
+  ]);
+
   // ── Exit requests (root) — one per status to exercise the full lifecycle ────
   const exit = {
     priya: uuidv4(), rahul: uuidv4(), divya: uuidv4(),

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
-import { apiGet, apiPost, apiPatch, apiPut } from "@/api/client";
+import { apiGet, apiPost, apiPatch, apiPut, api } from "@/api/client";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { cn, formatDate } from "@/lib/utils";
 
@@ -104,6 +104,8 @@ export function ExitDetailPage() {
   const [clearance, setClearance] = useState<any>(null);
   const [buyout, setBuyout] = useState<any>(null);
   const [kt, setKt] = useState<any>(null);
+  const [letters, setLetters] = useState<any[] | null>(null);
+  const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
@@ -128,6 +130,7 @@ export function ExitDetailPage() {
     if (activeTab === "clearance") loadClearance();
     if (activeTab === "buyout") loadBuyout();
     if (activeTab === "kt") loadKt();
+    if (activeTab === "letters") loadLetters();
   }, [activeTab, id, exit]);
 
   async function loadExit() {
@@ -313,6 +316,21 @@ export function ExitDetailPage() {
     }
   }
 
+  async function loadLetters() {
+    try {
+      const res = await apiGet<any[]>(`/letters/exit/${id}`);
+      setLetters(res.data ?? []);
+    } catch {
+      setLetters([]);
+    }
+    try {
+      const tplRes = await apiGet<any[]>(`/letters/templates`);
+      setLetterTemplates(tplRes.data ?? []);
+    } catch {
+      setLetterTemplates([]);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -430,7 +448,9 @@ export function ExitDetailPage() {
         {activeTab === "buyout" && <BuyoutTab buyout={buyout} exitId={id!} onReload={loadBuyout} />}
         {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
         {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
-        {activeTab === "letters" && <PlaceholderTab name="Exit Letters" />}
+        {activeTab === "letters" && (
+          <LettersTab letters={letters} templates={letterTemplates} exitId={id!} onReload={loadLetters} />
+        )}
       </div>
 
       {/* Edit Exit modal */}
@@ -873,6 +893,172 @@ function formatINR(amountPaise: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(rupees);
+}
+
+const LETTER_TYPES: Record<string, string> = {
+  experience: "Experience Letter",
+  relieving: "Relieving Letter",
+  service_certificate: "Service Certificate",
+  noc: "NOC",
+};
+
+function LettersTab({
+  letters,
+  templates,
+  exitId,
+  onReload,
+}: {
+  letters: any[] | null;
+  templates: any[];
+  exitId: string;
+  onReload: () => void;
+}) {
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function handleGenerate() {
+    const tpl = templates.find((t) => t.id === selectedTemplateId);
+    if (!tpl) return;
+    setGenerating(true);
+    try {
+      // The generate endpoint requires template_id at runtime, and a valid
+      // letter_type to pass validation (its value is ignored — the type comes
+      // from the template). Send the template's own letter_type.
+      await apiPost(`/letters/exit/${exitId}/generate`, {
+        template_id: tpl.id,
+        letter_type: tpl.letter_type,
+      });
+      toast.success("Letter generated");
+      setSelectedTemplateId("");
+      onReload();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to generate letter");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  // The download endpoint returns raw HTML as an attachment (not JSON/URL), so
+  // fetch it as a blob and trigger a browser download.
+  async function handleDownload(letterId: string, letterType: string) {
+    setBusyId(letterId);
+    try {
+      const response = await api.get(`/letters/${letterId}/download`, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${letterType}_letter.html`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to download letter");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleSend(letterId: string) {
+    if (!confirm("Send this letter to the employee by email?")) return;
+    setBusyId(letterId);
+    try {
+      const res = await apiPost<{ sent: boolean; to: string }>(`/letters/${letterId}/send`);
+      toast.success(`Letter sent to ${res.data?.to ?? "employee"}`);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to send letter");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  const isLoading = letters === null;
+  const list = letters ?? [];
+
+  return (
+    <div className="space-y-5">
+      {/* Generate control */}
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        {templates.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No letter templates available. Create one in Letter Templates first.
+          </p>
+        ) : (
+          <>
+            <div className="flex-1 min-w-[220px]">
+              <label className="mb-1 block text-xs font-medium text-gray-600">Template</label>
+              <select
+                value={selectedTemplateId}
+                onChange={(e) => setSelectedTemplateId(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              >
+                <option value="" disabled>Select a template…</option>
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({LETTER_TYPES[t.letter_type] || t.letter_type})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleGenerate}
+              disabled={!selectedTemplateId || generating}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {generating && <Loader2 className="h-4 w-4 animate-spin" />}
+              Generate Letter
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Generated letters list */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+        </div>
+      ) : list.length === 0 ? (
+        <div className="py-10 text-center">
+          <FileSignature className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+          <p className="text-sm text-gray-500">No letters generated yet.</p>
+          <p className="text-xs text-gray-400">Use the control above to generate one from a template.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {list.map((l) => (
+            <div key={l.id} className="flex items-center justify-between py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  {LETTER_TYPES[l.letter_type] || l.letter_type}
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Issued: {l.issued_date ? formatDate(l.issued_date) : "—"}
+                </p>
+              </div>
+              <div className="ml-4 flex items-center gap-2">
+                <button
+                  onClick={() => handleDownload(l.id, l.letter_type)}
+                  disabled={busyId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {busyId === l.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                  Download
+                </button>
+                <button
+                  onClick={() => handleSend(l.id)}
+                  disabled={busyId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const BUYOUT_STATUS_COLORS: Record<string, string> = {
