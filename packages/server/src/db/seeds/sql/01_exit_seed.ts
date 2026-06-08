@@ -105,25 +105,63 @@ export async function seed(knex: Knex): Promise<void> {
     { id: q.mgmt, template_id: interviewTpl, question_text: "How would you rate management support?", question_type: "rating", sort_order: 4, is_required: 0 },
   ]);
 
-  // Letter templates (Handlebars bodies; {{name}}, {{designation}}, etc. are
-  // rendered at generation time). Gives the Letters tab something to generate.
+  // Letter templates. Handlebars bodies use the context the letter service
+  // provides: {{employee.fullName}}, {{employee.designation}},
+  // {{employee.empCode}}, {{organization.name}}, {{exit.lastWorkingDate}},
+  // {{today}}, etc. (NOT flat {{name}}/{{organization}}). Each is a styled,
+  // self-contained HTML document so the downloaded file reads as a real letter.
+  const letterShell = (heading: string, inner: string) => `
+<!doctype html><html><head><meta charset="utf-8"><title>${heading}</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; max-width: 720px; margin: 40px auto; padding: 0 32px; line-height: 1.6; }
+  .letterhead { text-align: center; border-bottom: 2px solid #e11d48; padding-bottom: 16px; margin-bottom: 28px; }
+  .letterhead h1 { margin: 0; font-size: 22px; color: #111827; }
+  .letterhead .org { font-size: 13px; color: #6b7280; margin-top: 4px; }
+  .meta { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+  h2 { font-size: 18px; text-align: center; letter-spacing: .5px; text-transform: uppercase; color: #e11d48; margin: 24px 0; }
+  p { margin: 0 0 14px; }
+  .sign { margin-top: 48px; }
+  .sign .name { font-weight: 600; }
+  .muted { color: #6b7280; font-size: 12px; }
+</style></head><body>
+  <div class="letterhead"><h1>{{organization.name}}</h1><div class="org">{{organization.legalName}}</div></div>
+  <div class="meta">Date: {{today}}</div>
+  <h2>${heading}</h2>
+  ${inner}
+  <div class="sign">
+    <p class="name">Authorized Signatory</p>
+    <p class="muted">Human Resources, {{organization.name}}</p>
+  </div>
+</body></html>`;
+
   await knex("letter_templates").insert([
     {
       id: uuidv4(), organization_id: ORG_ID, letter_type: "relieving", name: "Relieving Letter",
-      body_template:
-        "<h2>Relieving Letter</h2><p>This is to certify that <b>{{name}}</b> ({{designation}}) was employed with {{organization}} and has been relieved from their duties effective {{last_working_date}}.</p><p>We wish them success in their future endeavours.</p>",
+      body_template: letterShell(
+        "Relieving Letter",
+        "<p>To Whomsoever It May Concern,</p>" +
+        "<p>This is to certify that <b>{{employee.fullName}}</b> (Employee Code: {{employee.empCode}}), holding the position of <b>{{employee.designation}}</b>, was employed with <b>{{organization.name}}</b> and has been relieved from their duties with effect from <b>{{exit.lastWorkingDate}}</b>.</p>" +
+        "<p>All company dues and clearances have been settled. We thank them for their contribution and wish them success in their future endeavours.</p>",
+      ),
       is_default: 1, is_active: 1,
     },
     {
       id: uuidv4(), organization_id: ORG_ID, letter_type: "experience", name: "Experience Letter",
-      body_template:
-        "<h2>Experience Letter</h2><p>This is to certify that <b>{{name}}</b> served at {{organization}} as {{designation}}. During their tenure they demonstrated professionalism and dedication.</p>",
+      body_template: letterShell(
+        "Experience Letter",
+        "<p>To Whomsoever It May Concern,</p>" +
+        "<p>This is to certify that <b>{{employee.fullName}}</b> (Employee Code: {{employee.empCode}}) was associated with <b>{{organization.name}}</b> as <b>{{employee.designation}}</b> until <b>{{exit.lastWorkingDate}}</b>.</p>" +
+        "<p>During their tenure, they demonstrated professionalism, commitment, and a strong work ethic. We found their conduct and performance to be satisfactory.</p>",
+      ),
       is_default: 1, is_active: 1,
     },
     {
       id: uuidv4(), organization_id: ORG_ID, letter_type: "service_certificate", name: "Service Certificate",
-      body_template:
-        "<h2>Service Certificate</h2><p>This certifies the service of <b>{{name}}</b> at {{organization}} in the capacity of {{designation}}.</p>",
+      body_template: letterShell(
+        "Service Certificate",
+        "<p>This is to certify that <b>{{employee.fullName}}</b> (Employee Code: {{employee.empCode}}) served at <b>{{organization.name}}</b> in the capacity of <b>{{employee.designation}}</b>.</p>" +
+        "<p>Their last working day with the organization was <b>{{exit.lastWorkingDate}}</b>. This certificate is issued upon completion of their exit formalities.</p>",
+      ),
       is_default: 0, is_active: 1,
     },
   ]);

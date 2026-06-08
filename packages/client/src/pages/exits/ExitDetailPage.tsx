@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Clock,
   Pencil,
+  Eye,
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -449,7 +450,13 @@ export function ExitDetailPage() {
         {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
         {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
         {activeTab === "letters" && (
-          <LettersTab letters={letters} templates={letterTemplates} exitId={id!} onReload={loadLetters} />
+          <LettersTab
+            letters={letters}
+            templates={letterTemplates}
+            exitId={id!}
+            exitStatus={exit.status}
+            onReload={loadLetters}
+          />
         )}
       </div>
 
@@ -906,16 +913,23 @@ function LettersTab({
   letters,
   templates,
   exitId,
+  exitStatus,
   onReload,
 }: {
   letters: any[] | null;
   templates: any[];
   exitId: string;
+  exitStatus: string;
   onReload: () => void;
 }) {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [generating, setGenerating] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [pendingSendId, setPendingSendId] = useState<string | null>(null);
+
+  // Letters may only be generated once the exit is completed (mirrors the
+  // backend guard in letter.service.generateLetter).
+  const canGenerate = exitStatus === "completed";
 
   async function handleGenerate() {
     const tpl = templates.find((t) => t.id === selectedTemplateId);
@@ -960,13 +974,36 @@ function LettersTab({
     }
   }
 
-  async function handleSend(letterId: string) {
-    if (!confirm("Send this letter to the employee by email?")) return;
+  // View opens the rendered letter HTML inline in a new tab (no file save).
+  async function handleView(letterId: string) {
+    setBusyId(letterId);
+    try {
+      const response = await api.get(`/letters/${letterId}/download`, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "text/html" });
+      const url = window.URL.createObjectURL(blob);
+      const win = window.open(url, "_blank");
+      if (!win) {
+        toast.error("Pop-up blocked — allow pop-ups to view the letter.");
+      }
+      // Revoke after a delay so the new tab has time to load the document.
+      setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+    } catch {
+      toast.error("Failed to open letter");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function doSend() {
+    const letterId = pendingSendId;
+    if (!letterId) return;
     setBusyId(letterId);
     try {
       const res = await apiPost<{ sent: boolean; to: string }>(`/letters/${letterId}/send`);
+      setPendingSendId(null);
       toast.success(`Letter sent to ${res.data?.to ?? "employee"}`);
     } catch (err: any) {
+      setPendingSendId(null);
       toast.error(err?.response?.data?.error?.message || "Failed to send letter");
     } finally {
       setBusyId(null);
@@ -980,7 +1017,12 @@ function LettersTab({
     <div className="space-y-5">
       {/* Generate control */}
       <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        {templates.length === 0 ? (
+        {!canGenerate ? (
+          <p className="text-sm text-gray-500">
+            Letters can be generated once the exit is <b>completed</b> — finish clearance and the
+            full &amp; final settlement, then mark the exit complete.
+          </p>
+        ) : templates.length === 0 ? (
           <p className="text-sm text-gray-500">
             No letter templates available. Create one in Letter Templates first.
           </p>
@@ -1019,11 +1061,16 @@ function LettersTab({
           <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
         </div>
       ) : list.length === 0 ? (
-        <div className="py-10 text-center">
-          <FileSignature className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">No letters generated yet.</p>
-          <p className="text-xs text-gray-400">Use the control above to generate one from a template.</p>
-        </div>
+        // Only show the "no letters yet" empty state when generation is actually
+        // possible. When the exit isn't completed, the notice above already
+        // explains why — showing both would be redundant/contradictory.
+        canGenerate ? (
+          <div className="py-10 text-center">
+            <FileSignature className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+            <p className="text-sm text-gray-500">No letters generated yet.</p>
+            <p className="text-xs text-gray-400">Use the control above to generate one from a template.</p>
+          </div>
+        ) : null
       ) : (
         <div className="divide-y divide-gray-100">
           {list.map((l) => (
@@ -1038,6 +1085,14 @@ function LettersTab({
               </div>
               <div className="ml-4 flex items-center gap-2">
                 <button
+                  onClick={() => handleView(l.id)}
+                  disabled={busyId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  View
+                </button>
+                <button
                   onClick={() => handleDownload(l.id, l.letter_type)}
                   disabled={busyId === l.id}
                   className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
@@ -1046,7 +1101,7 @@ function LettersTab({
                   Download
                 </button>
                 <button
-                  onClick={() => handleSend(l.id)}
+                  onClick={() => setPendingSendId(l.id)}
                   disabled={busyId === l.id}
                   className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-50"
                 >
@@ -1057,6 +1112,18 @@ function LettersTab({
           ))}
         </div>
       )}
+
+      {/* In-app confirm for the (irreversible) email send */}
+      <ConfirmDialog
+        open={pendingSendId !== null}
+        title="Send letter by email?"
+        message="This will email the generated letter to the employee. This action cannot be undone."
+        confirmLabel="Send Letter"
+        tone="primary"
+        loading={busyId !== null && busyId === pendingSendId}
+        onConfirm={doSend}
+        onCancel={() => setPendingSendId(null)}
+      />
     </div>
   );
 }

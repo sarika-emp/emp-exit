@@ -123,6 +123,15 @@ export async function generateLetter(
     throw new NotFoundError("Exit request", exitRequestId);
   }
 
+  // Exit letters (relieving / experience / service certificate) may only be
+  // issued once the exit formalities are complete. Block generation for any
+  // exit that has not reached the "completed" status.
+  if (exitReq.status !== "completed") {
+    throw new ValidationError(
+      "Letters can only be generated after the exit is completed (clearance and full & final settlement done).",
+    );
+  }
+
   // Fetch employee and org from empcloud
   const employee = await findUserById(exitReq.employee_id);
   if (!employee) {
