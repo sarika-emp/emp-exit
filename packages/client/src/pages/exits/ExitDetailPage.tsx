@@ -103,6 +103,7 @@ export function ExitDetailPage() {
   const [checklist, setChecklist] = useState<any>(null);
   const [clearance, setClearance] = useState<any>(null);
   const [buyout, setBuyout] = useState<any>(null);
+  const [kt, setKt] = useState<any>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
@@ -126,6 +127,7 @@ export function ExitDetailPage() {
     if (activeTab === "checklist") loadChecklist();
     if (activeTab === "clearance") loadClearance();
     if (activeTab === "buyout") loadBuyout();
+    if (activeTab === "kt") loadKt();
   }, [activeTab, id, exit]);
 
   async function loadExit() {
@@ -292,6 +294,25 @@ export function ExitDetailPage() {
     }
   }
 
+  async function loadKt() {
+    try {
+      const res = await apiGet<any>(`/kt/exit/${id}`);
+      setKt(res.data);
+    } catch {
+      setKt(null);
+    }
+  }
+
+  async function handleKtItemUpdate(itemId: string, status: string) {
+    try {
+      await apiPut(`/kt/items/${itemId}`, { status });
+      await loadKt();
+      toast.success("Knowledge transfer item updated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to update KT item");
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -408,7 +429,7 @@ export function ExitDetailPage() {
         {activeTab === "fnf" && <PlaceholderTab name="Full & Final Settlement" />}
         {activeTab === "buyout" && <BuyoutTab buyout={buyout} exitId={id!} onReload={loadBuyout} />}
         {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
-        {activeTab === "kt" && <PlaceholderTab name="Knowledge Transfer" />}
+        {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
         {activeTab === "letters" && <PlaceholderTab name="Exit Letters" />}
       </div>
 
@@ -648,6 +669,128 @@ function ChecklistTab({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+const KT_STATUS_COLORS: Record<string, string> = {
+  not_started: "bg-gray-100 text-gray-600",
+  in_progress: "bg-blue-100 text-blue-700",
+  completed: "bg-green-100 text-green-700",
+};
+
+function KtTab({
+  kt,
+  onUpdateItem,
+}: {
+  kt: any;
+  onUpdateItem: (itemId: string, status: string) => void;
+}) {
+  if (!kt) {
+    return (
+      <div className="py-8 text-center">
+        <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+        <p className="mb-1 text-sm text-gray-500">No knowledge transfer plan yet.</p>
+        <p className="text-xs text-gray-400">
+          A KT plan is created when handover tasks are assigned for this exit.
+        </p>
+      </div>
+    );
+  }
+
+  const items: any[] = Array.isArray(kt.items) ? kt.items : [];
+  const completed = items.filter((i) => i.status === "completed").length;
+  const total = items.length;
+  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return (
+    <div className="space-y-5">
+      {/* Plan summary */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+          <span
+            className={cn(
+              "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
+              KT_STATUS_COLORS[kt.status] || "bg-gray-100 text-gray-600",
+            )}
+          >
+            {String(kt.status || "not_started").replace(/_/g, " ")}
+          </span>
+          {kt.assignee && (
+            <span>
+              Assignee: <span className="font-medium text-gray-800">{kt.assignee.first_name} {kt.assignee.last_name}</span>
+            </span>
+          )}
+          {kt.due_date && <span>Due: {formatDate(kt.due_date)}</span>}
+        </div>
+        <span className="text-sm font-medium text-gray-700">
+          {completed} / {total} completed ({progress}%)
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-2 w-full rounded-full bg-gray-200">
+        <div className="h-2 rounded-full bg-rose-500 transition-all" style={{ width: `${progress}%` }} />
+      </div>
+
+      {kt.notes && (
+        <p className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-600">{kt.notes}</p>
+      )}
+
+      {/* Items */}
+      {total === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">No knowledge transfer items added yet.</p>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center justify-between py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                {item.description && (
+                  <p className="mt-0.5 text-xs text-gray-500">{item.description}</p>
+                )}
+                {item.document_url && (
+                  <a
+                    href={item.document_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-0.5 inline-block text-xs text-rose-600 hover:underline"
+                  >
+                    View document
+                  </a>
+                )}
+              </div>
+              <div className="ml-4 flex items-center gap-2">
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                    KT_STATUS_COLORS[item.status] || "bg-gray-100 text-gray-600",
+                  )}
+                >
+                  {String(item.status).replace(/_/g, " ")}
+                </span>
+                {item.status === "not_started" && (
+                  <button
+                    onClick={() => onUpdateItem(item.id, "in_progress")}
+                    className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"
+                  >
+                    Start
+                  </button>
+                )}
+                {item.status !== "completed" && (
+                  <button
+                    onClick={() => onUpdateItem(item.id, "completed")}
+                    className="rounded-md bg-green-50 p-1 text-green-600 hover:bg-green-100"
+                    title="Mark complete"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
