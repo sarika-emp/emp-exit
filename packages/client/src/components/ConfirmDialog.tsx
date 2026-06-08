@@ -1,152 +1,87 @@
-// ============================================================================
-// ConfirmDialog — drop-in replacement for window.confirm()
-//
-// Usage:
-//   <ConfirmDialog
-//     open={isOpen}
-//     title="Mark exit complete?"
-//     description="This will deactivate the employee account."
-//     confirmText="Complete Exit"
-//     variant="danger" | "success" | "info"
-//     loading={mutation.isPending}
-//     onConfirm={() => mutation.mutate()}
-//     onCancel={() => setOpen(false)}
-//   />
-//
-// Plain Tailwind + a portal — no extra dependencies. Closes on ESC or
-// backdrop click (when not loading). Focus is sent to the confirm button
-// on open.
-// ============================================================================
-
-import { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
-import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
-
-type Variant = "danger" | "success" | "info";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
-  description?: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: Variant;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  /** "danger" = red confirm button, "primary" = brand-coloured confirm button */
+  tone?: "danger" | "primary";
   loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-const VARIANT_STYLES: Record<Variant, { icon: typeof AlertTriangle; iconBg: string; iconColor: string; button: string }> = {
-  danger: {
-    icon: AlertTriangle,
-    iconBg: "bg-red-50",
-    iconColor: "text-red-600",
-    button: "bg-red-600 hover:bg-red-700",
-  },
-  success: {
-    icon: CheckCircle2,
-    iconBg: "bg-green-50",
-    iconColor: "text-green-600",
-    button: "bg-green-600 hover:bg-green-700",
-  },
-  info: {
-    icon: Info,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
-    button: "bg-rose-600 hover:bg-rose-700",
-  },
-};
-
+/**
+ * Reusable in-app confirmation dialog — replaces native window.confirm() so
+ * destructive/irreversible actions get a styled, on-brand prompt instead of the
+ * browser's "<host> says…" alert.
+ */
 export function ConfirmDialog({
   open,
   title,
-  description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
-  variant = "info",
+  message,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  tone = "primary",
   loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const confirmBtnRef = useRef<HTMLButtonElement | null>(null);
-  const style = VARIANT_STYLES[variant];
-  const Icon = style.icon;
-
-  // ESC closes (unless loading); focus the confirm button on open.
-  useEffect(() => {
-    if (!open) return;
-    confirmBtnRef.current?.focus();
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && !loading) onCancel();
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, loading, onCancel]);
-
   if (!open) return null;
 
-  return createPortal(
+  const confirmClasses =
+    tone === "danger"
+      ? "bg-red-600 hover:bg-red-700"
+      : "bg-rose-600 hover:bg-rose-700";
+
+  return (
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={loading ? undefined : onCancel}
     >
-      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 transition-opacity animate-in fade-in"
-        onClick={() => !loading && onCancel()}
-      />
-
-      {/* Card */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-xl bg-white shadow-xl animate-in fade-in zoom-in-95">
-        <button
-          type="button"
-          onClick={() => !loading && onCancel()}
-          aria-label="Close"
-          className="absolute right-3 top-3 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50"
-          disabled={loading}
-        >
-          <X className="h-4 w-4" />
-        </button>
-
-        <div className="p-6">
-          <div className="flex items-start gap-4">
-            <div className={`shrink-0 rounded-full p-2 ${style.iconBg}`}>
-              <Icon className={`h-5 w-5 ${style.iconColor}`} />
-            </div>
-            <div className="flex-1">
-              <h2 id="confirm-dialog-title" className="text-base font-semibold text-gray-900">
-                {title}
-              </h2>
-              {description && (
-                <p className="mt-2 text-sm text-gray-600">{description}</p>
-              )}
-            </div>
+        className="w-full max-w-md rounded-xl bg-white shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="flex items-start gap-3 px-5 pt-5">
+          <div
+            className={
+              "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full " +
+              (tone === "danger" ? "bg-red-50 text-red-600" : "bg-rose-50 text-rose-600")
+            }
+          >
+            <AlertTriangle className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+            <p className="mt-1 text-sm text-gray-600">{message}</p>
           </div>
         </div>
-
-        <div className="flex justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+        <div className="mt-5 flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
           <button
-            type="button"
             onClick={onCancel}
             disabled={loading}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            {cancelText}
+            {cancelLabel}
           </button>
           <button
-            ref={confirmBtnRef}
-            type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50 ${style.button}`}
+            className={
+              "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50 " +
+              confirmClasses
+            }
           >
-            {loading ? "Working..." : confirmText}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {confirmLabel}
           </button>
         </div>
       </div>
-    </div>,
-    document.body,
+    </div>
   );
 }

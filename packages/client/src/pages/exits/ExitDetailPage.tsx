@@ -15,12 +15,13 @@ import {
   FileSignature,
   ArrowLeft,
   Clock,
+  Pencil,
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
-import { apiGet, apiPost, apiPatch } from "@/api/client";
-import { cn, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { apiGet, apiPost, apiPatch, apiPut } from "@/api/client";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { cn, formatDate } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   initiated: "bg-blue-100 text-blue-700 border-blue-200",
@@ -49,6 +50,21 @@ const TYPE_LABELS: Record<string, string> = {
   end_of_contract: "End of Contract",
   mutual_separation: "Mutual Separation",
 };
+
+// Reason categories accepted by updateExitSchema (shared validators).
+const REASON_OPTIONS: { value: string; label: string }[] = [
+  { value: "better_opportunity", label: "Better Opportunity" },
+  { value: "compensation", label: "Compensation" },
+  { value: "relocation", label: "Relocation" },
+  { value: "personal", label: "Personal" },
+  { value: "health", label: "Health" },
+  { value: "higher_education", label: "Higher Education" },
+  { value: "retirement", label: "Retirement" },
+  { value: "performance", label: "Performance" },
+  { value: "misconduct", label: "Misconduct" },
+  { value: "redundancy", label: "Redundancy" },
+  { value: "other", label: "Other" },
+];
 
 const CHECKLIST_STATUS_COLORS: Record<string, string> = {
   pending: "bg-gray-100 text-gray-600",
@@ -88,18 +104,18 @@ export function ExitDetailPage() {
   const [clearance, setClearance] = useState<any>(null);
   const [buyout, setBuyout] = useState<any>(null);
   const [actionLoading, setActionLoading] = useState(false);
-
-  // ConfirmDialog driver — single dialog instance multiplexed across the
-  // three confirm() calls this page used to make (cancel exit, complete
-  // exit, approve buyout). `pending` is null when closed; otherwise it
-  // carries the action name so the dialog can render the right copy and
-  // route the confirm callback.
-  const [pendingConfirm, setPendingConfirm] = useState<
-    | { kind: "cancel-exit" }
-    | { kind: "complete-exit" }
-    | { kind: "approve-buyout" }
-    | null
-  >(null);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+  const [editError, setEditError] = useState<string | null>(null);
+  // Generic in-app confirmation dialog (replaces native confirm()).
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    confirmLabel: string;
+    tone: "danger" | "primary";
+    onConfirm: () => void;
+  } | null>(null);
 
   useEffect(() => {
     loadExit();
@@ -151,31 +167,107 @@ export function ExitDetailPage() {
     }
   }
 
-  async function handleCancel() {
+  function openEdit() {
+    setEditForm({
+      reason_category: exit.reason_category ?? "",
+      reason_detail: exit.reason_detail ?? "",
+      notice_start_date: exit.notice_start_date ? String(exit.notice_start_date).slice(0, 10) : "",
+      last_working_date: exit.last_working_date ? String(exit.last_working_date).slice(0, 10) : "",
+      actual_exit_date: exit.actual_exit_date ? String(exit.actual_exit_date).slice(0, 10) : "",
+      notice_period_days: exit.notice_period_days ?? 30,
+      notice_period_waived: !!exit.notice_period_waived,
+    });
+    setEditError(null);
+    setShowEdit(true);
+  }
+
+  async function handleSaveEdit() {
     setActionLoading(true);
+    setEditError(null);
+    // Send only fields with a value; the API schema accepts all of these optionally.
+    const payload: Record<string, any> = {
+      reason_category: editForm.reason_category || undefined,
+      reason_detail: editForm.reason_detail || undefined,
+      notice_start_date: editForm.notice_start_date || undefined,
+      last_working_date: editForm.last_working_date || undefined,
+      actual_exit_date: editForm.actual_exit_date || undefined,
+      notice_period_days:
+        editForm.notice_period_days === "" || editForm.notice_period_days == null
+          ? undefined
+          : Number(editForm.notice_period_days),
+      notice_period_waived: !!editForm.notice_period_waived,
+    };
     try {
-      await apiPost(`/exits/${id}/cancel`);
-      toast.success("Exit cancelled");
+      await apiPut(`/exits/${id}`, payload);
+      setShowEdit(false);
       await loadExit();
+      toast.success("Exit details updated successfully");
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to cancel exit");
+      const msg =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to update exit details";
+      setEditError(msg);
+      toast.error(msg);
     } finally {
       setActionLoading(false);
-      setPendingConfirm(null);
     }
   }
 
-  async function handleComplete() {
+  function handleCancel() {
+    setConfirmState({
+      open: true,
+      title: "Cancel exit request?",
+      message: "This will mark the exit request as cancelled. This action cannot be undone.",
+      confirmLabel: "Cancel Exit",
+      tone: "danger",
+      onConfirm: doCancel,
+    });
+  }
+
+  async function doCancel() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/exits/${id}/cancel`);
+      await loadExit();
+      setConfirmState(null);
+      toast.success("Exit request cancelled");
+    } catch (err: any) {
+      setConfirmState(null);
+      toast.error(
+        err?.response?.data?.error?.message || err?.message || "Failed to cancel exit request",
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  function handleComplete() {
+    setConfirmState({
+      open: true,
+      title: "Mark exit as completed?",
+      message: "This will finalize the exit and deactivate the employee's account. This action cannot be undone.",
+      confirmLabel: "Complete Exit",
+      tone: "primary",
+      onConfirm: doComplete,
+    });
+  }
+
+  async function doComplete() {
     setActionLoading(true);
     try {
       await apiPost(`/exits/${id}/complete`);
-      toast.success("Exit marked complete");
       await loadExit();
+      setConfirmState(null);
+      toast.success("Exit marked as completed");
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to complete exit");
+      setConfirmState(null);
+      toast.error(
+        err?.response?.data?.error?.message || err?.message || "Failed to complete exit",
+      );
     } finally {
       setActionLoading(false);
-      setPendingConfirm(null);
     }
   }
 
@@ -247,7 +339,15 @@ export function ExitDetailPage() {
         {!isTerminal && (
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPendingConfirm({ kind: "cancel-exit" })}
+              onClick={openEdit}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <Pencil className="h-4 w-4" />
+              Edit
+            </button>
+            <button
+              onClick={handleCancel}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
@@ -255,7 +355,7 @@ export function ExitDetailPage() {
               Cancel Exit
             </button>
             <button
-              onClick={() => setPendingConfirm({ kind: "complete-exit" })}
+              onClick={handleComplete}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
@@ -265,28 +365,6 @@ export function ExitDetailPage() {
           </div>
         )}
       </div>
-
-      {/* Confirmation dialogs replacing the native window.confirm() calls. */}
-      <ConfirmDialog
-        open={pendingConfirm?.kind === "cancel-exit"}
-        title="Cancel this exit?"
-        description="The exit request will be cancelled. The employee account will not be deactivated."
-        confirmText="Cancel Exit"
-        variant="danger"
-        loading={actionLoading}
-        onConfirm={handleCancel}
-        onCancel={() => setPendingConfirm(null)}
-      />
-      <ConfirmDialog
-        open={pendingConfirm?.kind === "complete-exit"}
-        title="Mark this exit as completed?"
-        description="This will deactivate the employee account. This action cannot be easily undone."
-        confirmText="Complete Exit"
-        variant="success"
-        loading={actionLoading}
-        onConfirm={handleComplete}
-        onCancel={() => setPendingConfirm(null)}
-      />
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
@@ -333,6 +411,98 @@ export function ExitDetailPage() {
         {activeTab === "kt" && <PlaceholderTab name="Knowledge Transfer" />}
         {activeTab === "letters" && <PlaceholderTab name="Exit Letters" />}
       </div>
+
+      {/* Edit Exit modal */}
+      {showEdit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Exit Details</h3>
+              <button onClick={() => setShowEdit(false)} className="text-gray-400 hover:text-gray-600">
+                <XCircle className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[70vh] space-y-4 overflow-y-auto px-5 py-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Reason Category</label>
+                <select
+                  value={editForm.reason_category}
+                  onChange={(e) => setEditForm({ ...editForm, reason_category: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                >
+                  {REASON_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Reason Detail</label>
+                <textarea
+                  value={editForm.reason_detail}
+                  onChange={(e) => setEditForm({ ...editForm, reason_detail: e.target.value })}
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Notice Start</label>
+                  <input type="date" value={editForm.notice_start_date}
+                    onChange={(e) => setEditForm({ ...editForm, notice_start_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Last Working Date</label>
+                  <input type="date" value={editForm.last_working_date}
+                    onChange={(e) => setEditForm({ ...editForm, last_working_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Actual Exit Date</label>
+                  <input type="date" value={editForm.actual_exit_date}
+                    onChange={(e) => setEditForm({ ...editForm, actual_exit_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Notice Period (days)</label>
+                  <input type="number" min={0} value={editForm.notice_period_days}
+                    onChange={(e) => setEditForm({ ...editForm, notice_period_days: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" checked={!!editForm.notice_period_waived}
+                  onChange={(e) => setEditForm({ ...editForm, notice_period_waived: e.target.checked })} />
+                Notice period waived
+              </label>
+              {editError && <p className="text-sm text-red-600">{editError}</p>}
+            </div>
+            <div className="flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
+              <button onClick={() => setShowEdit(false)} disabled={actionLoading}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                Cancel
+              </button>
+              <button onClick={handleSaveEdit} disabled={actionLoading}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50">
+                {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* In-app confirmation dialog (replaces native confirm()) */}
+      <ConfirmDialog
+        open={!!confirmState?.open}
+        title={confirmState?.title ?? ""}
+        message={confirmState?.message ?? ""}
+        confirmLabel={confirmState?.confirmLabel ?? "Confirm"}
+        tone={confirmState?.tone ?? "primary"}
+        loading={actionLoading}
+        onConfirm={() => confirmState?.onConfirm()}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   );
 }
@@ -580,20 +750,18 @@ function BuyoutTab({
   const [actionLoading, setActionLoading] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showReject, setShowReject] = useState(false);
-  const [showApproveConfirm, setShowApproveConfirm] = useState(false);
 
   async function handleApprove() {
     if (!buyout) return;
+    if (!confirm("Approve this buyout? The employee's last working date will be updated.")) return;
     setActionLoading(true);
     try {
       await apiPost(`/buyout/${buyout.id}/approve`);
-      toast.success("Buyout approved");
       onReload();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to approve buyout");
+    } catch {
+      // handled
     } finally {
       setActionLoading(false);
-      setShowApproveConfirm(false);
     }
   }
 
@@ -602,12 +770,11 @@ function BuyoutTab({
     setActionLoading(true);
     try {
       await apiPost(`/buyout/${buyout.id}/reject`, { reason: rejectReason });
-      toast.success("Buyout rejected");
       setShowReject(false);
       setRejectReason("");
       onReload();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to reject buyout");
+    } catch {
+      // handled
     } finally {
       setActionLoading(false);
     }
@@ -693,23 +860,13 @@ function BuyoutTab({
       {buyout.status === "pending" && (
         <div className="flex items-center gap-3 pt-2">
           <button
-            onClick={() => setShowApproveConfirm(true)}
+            onClick={handleApprove}
             disabled={actionLoading}
             className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
           >
             {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
             Approve Buyout
           </button>
-          <ConfirmDialog
-            open={showApproveConfirm}
-            title="Approve this buyout?"
-            description="The employee's last working date will be updated and the buyout amount applied to F&F."
-            confirmText="Approve Buyout"
-            variant="success"
-            loading={actionLoading}
-            onConfirm={handleApprove}
-            onCancel={() => setShowApproveConfirm(false)}
-          />
           {!showReject ? (
             <button
               onClick={() => setShowReject(true)}
