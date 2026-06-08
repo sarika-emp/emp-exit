@@ -15,12 +15,14 @@ import {
   FileSignature,
   ArrowLeft,
   Clock,
+  Pencil,
+  Eye,
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
-import { apiGet, apiPost, apiPatch } from "@/api/client";
-import { cn, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { apiGet, apiPost, apiPatch, apiPut, api } from "@/api/client";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { cn, formatDate } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   initiated: "bg-blue-100 text-blue-700 border-blue-200",
@@ -49,6 +51,21 @@ const TYPE_LABELS: Record<string, string> = {
   end_of_contract: "End of Contract",
   mutual_separation: "Mutual Separation",
 };
+
+// Reason categories accepted by updateExitSchema (shared validators).
+const REASON_OPTIONS: { value: string; label: string }[] = [
+  { value: "better_opportunity", label: "Better Opportunity" },
+  { value: "compensation", label: "Compensation" },
+  { value: "relocation", label: "Relocation" },
+  { value: "personal", label: "Personal" },
+  { value: "health", label: "Health" },
+  { value: "higher_education", label: "Higher Education" },
+  { value: "retirement", label: "Retirement" },
+  { value: "performance", label: "Performance" },
+  { value: "misconduct", label: "Misconduct" },
+  { value: "redundancy", label: "Redundancy" },
+  { value: "other", label: "Other" },
+];
 
 const CHECKLIST_STATUS_COLORS: Record<string, string> = {
   pending: "bg-gray-100 text-gray-600",
@@ -87,19 +104,22 @@ export function ExitDetailPage() {
   const [checklist, setChecklist] = useState<any>(null);
   const [clearance, setClearance] = useState<any>(null);
   const [buyout, setBuyout] = useState<any>(null);
+  const [kt, setKt] = useState<any>(null);
+  const [letters, setLetters] = useState<any[] | null>(null);
+  const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
-
-  // ConfirmDialog driver — single dialog instance multiplexed across the
-  // three confirm() calls this page used to make (cancel exit, complete
-  // exit, approve buyout). `pending` is null when closed; otherwise it
-  // carries the action name so the dialog can render the right copy and
-  // route the confirm callback.
-  const [pendingConfirm, setPendingConfirm] = useState<
-    | { kind: "cancel-exit" }
-    | { kind: "complete-exit" }
-    | { kind: "approve-buyout" }
-    | null
-  >(null);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+  const [editError, setEditError] = useState<string | null>(null);
+  // Generic in-app confirmation dialog (replaces native confirm()).
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    confirmLabel: string;
+    tone: "danger" | "primary";
+    onConfirm: () => void;
+  } | null>(null);
 
   useEffect(() => {
     loadExit();
@@ -110,6 +130,8 @@ export function ExitDetailPage() {
     if (activeTab === "checklist") loadChecklist();
     if (activeTab === "clearance") loadClearance();
     if (activeTab === "buyout") loadBuyout();
+    if (activeTab === "kt") loadKt();
+    if (activeTab === "letters") loadLetters();
   }, [activeTab, id, exit]);
 
   async function loadExit() {
@@ -151,31 +173,107 @@ export function ExitDetailPage() {
     }
   }
 
-  async function handleCancel() {
+  function openEdit() {
+    setEditForm({
+      reason_category: exit.reason_category ?? "",
+      reason_detail: exit.reason_detail ?? "",
+      notice_start_date: exit.notice_start_date ? String(exit.notice_start_date).slice(0, 10) : "",
+      last_working_date: exit.last_working_date ? String(exit.last_working_date).slice(0, 10) : "",
+      actual_exit_date: exit.actual_exit_date ? String(exit.actual_exit_date).slice(0, 10) : "",
+      notice_period_days: exit.notice_period_days ?? 30,
+      notice_period_waived: !!exit.notice_period_waived,
+    });
+    setEditError(null);
+    setShowEdit(true);
+  }
+
+  async function handleSaveEdit() {
     setActionLoading(true);
+    setEditError(null);
+    // Send only fields with a value; the API schema accepts all of these optionally.
+    const payload: Record<string, any> = {
+      reason_category: editForm.reason_category || undefined,
+      reason_detail: editForm.reason_detail || undefined,
+      notice_start_date: editForm.notice_start_date || undefined,
+      last_working_date: editForm.last_working_date || undefined,
+      actual_exit_date: editForm.actual_exit_date || undefined,
+      notice_period_days:
+        editForm.notice_period_days === "" || editForm.notice_period_days == null
+          ? undefined
+          : Number(editForm.notice_period_days),
+      notice_period_waived: !!editForm.notice_period_waived,
+    };
     try {
-      await apiPost(`/exits/${id}/cancel`);
-      toast.success("Exit cancelled");
+      await apiPut(`/exits/${id}`, payload);
+      setShowEdit(false);
       await loadExit();
+      toast.success("Exit details updated successfully");
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to cancel exit");
+      const msg =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to update exit details";
+      setEditError(msg);
+      toast.error(msg);
     } finally {
       setActionLoading(false);
-      setPendingConfirm(null);
     }
   }
 
-  async function handleComplete() {
+  function handleCancel() {
+    setConfirmState({
+      open: true,
+      title: "Cancel exit request?",
+      message: "This will mark the exit request as cancelled. This action cannot be undone.",
+      confirmLabel: "Cancel Exit",
+      tone: "danger",
+      onConfirm: doCancel,
+    });
+  }
+
+  async function doCancel() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/exits/${id}/cancel`);
+      await loadExit();
+      setConfirmState(null);
+      toast.success("Exit request cancelled");
+    } catch (err: any) {
+      setConfirmState(null);
+      toast.error(
+        err?.response?.data?.error?.message || err?.message || "Failed to cancel exit request",
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  function handleComplete() {
+    setConfirmState({
+      open: true,
+      title: "Mark exit as completed?",
+      message: "This will finalize the exit and deactivate the employee's account. This action cannot be undone.",
+      confirmLabel: "Complete Exit",
+      tone: "primary",
+      onConfirm: doComplete,
+    });
+  }
+
+  async function doComplete() {
     setActionLoading(true);
     try {
       await apiPost(`/exits/${id}/complete`);
-      toast.success("Exit marked complete");
       await loadExit();
+      setConfirmState(null);
+      toast.success("Exit marked as completed");
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to complete exit");
+      setConfirmState(null);
+      toast.error(
+        err?.response?.data?.error?.message || err?.message || "Failed to complete exit",
+      );
     } finally {
       setActionLoading(false);
-      setPendingConfirm(null);
     }
   }
 
@@ -197,6 +295,40 @@ export function ExitDetailPage() {
       await loadChecklist();
     } catch {
       // handled
+    }
+  }
+
+  async function loadKt() {
+    try {
+      const res = await apiGet<any>(`/kt/exit/${id}`);
+      setKt(res.data);
+    } catch {
+      setKt(null);
+    }
+  }
+
+  async function handleKtItemUpdate(itemId: string, status: string) {
+    try {
+      await apiPut(`/kt/items/${itemId}`, { status });
+      await loadKt();
+      toast.success("Knowledge transfer item updated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to update KT item");
+    }
+  }
+
+  async function loadLetters() {
+    try {
+      const res = await apiGet<any[]>(`/letters/exit/${id}`);
+      setLetters(res.data ?? []);
+    } catch {
+      setLetters([]);
+    }
+    try {
+      const tplRes = await apiGet<any[]>(`/letters/templates`);
+      setLetterTemplates(tplRes.data ?? []);
+    } catch {
+      setLetterTemplates([]);
     }
   }
 
@@ -247,7 +379,15 @@ export function ExitDetailPage() {
         {!isTerminal && (
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPendingConfirm({ kind: "cancel-exit" })}
+              onClick={openEdit}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <Pencil className="h-4 w-4" />
+              Edit
+            </button>
+            <button
+              onClick={handleCancel}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
@@ -255,7 +395,7 @@ export function ExitDetailPage() {
               Cancel Exit
             </button>
             <button
-              onClick={() => setPendingConfirm({ kind: "complete-exit" })}
+              onClick={handleComplete}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
@@ -265,28 +405,6 @@ export function ExitDetailPage() {
           </div>
         )}
       </div>
-
-      {/* Confirmation dialogs replacing the native window.confirm() calls. */}
-      <ConfirmDialog
-        open={pendingConfirm?.kind === "cancel-exit"}
-        title="Cancel this exit?"
-        description="The exit request will be cancelled. The employee account will not be deactivated."
-        confirmText="Cancel Exit"
-        variant="danger"
-        loading={actionLoading}
-        onConfirm={handleCancel}
-        onCancel={() => setPendingConfirm(null)}
-      />
-      <ConfirmDialog
-        open={pendingConfirm?.kind === "complete-exit"}
-        title="Mark this exit as completed?"
-        description="This will deactivate the employee account. This action cannot be easily undone."
-        confirmText="Complete Exit"
-        variant="success"
-        loading={actionLoading}
-        onConfirm={handleComplete}
-        onCancel={() => setPendingConfirm(null)}
-      />
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
@@ -330,9 +448,109 @@ export function ExitDetailPage() {
         {activeTab === "fnf" && <PlaceholderTab name="Full & Final Settlement" />}
         {activeTab === "buyout" && <BuyoutTab buyout={buyout} exitId={id!} onReload={loadBuyout} />}
         {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
-        {activeTab === "kt" && <PlaceholderTab name="Knowledge Transfer" />}
-        {activeTab === "letters" && <PlaceholderTab name="Exit Letters" />}
+        {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
+        {activeTab === "letters" && (
+          <LettersTab
+            letters={letters}
+            templates={letterTemplates}
+            exitId={id!}
+            exitStatus={exit.status}
+            onReload={loadLetters}
+          />
+        )}
       </div>
+
+      {/* Edit Exit modal */}
+      {showEdit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Exit Details</h3>
+              <button onClick={() => setShowEdit(false)} className="text-gray-400 hover:text-gray-600">
+                <XCircle className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[70vh] space-y-4 overflow-y-auto px-5 py-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Reason Category</label>
+                <select
+                  value={editForm.reason_category}
+                  onChange={(e) => setEditForm({ ...editForm, reason_category: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                >
+                  {REASON_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Reason Detail</label>
+                <textarea
+                  value={editForm.reason_detail}
+                  onChange={(e) => setEditForm({ ...editForm, reason_detail: e.target.value })}
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Notice Start</label>
+                  <input type="date" value={editForm.notice_start_date}
+                    onChange={(e) => setEditForm({ ...editForm, notice_start_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Last Working Date</label>
+                  <input type="date" value={editForm.last_working_date}
+                    onChange={(e) => setEditForm({ ...editForm, last_working_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Actual Exit Date</label>
+                  <input type="date" value={editForm.actual_exit_date}
+                    onChange={(e) => setEditForm({ ...editForm, actual_exit_date: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Notice Period (days)</label>
+                  <input type="number" min={0} value={editForm.notice_period_days}
+                    onChange={(e) => setEditForm({ ...editForm, notice_period_days: e.target.value })}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" checked={!!editForm.notice_period_waived}
+                  onChange={(e) => setEditForm({ ...editForm, notice_period_waived: e.target.checked })} />
+                Notice period waived
+              </label>
+              {editError && <p className="text-sm text-red-600">{editError}</p>}
+            </div>
+            <div className="flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
+              <button onClick={() => setShowEdit(false)} disabled={actionLoading}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                Cancel
+              </button>
+              <button onClick={handleSaveEdit} disabled={actionLoading}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50">
+                {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* In-app confirmation dialog (replaces native confirm()) */}
+      <ConfirmDialog
+        open={!!confirmState?.open}
+        title={confirmState?.title ?? ""}
+        message={confirmState?.message ?? ""}
+        confirmLabel={confirmState?.confirmLabel ?? "Confirm"}
+        tone={confirmState?.tone ?? "primary"}
+        loading={actionLoading}
+        onConfirm={() => confirmState?.onConfirm()}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   );
 }
@@ -482,6 +700,128 @@ function ChecklistTab({
   );
 }
 
+const KT_STATUS_COLORS: Record<string, string> = {
+  not_started: "bg-gray-100 text-gray-600",
+  in_progress: "bg-blue-100 text-blue-700",
+  completed: "bg-green-100 text-green-700",
+};
+
+function KtTab({
+  kt,
+  onUpdateItem,
+}: {
+  kt: any;
+  onUpdateItem: (itemId: string, status: string) => void;
+}) {
+  if (!kt) {
+    return (
+      <div className="py-8 text-center">
+        <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+        <p className="mb-1 text-sm text-gray-500">No knowledge transfer plan yet.</p>
+        <p className="text-xs text-gray-400">
+          A KT plan is created when handover tasks are assigned for this exit.
+        </p>
+      </div>
+    );
+  }
+
+  const items: any[] = Array.isArray(kt.items) ? kt.items : [];
+  const completed = items.filter((i) => i.status === "completed").length;
+  const total = items.length;
+  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return (
+    <div className="space-y-5">
+      {/* Plan summary */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+          <span
+            className={cn(
+              "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
+              KT_STATUS_COLORS[kt.status] || "bg-gray-100 text-gray-600",
+            )}
+          >
+            {String(kt.status || "not_started").replace(/_/g, " ")}
+          </span>
+          {kt.assignee && (
+            <span>
+              Assignee: <span className="font-medium text-gray-800">{kt.assignee.first_name} {kt.assignee.last_name}</span>
+            </span>
+          )}
+          {kt.due_date && <span>Due: {formatDate(kt.due_date)}</span>}
+        </div>
+        <span className="text-sm font-medium text-gray-700">
+          {completed} / {total} completed ({progress}%)
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-2 w-full rounded-full bg-gray-200">
+        <div className="h-2 rounded-full bg-rose-500 transition-all" style={{ width: `${progress}%` }} />
+      </div>
+
+      {kt.notes && (
+        <p className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-600">{kt.notes}</p>
+      )}
+
+      {/* Items */}
+      {total === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">No knowledge transfer items added yet.</p>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center justify-between py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                {item.description && (
+                  <p className="mt-0.5 text-xs text-gray-500">{item.description}</p>
+                )}
+                {item.document_url && (
+                  <a
+                    href={item.document_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-0.5 inline-block text-xs text-rose-600 hover:underline"
+                  >
+                    View document
+                  </a>
+                )}
+              </div>
+              <div className="ml-4 flex items-center gap-2">
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                    KT_STATUS_COLORS[item.status] || "bg-gray-100 text-gray-600",
+                  )}
+                >
+                  {String(item.status).replace(/_/g, " ")}
+                </span>
+                {item.status === "not_started" && (
+                  <button
+                    onClick={() => onUpdateItem(item.id, "in_progress")}
+                    className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"
+                  >
+                    Start
+                  </button>
+                )}
+                {item.status !== "completed" && (
+                  <button
+                    onClick={() => onUpdateItem(item.id, "completed")}
+                    className="rounded-md bg-green-50 p-1 text-green-600 hover:bg-green-100"
+                    title="Mark complete"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ClearanceTab({
   clearance,
   onInitiate,
@@ -562,6 +902,232 @@ function formatINR(amountPaise: number): string {
   }).format(rupees);
 }
 
+const LETTER_TYPES: Record<string, string> = {
+  experience: "Experience Letter",
+  relieving: "Relieving Letter",
+  service_certificate: "Service Certificate",
+  noc: "NOC",
+};
+
+function LettersTab({
+  letters,
+  templates,
+  exitId,
+  exitStatus,
+  onReload,
+}: {
+  letters: any[] | null;
+  templates: any[];
+  exitId: string;
+  exitStatus: string;
+  onReload: () => void;
+}) {
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [pendingSendId, setPendingSendId] = useState<string | null>(null);
+
+  // Letters may only be generated once the exit is completed (mirrors the
+  // backend guard in letter.service.generateLetter).
+  const canGenerate = exitStatus === "completed";
+
+  async function handleGenerate() {
+    const tpl = templates.find((t) => t.id === selectedTemplateId);
+    if (!tpl) return;
+    setGenerating(true);
+    try {
+      // The generate endpoint requires template_id at runtime, and a valid
+      // letter_type to pass validation (its value is ignored — the type comes
+      // from the template). Send the template's own letter_type.
+      await apiPost(`/letters/exit/${exitId}/generate`, {
+        template_id: tpl.id,
+        letter_type: tpl.letter_type,
+      });
+      toast.success("Letter generated");
+      setSelectedTemplateId("");
+      onReload();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to generate letter");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  // The download endpoint returns raw HTML as an attachment (not JSON/URL), so
+  // fetch it as a blob and trigger a browser download.
+  async function handleDownload(letterId: string, letterType: string) {
+    setBusyId(letterId);
+    try {
+      const response = await api.get(`/letters/${letterId}/download`, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${letterType}_letter.html`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to download letter");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  // View opens the rendered letter HTML inline in a new tab (no file save).
+  async function handleView(letterId: string) {
+    setBusyId(letterId);
+    try {
+      const response = await api.get(`/letters/${letterId}/download`, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "text/html" });
+      const url = window.URL.createObjectURL(blob);
+      const win = window.open(url, "_blank");
+      if (!win) {
+        toast.error("Pop-up blocked — allow pop-ups to view the letter.");
+      }
+      // Revoke after a delay so the new tab has time to load the document.
+      setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+    } catch {
+      toast.error("Failed to open letter");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function doSend() {
+    const letterId = pendingSendId;
+    if (!letterId) return;
+    setBusyId(letterId);
+    try {
+      const res = await apiPost<{ sent: boolean; to: string }>(`/letters/${letterId}/send`);
+      setPendingSendId(null);
+      toast.success(`Letter sent to ${res.data?.to ?? "employee"}`);
+    } catch (err: any) {
+      setPendingSendId(null);
+      toast.error(err?.response?.data?.error?.message || "Failed to send letter");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  const isLoading = letters === null;
+  const list = letters ?? [];
+
+  return (
+    <div className="space-y-5">
+      {/* Generate control */}
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        {!canGenerate ? (
+          <p className="text-sm text-gray-500">
+            Letters can be generated once the exit is <b>completed</b> — finish clearance and the
+            full &amp; final settlement, then mark the exit complete.
+          </p>
+        ) : templates.length === 0 ? (
+          <p className="text-sm text-gray-500">
+            No letter templates available. Create one in Letter Templates first.
+          </p>
+        ) : (
+          <>
+            <div className="flex-1 min-w-[220px]">
+              <label className="mb-1 block text-xs font-medium text-gray-600">Template</label>
+              <select
+                value={selectedTemplateId}
+                onChange={(e) => setSelectedTemplateId(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              >
+                <option value="" disabled>Select a template…</option>
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({LETTER_TYPES[t.letter_type] || t.letter_type})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleGenerate}
+              disabled={!selectedTemplateId || generating}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {generating && <Loader2 className="h-4 w-4 animate-spin" />}
+              Generate Letter
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Generated letters list */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+        </div>
+      ) : list.length === 0 ? (
+        // Only show the "no letters yet" empty state when generation is actually
+        // possible. When the exit isn't completed, the notice above already
+        // explains why — showing both would be redundant/contradictory.
+        canGenerate ? (
+          <div className="py-10 text-center">
+            <FileSignature className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+            <p className="text-sm text-gray-500">No letters generated yet.</p>
+            <p className="text-xs text-gray-400">Use the control above to generate one from a template.</p>
+          </div>
+        ) : null
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {list.map((l) => (
+            <div key={l.id} className="flex items-center justify-between py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  {LETTER_TYPES[l.letter_type] || l.letter_type}
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Issued: {l.issued_date ? formatDate(l.issued_date) : "—"}
+                </p>
+              </div>
+              <div className="ml-4 flex items-center gap-2">
+                <button
+                  onClick={() => handleView(l.id)}
+                  disabled={busyId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  View
+                </button>
+                <button
+                  onClick={() => handleDownload(l.id, l.letter_type)}
+                  disabled={busyId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {busyId === l.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                  Download
+                </button>
+                <button
+                  onClick={() => setPendingSendId(l.id)}
+                  disabled={busyId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* In-app confirm for the (irreversible) email send */}
+      <ConfirmDialog
+        open={pendingSendId !== null}
+        title="Send letter by email?"
+        message="This will email the generated letter to the employee. This action cannot be undone."
+        confirmLabel="Send Letter"
+        tone="primary"
+        loading={busyId !== null && busyId === pendingSendId}
+        onConfirm={doSend}
+        onCancel={() => setPendingSendId(null)}
+      />
+    </div>
+  );
+}
+
 const BUYOUT_STATUS_COLORS: Record<string, string> = {
   pending: "bg-amber-100 text-amber-700",
   approved: "bg-green-100 text-green-700",
@@ -580,20 +1146,18 @@ function BuyoutTab({
   const [actionLoading, setActionLoading] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showReject, setShowReject] = useState(false);
-  const [showApproveConfirm, setShowApproveConfirm] = useState(false);
 
   async function handleApprove() {
     if (!buyout) return;
+    if (!confirm("Approve this buyout? The employee's last working date will be updated.")) return;
     setActionLoading(true);
     try {
       await apiPost(`/buyout/${buyout.id}/approve`);
-      toast.success("Buyout approved");
       onReload();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to approve buyout");
+    } catch {
+      // handled
     } finally {
       setActionLoading(false);
-      setShowApproveConfirm(false);
     }
   }
 
@@ -602,12 +1166,11 @@ function BuyoutTab({
     setActionLoading(true);
     try {
       await apiPost(`/buyout/${buyout.id}/reject`, { reason: rejectReason });
-      toast.success("Buyout rejected");
       setShowReject(false);
       setRejectReason("");
       onReload();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Failed to reject buyout");
+    } catch {
+      // handled
     } finally {
       setActionLoading(false);
     }
@@ -693,23 +1256,13 @@ function BuyoutTab({
       {buyout.status === "pending" && (
         <div className="flex items-center gap-3 pt-2">
           <button
-            onClick={() => setShowApproveConfirm(true)}
+            onClick={handleApprove}
             disabled={actionLoading}
             className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
           >
             {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
             Approve Buyout
           </button>
-          <ConfirmDialog
-            open={showApproveConfirm}
-            title="Approve this buyout?"
-            description="The employee's last working date will be updated and the buyout amount applied to F&F."
-            confirmText="Approve Buyout"
-            variant="success"
-            loading={actionLoading}
-            onConfirm={handleApprove}
-            onCancel={() => setShowApproveConfirm(false)}
-          />
           {!showReject ? (
             <button
               onClick={() => setShowReject(true)}
