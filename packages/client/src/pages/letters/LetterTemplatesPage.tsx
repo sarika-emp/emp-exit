@@ -7,10 +7,12 @@ import {
   Loader2,
   X,
   Code,
+  Trash2,
 } from "lucide-react";
-import { apiGet, apiPost, apiPut } from "@/api/client";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/api/client";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const LETTER_TYPES = [
   { key: "experience", label: "Experience Letter" },
@@ -42,6 +44,8 @@ export function LetterTemplatesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [preview, setPreview] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({
     letter_type: "experience",
     name: "",
@@ -75,6 +79,21 @@ export function LetterTemplatesPage() {
       is_default: t.is_default,
     });
     setShowForm(true);
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await apiDelete(`/letters/templates/${deleteTarget.id}`);
+      toast.success("Template deleted");
+      setDeleteTarget(null);
+      await fetchTemplates();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to delete template");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   function openNew() {
@@ -268,11 +287,29 @@ export function LetterTemplatesPage() {
                   <Edit3 className="h-3 w-3" />
                   Edit
                 </button>
+                <button
+                  onClick={() => setDeleteTarget(t)}
+                  className="inline-flex items-center gap-1 rounded bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  Delete
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete letter template?"
+        message={`"${deleteTarget?.name ?? ""}" will be removed and can no longer be used to generate letters.`}
+        confirmLabel="Delete"
+        tone="danger"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
