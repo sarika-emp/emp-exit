@@ -179,9 +179,11 @@ export function AppRoutes() {
         <Route path="/fnf" element={<AdminRoute><FnFListPage /></AdminRoute>} />
         <Route path="/fnf/:id" element={<AdminRoute><FnFDetailPage /></AdminRoute>} />
 
-        {/* Buyout */}
+        {/* Buyout — the list is admin-only, but the calculator is also the
+            employee's self-service "request a buyout" page (it defaults to
+            /self-service/my-buyout/*), so it must stay reachable by employees. */}
         <Route path="/buyout" element={<AdminRoute><BuyoutListPage /></AdminRoute>} />
-        <Route path="/buyout/calculator" element={<AdminRoute><BuyoutCalculatorPage /></AdminRoute>} />
+        <Route path="/buyout/calculator" element={<BuyoutCalculatorPage />} />
 
         {/* Assets */}
         <Route path="/assets" element={<AdminRoute><AssetListPage /></AdminRoute>} />

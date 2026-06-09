@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserMinus, Loader2 } from "lucide-react";
 import { apiPost } from "@/api/client";
+import { homeFor } from "@/lib/auth-store";
 
 const REASON_CATEGORIES = [
   { value: "better_opportunity", label: "Better Opportunity" },
@@ -162,7 +163,7 @@ export function ResignationPage() {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(homeFor())}
             className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Cancel
