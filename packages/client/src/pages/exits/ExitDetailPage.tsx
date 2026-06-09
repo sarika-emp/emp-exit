@@ -17,6 +17,8 @@ import {
   Clock,
   Pencil,
   Eye,
+  Banknote,
+  RefreshCw,
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -105,6 +107,7 @@ export function ExitDetailPage() {
   const [clearance, setClearance] = useState<any>(null);
   const [buyout, setBuyout] = useState<any>(null);
   const [kt, setKt] = useState<any>(null);
+  const [fnf, setFnf] = useState<any>(null);
   const [letters, setLetters] = useState<any[] | null>(null);
   const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -131,6 +134,7 @@ export function ExitDetailPage() {
     if (activeTab === "clearance") loadClearance();
     if (activeTab === "buyout") loadBuyout();
     if (activeTab === "kt") loadKt();
+    if (activeTab === "fnf") loadFnf();
     if (activeTab === "letters") loadLetters();
   }, [activeTab, id, exit]);
 
@@ -307,6 +311,16 @@ export function ExitDetailPage() {
     }
   }
 
+  async function loadFnf() {
+    try {
+      // GET returns { data: null } (not 404) when no FnF has been calculated.
+      const res = await apiGet<any>(`/fnf/exit/${id}`);
+      setFnf(res.data);
+    } catch {
+      setFnf(null);
+    }
+  }
+
   async function handleKtItemUpdate(itemId: string, status: string) {
     try {
       await apiPut(`/kt/items/${itemId}`, { status });
@@ -445,7 +459,9 @@ export function ExitDetailPage() {
           />
         )}
         {activeTab === "interview" && <PlaceholderTab name="Exit Interview" />}
-        {activeTab === "fnf" && <PlaceholderTab name="Full & Final Settlement" />}
+        {activeTab === "fnf" && (
+          <FnFTab fnf={fnf} exitId={id!} onReload={loadFnf} onExitChanged={loadExit} />
+        )}
         {activeTab === "buyout" && <BuyoutTab buyout={buyout} exitId={id!} onReload={loadBuyout} />}
         {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
         {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
@@ -900,6 +916,332 @@ function formatINR(amountPaise: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(rupees);
+}
+
+const FNF_STATUS_COLORS: Record<string, string> = {
+  draft: "bg-gray-100 text-gray-600",
+  calculated: "bg-blue-100 text-blue-700",
+  approved: "bg-green-100 text-green-700",
+  paid: "bg-emerald-100 text-emerald-700",
+};
+
+function FnFTab({
+  fnf,
+  exitId,
+  onReload,
+  onExitChanged,
+}: {
+  fnf: any;
+  exitId: string;
+  onReload: () => void;
+  onExitChanged: () => void;
+}) {
+  const [actionLoading, setActionLoading] = useState(false);
+  const [basicSalaryDue, setBasicSalaryDue] = useState(0);
+  const [leaveEncashment, setLeaveEncashment] = useState(0);
+  const [gratuity, setGratuity] = useState(0);
+  const [bonusDue, setBonusDue] = useState(0);
+  const [otherEarnings, setOtherEarnings] = useState(0);
+  const [noticePayRecovery, setNoticePayRecovery] = useState(0);
+  const [otherDeductions, setOtherDeductions] = useState(0);
+  const [remarks, setRemarks] = useState("");
+  const [showPay, setShowPay] = useState(false);
+  const [payRef, setPayRef] = useState("");
+  const [pendingAction, setPendingAction] = useState<null | "recalculate" | "approve">(null);
+
+  // The parent owns the fetch; seed the editable fields whenever fnf changes.
+  useEffect(() => {
+    if (!fnf) return;
+    setBasicSalaryDue(fnf.basic_salary_due ?? 0);
+    setLeaveEncashment(fnf.leave_encashment ?? 0);
+    setGratuity(fnf.gratuity ?? 0);
+    setBonusDue(fnf.bonus_due ?? 0);
+    setOtherEarnings(fnf.other_earnings ?? 0);
+    setNoticePayRecovery(fnf.notice_pay_recovery ?? 0);
+    setOtherDeductions(fnf.other_deductions ?? 0);
+    setRemarks(fnf.remarks || "");
+  }, [fnf]);
+
+  const isPaid = fnf?.status === "paid";
+  const isEditable = !isPaid;
+  const totalEarnings = basicSalaryDue + leaveEncashment + gratuity + bonusDue + otherEarnings;
+  const totalDeductions = noticePayRecovery + otherDeductions;
+  const netPayable = totalEarnings - totalDeductions;
+
+  async function handleCalculate() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/fnf/exit/${exitId}/calculate`);
+      onReload();
+      setPendingAction(null);
+      toast.success("FnF calculated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to calculate FnF");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleSave() {
+    setActionLoading(true);
+    try {
+      await apiPut(`/fnf/exit/${exitId}`, {
+        basic_salary_due: basicSalaryDue,
+        leave_encashment: leaveEncashment,
+        gratuity,
+        bonus_due: bonusDue,
+        other_earnings: otherEarnings,
+        notice_pay_recovery: noticePayRecovery,
+        other_deductions: otherDeductions,
+        remarks: remarks || undefined,
+      });
+      onReload();
+      toast.success("FnF updated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to save FnF");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleApprove() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/fnf/exit/${exitId}/approve`);
+      onReload();
+      setPendingAction(null);
+      toast.success("FnF approved");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to approve FnF");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleMarkPaid() {
+    if (!payRef.trim()) return;
+    setActionLoading(true);
+    try {
+      await apiPost(`/fnf/exit/${exitId}/mark-paid`, { payment_reference: payRef.trim() });
+      setShowPay(false);
+      setPayRef("");
+      onReload();
+      onExitChanged(); // mark-paid flips the parent exit to fnf_processed
+      toast.success("FnF marked as paid");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to mark as paid");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  const AmountField = ({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: number;
+    onChange: (v: number) => void;
+  }) => (
+    <div className="flex items-center justify-between border-b border-gray-100 py-2.5 last:border-0">
+      <span className="text-sm text-gray-700">{label}</span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-gray-400">INR</span>
+        <input
+          type="number"
+          value={value / 100}
+          onChange={(e) => onChange(Math.round(parseFloat(e.target.value || "0") * 100))}
+          disabled={!isEditable}
+          step="0.01"
+          className="w-32 rounded border border-gray-300 px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500"
+        />
+      </div>
+    </div>
+  );
+
+  // Empty state — no FnF calculated yet.
+  if (!fnf) {
+    return (
+      <div className="py-8 text-center">
+        <Calculator className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+        <p className="mb-4 text-sm text-gray-500">No full &amp; final settlement yet.</p>
+        <button
+          onClick={handleCalculate}
+          disabled={actionLoading}
+          className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+        >
+          {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+          Calculate Settlement
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Header + status */}
+      <div className="flex items-center gap-3">
+        <Calculator className="h-5 w-5 text-rose-500" />
+        <h3 className="text-sm font-semibold text-gray-900">Full &amp; Final Settlement</h3>
+        <span
+          className={cn(
+            "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+            FNF_STATUS_COLORS[fnf.status] || "bg-gray-100 text-gray-600",
+          )}
+        >
+          {fnf.status}
+        </span>
+      </div>
+
+      {isPaid && fnf.paid_date && (
+        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+          <Banknote className="h-5 w-5 text-emerald-600" />
+          <div>
+            <p className="text-sm font-medium text-emerald-800">Payment Completed</p>
+            <p className="text-xs text-emerald-600">Paid on {formatDate(fnf.paid_date)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Earnings / Deductions */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-600">Earnings</h4>
+          <AmountField label="Pending Salary (pro-rata)" value={basicSalaryDue} onChange={setBasicSalaryDue} />
+          <AmountField label="Leave Encashment" value={leaveEncashment} onChange={setLeaveEncashment} />
+          <AmountField label="Gratuity" value={gratuity} onChange={setGratuity} />
+          <AmountField label="Bonus" value={bonusDue} onChange={setBonusDue} />
+          <AmountField label="Other Earnings" value={otherEarnings} onChange={setOtherEarnings} />
+          <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-sm font-semibold text-emerald-700">
+            <span>Total Earnings</span><span>{formatINR(totalEarnings)}</span>
+          </div>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-red-600">Deductions</h4>
+          <AmountField label="Notice Period Recovery" value={noticePayRecovery} onChange={setNoticePayRecovery} />
+          <AmountField label="Other Deductions" value={otherDeductions} onChange={setOtherDeductions} />
+          <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-sm font-semibold text-red-700">
+            <span>Total Deductions</span><span>{formatINR(totalDeductions)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Net payable */}
+      <div
+        className={cn(
+          "flex items-center justify-between rounded-lg p-4",
+          netPayable >= 0 ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800",
+        )}
+      >
+        <span className="text-sm font-semibold">Net Payable</span>
+        <span className="text-lg font-bold">{formatINR(netPayable)}</span>
+      </div>
+
+      {/* Remarks */}
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">Remarks</label>
+        <textarea
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          disabled={!isEditable}
+          rows={2}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-gray-50"
+        />
+      </div>
+
+      {isEditable && (
+        <p className="text-xs text-gray-400">
+          Auto-calculation seeds amounts from notice/tenure only — enter the actual salary-based amounts above and Save.
+        </p>
+      )}
+
+      {/* Mark-paid inline input */}
+      {showPay && (
+        <div className="flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="flex-1 min-w-[200px]">
+            <label className="mb-1 block text-xs font-medium text-gray-600">Payment reference</label>
+            <input
+              value={payRef}
+              onChange={(e) => setPayRef(e.target.value)}
+              placeholder="e.g. NEFT-FNF-2026-0042"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <button
+            onClick={handleMarkPaid}
+            disabled={!payRef.trim() || actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            Confirm Payment
+          </button>
+          <button
+            onClick={() => { setShowPay(false); setPayRef(""); }}
+            disabled={actionLoading}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Status-driven actions */}
+      {!isPaid && !showPay && (
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-4">
+          {isEditable && fnf.status !== "approved" && (
+            <button
+              onClick={() => setPendingAction("recalculate")}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <RefreshCw className="h-4 w-4" /> Recalculate
+            </button>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+          >
+            {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />} Save Changes
+          </button>
+          {fnf.status === "calculated" && (
+            <button
+              onClick={() => setPendingAction("approve")}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              <CheckCircle className="h-4 w-4" /> Approve
+            </button>
+          )}
+          {fnf.status === "approved" && (
+            <button
+              onClick={() => setShowPay(true)}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+            >
+              <Banknote className="h-4 w-4" /> Mark Paid
+            </button>
+          )}
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={pendingAction !== null}
+        title={pendingAction === "approve" ? "Approve FnF settlement?" : "Recalculate FnF?"}
+        message={
+          pendingAction === "approve"
+            ? "Approving locks the settlement from recalculation. Continue?"
+            : "Recalculating overwrites any manual amount edits with auto-derived values. Continue?"
+        }
+        confirmLabel={pendingAction === "approve" ? "Approve" : "Recalculate"}
+        tone="primary"
+        loading={actionLoading}
+        onConfirm={() => { if (pendingAction === "approve") handleApprove(); else handleCalculate(); }}
+        onCancel={() => setPendingAction(null)}
+      />
+    </div>
+  );
 }
 
 const LETTER_TYPES: Record<string, string> = {
