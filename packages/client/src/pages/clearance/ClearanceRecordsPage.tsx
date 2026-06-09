@@ -21,6 +21,16 @@ interface MyClearance {
   remarks: string | null;
   pending_amount: number;
   department?: { id: string; name: string } | null;
+  employee?: { first_name: string; last_name: string; designation: string | null } | null;
+}
+
+// pending_amount is stored in paise.
+function formatINR(paise: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format((paise || 0) / 100);
 }
 
 export function ClearanceRecordsPage() {
@@ -84,7 +94,7 @@ export function ClearanceRecordsPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clearance Records</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Pending clearance approvals assigned to you.
+            Pending department clearance approvals across all exits.
           </p>
         </div>
         <Link
@@ -99,7 +109,7 @@ export function ClearanceRecordsPage() {
       {clearances.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
           <Shield className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-          <p className="text-sm text-gray-500">No pending clearances assigned to you.</p>
+          <p className="text-sm text-gray-500">No pending clearances.</p>
         </div>
       ) : (
         <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto -mx-4 lg:mx-0">
@@ -107,7 +117,7 @@ export function ClearanceRecordsPage() {
             <thead>
               <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-500">
                 <th className="px-6 py-3">Department</th>
-                <th className="px-6 py-3">Exit Request</th>
+                <th className="px-6 py-3">Employee</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Pending Amount</th>
                 <th className="px-6 py-3 text-right">Actions</th>
@@ -122,10 +132,15 @@ export function ClearanceRecordsPage() {
                   <td className="px-6 py-4">
                     <Link
                       to={`/exits/${c.exit_request_id}`}
-                      className="text-rose-600 hover:text-rose-700 text-sm"
+                      className="text-sm font-medium text-gray-900 hover:text-rose-600"
                     >
-                      {c.exit_request_id.slice(0, 8)}...
+                      {c.employee
+                        ? `${c.employee.first_name} ${c.employee.last_name}`
+                        : "—"}
                     </Link>
+                    {c.employee?.designation && (
+                      <p className="text-xs text-gray-500">{c.employee.designation}</p>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -138,7 +153,7 @@ export function ClearanceRecordsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-600">
-                    {c.pending_amount > 0 ? c.pending_amount : "--"}
+                    {c.pending_amount > 0 ? formatINR(c.pending_amount) : "--"}
                   </td>
                   <td className="px-6 py-4">
                     {c.status === "pending" && (

@@ -64,18 +64,27 @@ export function DashboardPage() {
 
     async function load() {
       try {
-        // Fetch recent exits
-        const exitRes = await apiGet<any>("/exits", { perPage: 10 });
+        // Recent exits for the table (top 10) + a full fetch for accurate
+        // counts (computing stats from only 10 rows undercounts everything).
+        const [recentRes, allRes, clearanceRes] = await Promise.all([
+          apiGet<any>("/exits", { perPage: 10 }),
+          apiGet<any>("/exits", { perPage: 1000 }),
+          apiGet<any[]>("/clearance/my").catch(() => ({ data: [] as any[] })),
+        ]);
         if (cancelled) return;
 
-        const exits: ExitListItem[] = exitRes.data?.data ?? [];
-        setRecentExits(exits);
+        setRecentExits(recentRes.data?.data ?? []);
 
-        // Compute stats from the full list
+        const exits: ExitListItem[] = allRes.data?.data ?? [];
         const activeStatuses = ["initiated", "notice_period", "clearance_pending", "fnf_pending", "fnf_processed"];
         const activeExits = exits.filter((e) => activeStatuses.includes(e.status)).length;
-        const clearancePending = exits.filter((e) => e.status === "clearance_pending").length;
         const fnfPending = exits.filter((e) => e.status === "fnf_pending").length;
+
+        // Clearance Pending = distinct exits with at least one pending clearance
+        // record (matches the Clearance page, which lists clearance records — an
+        // exit's *status* may have moved on while clearances are still open).
+        const clearanceRecords: any[] = clearanceRes.data ?? [];
+        const clearancePending = new Set(clearanceRecords.map((c) => c.exit_request_id)).size;
 
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
