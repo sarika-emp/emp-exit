@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { isLoggedIn, useAuthStore, extractSSOToken } from "@/lib/auth-store";
+import { isLoggedIn, useAuthStore, extractSSOToken, homeFor } from "@/lib/auth-store";
 import { apiPost } from "@/api/client";
 import { AppRoutes } from "@/routes";
 
@@ -14,7 +14,8 @@ function PageLoader() {
 }
 
 function AuthRedirect() {
-  return isLoggedIn() ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+  // Send admins to the management dashboard, employees to their self-service hub.
+  return isLoggedIn() ? <Navigate to={homeFor()} replace /> : <Navigate to="/login" replace />;
 }
 
 function SSOGate({ children }: { children: React.ReactNode }) {
@@ -52,7 +53,7 @@ function SSOGate({ children }: { children: React.ReactNode }) {
         login(user, tokens);
 
         if (window.location.pathname === "/" || window.location.pathname === "/login") {
-          window.location.replace("/dashboard");
+          window.location.replace(homeFor(user));
           return;
         }
         setReady(true);

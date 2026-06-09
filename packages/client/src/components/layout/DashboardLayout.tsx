@@ -19,39 +19,45 @@ import {
   Menu,
   X,
   UserPlus,
+  UserMinus,
 } from "lucide-react";
-import { isLoggedIn, getUser, useAuthStore } from "@/lib/auth-store";
+import { isLoggedIn, getUser, useAuthStore, isAdmin } from "@/lib/auth-store";
 import { cn, getInitials } from "@/lib/utils";
 import { BackToDashboard } from "@/components/BackToDashboard";
-
-type Role = "org_admin" | "hr_admin" | "hr_manager" | "employee";
 
 interface NavItem {
   to: string;
   label: string;
   icon: any;
-  adminOnly?: boolean; // if true, hidden from employee role
 }
 
-const NAV_ITEMS: NavItem[] = [
+// Full management console — shown to admin / HR roles.
+const ADMIN_NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/exits", label: "Exits", icon: DoorOpen, adminOnly: true },
+  { to: "/exits", label: "Exits", icon: DoorOpen },
   { to: "/checklists", label: "Checklists", icon: ClipboardCheck },
   { to: "/clearance", label: "Clearance", icon: ShieldCheck },
   { to: "/interviews", label: "Interviews", icon: MessageSquare },
-  { to: "/fnf", label: "FnF", icon: Calculator, adminOnly: true },
+  { to: "/fnf", label: "FnF", icon: Calculator },
   { to: "/buyout", label: "Notice Buyout", icon: DollarSign },
   { to: "/assets", label: "Assets", icon: Package },
   { to: "/kt", label: "KT", icon: BookOpen },
   { to: "/letters", label: "Letters", icon: FileSignature },
   { to: "/alumni", label: "Alumni", icon: GraduationCap },
-  { to: "/rehire", label: "Rehire", icon: UserPlus, adminOnly: true },
-  { to: "/analytics", label: "Analytics", icon: BarChart3, adminOnly: true },
-  { to: "/analytics/flight-risk", label: "Flight Risk", icon: AlertTriangle, adminOnly: true },
-  { to: "/settings", label: "Settings", icon: Settings, adminOnly: true },
+  { to: "/rehire", label: "Rehire", icon: UserPlus },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/analytics/flight-risk", label: "Flight Risk", icon: AlertTriangle },
+  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
-const ADMIN_ROLES: Role[] = ["org_admin", "hr_admin", "hr_manager"];
+// Self-service hub — shown to the employee role. Every link points at a
+// "my own" page; no org-wide management views.
+const EMPLOYEE_NAV: NavItem[] = [
+  { to: "/exits/my", label: "My Exit", icon: UserMinus },
+  { to: "/interviews/my", label: "My Interview", icon: MessageSquare },
+  { to: "/kt/my", label: "My KT", icon: BookOpen },
+  { to: "/alumni/my", label: "Alumni", icon: GraduationCap },
+];
 
 export function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -65,12 +71,15 @@ export function DashboardLayout() {
 
   if (!isLoggedIn()) return <Navigate to="/login" replace />;
   const displayName = user ? `${user.firstName} ${user.lastName}` : "User";
-  const roleLabel =
-    user?.role === "hr_admin"
-      ? "HR Admin"
-      : user?.role === "hr_manager"
-        ? "HR Manager"
-        : "Employee";
+  const ROLE_LABELS: Record<string, string> = {
+    super_admin: "Super Admin",
+    org_admin: "Org Admin",
+    hr_admin: "HR Admin",
+    hr_manager: "HR Manager",
+    employee: "Employee",
+  };
+  const roleLabel = ROLE_LABELS[user?.role || "employee"] || "Employee";
+  const navItems = isAdmin(user) ? ADMIN_NAV : EMPLOYEE_NAV;
 
   function SidebarContent() {
     return (
@@ -85,10 +94,7 @@ export function DashboardLayout() {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {NAV_ITEMS.filter((item) => {
-            if (item.adminOnly && !ADMIN_ROLES.includes((user?.role || "employee") as Role)) return false;
-            return true;
-          }).map((item) => (
+          {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

@@ -8,9 +8,19 @@ import {
   CheckCircle,
   DollarSign,
   Calculator,
+  FileSignature,
+  Download,
 } from "lucide-react";
-import { apiGet } from "@/api/client";
+import { apiGet, api } from "@/api/client";
+import toast from "react-hot-toast";
 import { cn, formatDate } from "@/lib/utils";
+
+const LETTER_TYPES: Record<string, string> = {
+  experience: "Experience Letter",
+  relieving: "Relieving Letter",
+  service_certificate: "Service Certificate",
+  noc: "NOC",
+};
 
 const STATUS_COLORS: Record<string, string> = {
   initiated: "bg-blue-100 text-blue-700",
@@ -50,6 +60,8 @@ const CLEARANCE_STATUS_COLORS: Record<string, string> = {
 export function MyExitPage() {
   const [exit, setExit] = useState<any>(null);
   const [checklist, setChecklist] = useState<any>(null);
+  const [letters, setLetters] = useState<any[]>([]);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,6 +82,14 @@ export function MyExitPage() {
           } catch {
             // no checklist
           }
+
+          // Load my documents (generated letters)
+          try {
+            const lettersRes = await apiGet<any[]>("/self-service/my-letters");
+            if (!cancelled) setLetters(lettersRes.data ?? []);
+          } catch {
+            // no letters
+          }
         }
       } catch {
         // no exit
@@ -81,6 +101,29 @@ export function MyExitPage() {
     load();
     return () => { cancelled = true; };
   }, []);
+
+  // The download endpoint returns raw HTML as an attachment, so fetch it as a
+  // blob and trigger a browser download.
+  async function handleDownload(letterId: string, letterType: string) {
+    setDownloadingId(letterId);
+    try {
+      const response = await api.get(`/self-service/my-letters/${letterId}/download`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${letterType}_letter.html`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to download document");
+    } finally {
+      setDownloadingId(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -287,6 +330,42 @@ export function MyExitPage() {
                 >
                   {item.status.replace(/_/g, " ")}
                 </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* My Documents */}
+      {letters.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-white">
+          <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
+            <FileSignature className="h-5 w-5 text-rose-500" />
+            <h2 className="text-lg font-semibold text-gray-900">My Documents</h2>
+          </div>
+          <div className="divide-y divide-gray-50 px-6">
+            {letters.map((l) => (
+              <div key={l.id} className="flex items-center justify-between py-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {LETTER_TYPES[l.letter_type] || l.letter_type}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Issued: {l.issued_date ? formatDate(l.issued_date) : "--"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDownload(l.id, l.letter_type)}
+                  disabled={downloadingId === l.id}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {downloadingId === l.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Download className="h-3.5 w-3.5" />
+                  )}
+                  Download
+                </button>
               </div>
             ))}
           </div>
