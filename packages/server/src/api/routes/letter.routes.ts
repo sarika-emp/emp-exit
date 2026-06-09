@@ -68,6 +68,21 @@ router.put(
   },
 );
 
+// DELETE /letters/templates/:id — soft-delete (sets is_active = false)
+router.delete(
+  "/templates/:id",
+  authorize("hr_admin", "hr_manager", "super_admin", "org_admin"),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const orgId = req.user!.empcloudOrgId;
+      const result = await letterService.deleteTemplate(orgId, req.params.id as string);
+      return sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 // ---- Generation ----
 
 // POST /letters/exit/:exitId/generate

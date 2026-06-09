@@ -19,6 +19,11 @@ import {
   Eye,
   Banknote,
   RefreshCw,
+  Star,
+  Send,
+  SkipForward,
+  Search,
+  X,
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -109,6 +114,8 @@ export function ExitDetailPage() {
   const [kt, setKt] = useState<any>(null);
   const [fnf, setFnf] = useState<any>(null);
   const [assets, setAssets] = useState<any[] | null>(null);
+  const [interview, setInterview] = useState<any>(null);
+  const [interviewTemplates, setInterviewTemplates] = useState<any[]>([]);
   const [letters, setLetters] = useState<any[] | null>(null);
   const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -137,6 +144,7 @@ export function ExitDetailPage() {
     if (activeTab === "kt") loadKt();
     if (activeTab === "fnf") loadFnf();
     if (activeTab === "assets") loadAssets();
+    if (activeTab === "interview") loadInterview();
     if (activeTab === "letters") loadLetters();
   }, [activeTab, id, exit]);
 
@@ -332,6 +340,22 @@ export function ExitDetailPage() {
     }
   }
 
+  async function loadInterview() {
+    try {
+      // GET returns { data: null } (not 404) when no interview is scheduled.
+      const res = await apiGet<any>(`/interviews/exit/${id}`);
+      setInterview(res.data);
+    } catch {
+      setInterview(null);
+    }
+    try {
+      const tplRes = await apiGet<any[]>(`/interviews/templates`);
+      setInterviewTemplates(tplRes.data ?? []);
+    } catch {
+      setInterviewTemplates([]);
+    }
+  }
+
   async function handleKtItemUpdate(itemId: string, status: string) {
     try {
       await apiPut(`/kt/items/${itemId}`, { status });
@@ -469,7 +493,14 @@ export function ExitDetailPage() {
             actionLoading={actionLoading}
           />
         )}
-        {activeTab === "interview" && <PlaceholderTab name="Exit Interview" />}
+        {activeTab === "interview" && (
+          <InterviewTab
+            interview={interview}
+            templates={interviewTemplates}
+            exitId={id!}
+            onReload={loadInterview}
+          />
+        )}
         {activeTab === "fnf" && (
           <FnFTab fnf={fnf} exitId={id!} onReload={loadFnf} onExitChanged={loadExit} />
         )}
@@ -1251,6 +1282,490 @@ function FnFTab({
         tone="primary"
         loading={actionLoading}
         onConfirm={() => { if (pendingAction === "approve") handleApprove(); else handleCalculate(); }}
+        onCancel={() => setPendingAction(null)}
+      />
+    </div>
+  );
+}
+
+const INTERVIEW_STATUS_COLORS: Record<string, string> = {
+  scheduled: "bg-blue-100 text-blue-700",
+  completed: "bg-green-100 text-green-700",
+  skipped: "bg-gray-100 text-gray-600",
+};
+
+function InterviewTab({
+  interview,
+  templates,
+  exitId,
+  onReload,
+}: {
+  interview: any;
+  templates: any[];
+  exitId: string;
+  onReload: () => void;
+}) {
+  const [actionLoading, setActionLoading] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [answers, setAnswers] = useState<Record<string, { text?: string; rating?: number }>>({});
+  const [overallRating, setOverallRating] = useState(0);
+  const [wouldRecommend, setWouldRecommend] = useState<boolean | null>(null);
+  const [pendingAction, setPendingAction] = useState<null | "complete" | "skip">(null);
+
+  // Schedule form state (not-scheduled state)
+  const [templateId, setTemplateId] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [interviewer, setInterviewer] = useState<any | null>(null);
+  const [intvQuery, setIntvQuery] = useState("");
+  const [intvResults, setIntvResults] = useState<any[]>([]);
+  const [intvSearching, setIntvSearching] = useState(false);
+  const [showIntvResults, setShowIntvResults] = useState(false);
+
+  const isCompleted = interview?.status === "completed";
+  const isSkipped = interview?.status === "skipped";
+  const isReadOnly = isCompleted || isSkipped;
+
+  // Fetch the full ordered question list (GET only returns answered questions
+  // nested in responses[]) and pre-fill answers from any existing responses.
+  useEffect(() => {
+    if (!interview) {
+      setQuestions([]);
+      return;
+    }
+    if (interview.template_id) {
+      apiGet<any>(`/interviews/templates/${interview.template_id}`)
+        .then((r) => setQuestions(r.data?.questions ?? []))
+        .catch(() => setQuestions([]));
+    } else {
+      setQuestions([]);
+    }
+    const filled: Record<string, { text?: string; rating?: number }> = {};
+    for (const resp of interview.responses ?? []) {
+      filled[resp.question_id] = {
+        text: resp.answer_text || undefined,
+        rating: resp.answer_rating || undefined,
+      };
+    }
+    setAnswers(filled);
+    setOverallRating(interview.overall_rating || 0);
+    if (interview.summary?.includes("Would recommend: Yes")) setWouldRecommend(true);
+    else if (interview.summary?.includes("Would recommend: No")) setWouldRecommend(false);
+    else setWouldRecommend(null);
+  }, [interview]);
+
+  // Debounced interviewer search (only used in the schedule form).
+  useEffect(() => {
+    if (interview || interviewer) return;
+    const q = intvQuery.trim();
+    if (!q) { setIntvResults([]); return; }
+    const handle = setTimeout(async () => {
+      setIntvSearching(true);
+      try {
+        const res = await apiGet<any[]>("/users/search", { q });
+        if (intvQuery.trim() === q) setIntvResults(res.data ?? []);
+      } catch { /* ignore */ } finally {
+        setIntvSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [intvQuery, interviewer, interview]);
+
+  function handleAnswerChange(qid: string, field: "text" | "rating", value: string | number) {
+    setAnswers((prev) => ({ ...prev, [qid]: { ...prev[qid], [field]: value } }));
+  }
+
+  async function handleSchedule() {
+    if (!templateId || !interviewer || !scheduledAt) {
+      toast.error("Select a template, an interviewer, and a date");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await apiPost(`/interviews/exit/${exitId}`, {
+        template_id: templateId,
+        conducted_by: Number(interviewer.id),
+        scheduled_at: scheduledAt,
+      });
+      toast.success("Interview scheduled");
+      onReload();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to schedule interview");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleSubmitResponses() {
+    setActionLoading(true);
+    try {
+      const responses = questions.map((q) => ({
+        question_id: q.id,
+        answer_text: answers[q.id]?.text || undefined,
+        answer_rating: answers[q.id]?.rating || undefined,
+      }));
+      await apiPost(`/interviews/exit/${exitId}/responses`, {
+        responses,
+        overall_rating: overallRating || undefined,
+        would_recommend: wouldRecommend,
+      });
+      toast.success("Responses saved");
+      onReload();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to save responses");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function runComplete() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/interviews/exit/${exitId}/complete`);
+      setPendingAction(null);
+      toast.success("Interview completed");
+      onReload();
+    } catch (err: any) {
+      setPendingAction(null);
+      toast.error(err?.response?.data?.error?.message || "Failed to complete interview");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function runSkip() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/interviews/exit/${exitId}/skip`);
+      setPendingAction(null);
+      toast.success("Interview skipped");
+      onReload();
+    } catch (err: any) {
+      setPendingAction(null);
+      toast.error(err?.response?.data?.error?.message || "Failed to skip interview");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  function renderQuestionInput(q: any) {
+    const answer = answers[q.id] || {};
+    if (q.question_type === "rating") {
+      return (
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              disabled={isReadOnly}
+              onClick={() => handleAnswerChange(q.id, "rating", star)}
+              className="disabled:cursor-default"
+            >
+              <Star
+                className={cn(
+                  "h-6 w-6",
+                  (answer.rating || 0) >= star ? "fill-amber-400 text-amber-400" : "text-gray-300",
+                )}
+              />
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (q.question_type === "yes_no") {
+      return (
+        <div className="flex gap-2">
+          {["Yes", "No"].map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              disabled={isReadOnly}
+              onClick={() => handleAnswerChange(q.id, "text", opt)}
+              className={cn(
+                "rounded-lg border px-4 py-1.5 text-sm font-medium disabled:cursor-default",
+                answer.text === opt
+                  ? "border-rose-500 bg-rose-50 text-rose-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50",
+              )}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (q.question_type === "multiple_choice") {
+      let opts: string[] = [];
+      if (q.options) {
+        try {
+          const p = JSON.parse(q.options);
+          opts = Array.isArray(p) ? p.map(String) : [];
+        } catch {
+          opts = String(q.options).split(",").map((o) => o.trim());
+        }
+      }
+      return (
+        <div className="space-y-1.5">
+          {opts.map((opt) => (
+            <label key={opt} className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="radio"
+                name={`q-${q.id}`}
+                disabled={isReadOnly}
+                checked={answer.text === opt}
+                onChange={() => handleAnswerChange(q.id, "text", opt)}
+              />
+              {opt}
+            </label>
+          ))}
+        </div>
+      );
+    }
+    // text
+    return (
+      <textarea
+        value={answer.text || ""}
+        disabled={isReadOnly}
+        onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
+        rows={2}
+        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-gray-50"
+      />
+    );
+  }
+
+  // ── State A: not scheduled ──────────────────────────────────────────────────
+  if (!interview) {
+    return (
+      <div className="space-y-5">
+        <div className="py-6 text-center">
+          <MessageSquare className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+          <p className="text-sm text-gray-500">No exit interview scheduled.</p>
+        </div>
+        <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          {templates.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              No interview templates available. Create one in Interview Templates first.
+            </p>
+          ) : (
+            <>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Template</label>
+                <select
+                  value={templateId}
+                  onChange={(e) => setTemplateId(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                >
+                  <option value="" disabled>Select a template…</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Interviewer</label>
+                {interviewer ? (
+                  <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2">
+                    <span className="text-sm text-gray-800">
+                      {interviewer.first_name} {interviewer.last_name}
+                      <span className="ml-1 text-xs text-gray-400">
+                        {interviewer.emp_code || interviewer.email}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setInterviewer(null); setIntvQuery(""); setIntvResults([]); }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                      value={intvQuery}
+                      onChange={(e) => { setIntvQuery(e.target.value); setShowIntvResults(true); }}
+                      onFocus={() => setShowIntvResults(true)}
+                      onBlur={() => setTimeout(() => setShowIntvResults(false), 150)}
+                      placeholder="Search employee by name or email…"
+                      className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-rose-400 focus:outline-none"
+                    />
+                    {showIntvResults && (intvSearching || intvResults.length > 0) && (
+                      <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                        {intvSearching ? (
+                          <div className="px-3 py-2 text-xs text-gray-400">Searching…</div>
+                        ) : (
+                          intvResults.map((u) => (
+                            <button
+                              key={u.id}
+                              type="button"
+                              onMouseDown={() => { setInterviewer(u); setShowIntvResults(false); }}
+                              className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                            >
+                              {u.first_name} {u.last_name}
+                              <span className="ml-1 text-xs text-gray-400">{u.emp_code || u.email}</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Scheduled Date</label>
+                <input
+                  type="date"
+                  value={scheduledAt}
+                  onChange={(e) => setScheduledAt(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSchedule}
+                  disabled={actionLoading || !templateId || !interviewer || !scheduledAt}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+                >
+                  {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Schedule Interview
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── State B/C: scheduled (editable) or completed/skipped (read-only) ────────
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+        <MessageSquare className="h-5 w-5 text-rose-500" />
+        <h3 className="text-sm font-semibold text-gray-900">Exit Interview</h3>
+        <span
+          className={cn(
+            "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+            INTERVIEW_STATUS_COLORS[interview.status] || "bg-gray-100 text-gray-600",
+          )}
+        >
+          {interview.status}
+        </span>
+        {interview.scheduled_date && <span>Scheduled: {formatDate(interview.scheduled_date)}</span>}
+        {interview.completed_date && <span>Completed: {formatDate(interview.completed_date)}</span>}
+      </div>
+
+      {isSkipped && (
+        <p className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-500">This interview was skipped.</p>
+      )}
+
+      {questions.length === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">No questions on this interview template.</p>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {questions.map((q, idx) => (
+              <div key={q.id} className="rounded-lg border border-gray-200 p-4">
+                <p className="mb-2 text-sm font-medium text-gray-900">
+                  {idx + 1}. {q.question_text}
+                  {q.is_required ? <span className="ml-1 text-red-500">*</span> : null}
+                </p>
+                {renderQuestionInput(q)}
+              </div>
+            ))}
+          </div>
+
+          {/* Overall feedback */}
+          <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-600">Overall Rating (1–10)</label>
+              <div className="flex flex-wrap gap-1">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    disabled={isReadOnly}
+                    onClick={() => setOverallRating(n)}
+                    className={cn(
+                      "h-8 w-8 rounded-md border text-xs font-medium disabled:cursor-default",
+                      overallRating === n
+                        ? "border-rose-500 bg-rose-500 text-white"
+                        : "border-gray-300 text-gray-600 hover:bg-gray-50",
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-600">Would recommend as an employer?</label>
+              <div className="flex gap-2">
+                {[{ v: true, l: "Yes" }, { v: false, l: "No" }].map(({ v, l }) => (
+                  <button
+                    key={l}
+                    type="button"
+                    disabled={isReadOnly}
+                    onClick={() => setWouldRecommend(v)}
+                    className={cn(
+                      "rounded-lg border px-4 py-1.5 text-sm font-medium disabled:cursor-default",
+                      wouldRecommend === v
+                        ? "border-rose-500 bg-rose-50 text-rose-700"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50",
+                    )}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Actions (scheduled only) */}
+      {!isReadOnly && (
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-4">
+          <button
+            onClick={() => setPendingAction("skip")}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            <SkipForward className="h-4 w-4" /> Skip
+          </button>
+          {questions.length > 0 && (
+            <button
+              onClick={handleSubmitResponses}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Send className="h-4 w-4" /> Save Responses
+            </button>
+          )}
+          <button
+            onClick={() => setPendingAction("complete")}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+          >
+            <CheckCircle className="h-4 w-4" /> Complete
+          </button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={pendingAction !== null}
+        title={pendingAction === "skip" ? "Skip this interview?" : "Complete this interview?"}
+        message={
+          pendingAction === "skip"
+            ? "Skipping marks the interview as skipped. This cannot be undone."
+            : "Completing locks the interview from further changes. Continue?"
+        }
+        confirmLabel={pendingAction === "skip" ? "Skip" : "Complete"}
+        tone={pendingAction === "skip" ? "danger" : "primary"}
+        loading={actionLoading}
+        onConfirm={() => { if (pendingAction === "skip") runSkip(); else runComplete(); }}
         onCancel={() => setPendingAction(null)}
       />
     </div>
