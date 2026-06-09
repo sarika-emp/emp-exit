@@ -108,3 +108,24 @@ export function getToken(): string | null {
 export function isLoggedIn(): boolean {
   return !!getToken();
 }
+
+// ── Role helpers ────────────────────────────────────────────────────────────
+// Admin roles get the full management console; "employee" gets self-service.
+const ADMIN_ROLES = ["super_admin", "org_admin", "hr_admin", "hr_manager"];
+
+export function isAdmin(user?: AuthUser | null): boolean {
+  const role = (user ?? getUser())?.role ?? "employee";
+  return ADMIN_ROLES.includes(role);
+}
+
+export function isEmployee(user?: AuthUser | null): boolean {
+  return !isAdmin(user);
+}
+
+// Where each role lands after login / when hitting a route they can't access.
+export const EMPLOYEE_HOME = "/exits/my";
+export const ADMIN_HOME = "/dashboard";
+
+export function homeFor(user?: AuthUser | null): string {
+  return isAdmin(user) ? ADMIN_HOME : EMPLOYEE_HOME;
+}

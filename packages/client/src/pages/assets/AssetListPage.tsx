@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import {
   Package,
   Plus,
@@ -35,17 +35,23 @@ export function AssetListPage() {
   const [searchParams] = useSearchParams();
   const exitId = searchParams.get("exitId") || "";
   const [assets, setAssets] = useState<any[]>([]);
+  const [allAssets, setAllAssets] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ asset_name: "", asset_tag: "", category: "laptop", replacement_cost: "" });
   const [submitting, setSubmitting] = useState(false);
 
   async function fetchAssets() {
-    if (!exitId) return;
     setLoading(true);
     try {
-      const res = await apiGet<any[]>(`/assets/exit/${exitId}`);
-      if (res.success) setAssets(res.data || []);
+      if (exitId) {
+        const res = await apiGet<any[]>(`/assets/exit/${exitId}`);
+        if (res.success) setAssets(res.data || []);
+      } else {
+        // No exit selected → show the org-wide asset list.
+        const res = await apiGet<any[]>("/assets");
+        if (res.success) setAllAssets(res.data || []);
+      }
     } catch {
       toast.error("Failed to load assets");
     } finally {
@@ -116,18 +122,77 @@ export function AssetListPage() {
         )}
       </div>
 
+      {/* Org-wide asset list (shown when no specific exit is selected) */}
       {!exitId && (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <Package className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-          <p className="text-sm font-medium text-gray-900">Open an exit to manage its assets</p>
-          <p className="mt-1 text-sm text-gray-500">
-            Asset returns are tracked per exit. Pick an exit from the{" "}
-            <a href="/exits" className="font-medium text-rose-600 hover:text-rose-700 underline">
-              Exits list
-            </a>
-            , then use the Assets tab on its detail page.
-          </p>
-        </div>
+        loading ? (
+          <div className="flex h-32 items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          </div>
+        ) : allAssets.length === 0 ? (
+          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
+            <Package className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+            <p className="text-sm font-medium text-gray-900">No assets tracked yet</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Asset returns are tracked per exit. Open an exit from the{" "}
+              <a href="/exits" className="font-medium text-rose-600 hover:text-rose-700 underline">
+                Exits list
+              </a>{" "}
+              and add the assets to be returned.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white -mx-4 lg:mx-0">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Employee</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Asset</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Category</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {allAssets.map((asset: any) => {
+                  const sc = STATUS_CONFIG[asset.status] || STATUS_CONFIG.pending;
+                  const Icon = sc.icon;
+                  const name = asset.employee
+                    ? `${asset.employee.first_name} ${asset.employee.last_name}`
+                    : "—";
+                  return (
+                    <tr key={asset.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <p className="text-sm font-medium text-gray-900">{name}</p>
+                        {asset.employee?.designation && (
+                          <p className="text-xs text-gray-500">{asset.employee.designation}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        {asset.asset_name}
+                        {asset.asset_tag && <span className="ml-1 text-xs text-gray-400">({asset.asset_tag})</span>}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 capitalize">{asset.category?.replace("_", " ")}</td>
+                      <td className="px-4 py-3">
+                        <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sc.color)}>
+                          <Icon className="h-3 w-3" />
+                          {sc.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          to={`/assets?exitId=${asset.exit_request_id}`}
+                          className="text-sm font-medium text-rose-600 hover:text-rose-700"
+                        >
+                          Manage
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
       )}
 
       {showForm && (

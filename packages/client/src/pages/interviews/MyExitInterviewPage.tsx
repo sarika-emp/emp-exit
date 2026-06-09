@@ -46,28 +46,25 @@ export function MyExitInterviewPage() {
 
   const fetchMyInterview = useCallback(async () => {
     try {
-      // Fetch self-service exit to find the user's active exit request
-      const exitRes = await apiGet<any>("/self-service/my-exit");
-      const myExit = exitRes.data;
-      if (!myExit?.id) {
+      // One self-service call resolves MY exit, my interview, and its template
+      // (with questions) — no exitId in the URL, no admin-only template fetch.
+      const res = await apiGet<{
+        interview: InterviewDetail | null;
+        template: TemplateWithQuestions | null;
+      }>("/self-service/my-interview");
+
+      const data = res.data?.interview ?? null;
+      if (!data) {
         setLoading(false);
         return;
       }
-      setExitId(myExit.id);
+      setExitId(data.exit_request_id);
+      setInterview(data);
+      setTemplate(res.data?.template ?? null);
 
-      // Fetch interview for this exit
-      const intRes = await apiGet<InterviewDetail>(`/interviews/exit/${myExit.id}`);
-      const data = intRes.data;
-      setInterview(data || null);
-
-      if (data?.template_id) {
-        const tRes = await apiGet<TemplateWithQuestions>(
-          `/interviews/templates/${data.template_id}`,
-        );
-        setTemplate(tRes.data || null);
-      }
-
-      // Pre-fill existing responses
+      // Pre-fill existing responses. If the employee has already answered, lock
+      // the form even if HR hasn't formally marked it completed yet, so a reload
+      // shows their submission instead of an editable blank form.
       if (data?.responses?.length) {
         const filled: Record<string, { text?: string; rating?: number }> = {};
         for (const r of data.responses) {
@@ -80,6 +77,7 @@ export function MyExitInterviewPage() {
         if (data.overall_rating) setOverallRating(data.overall_rating);
         if (data.summary?.includes("Would recommend: Yes")) setWouldRecommend(true);
         if (data.summary?.includes("Would recommend: No")) setWouldRecommend(false);
+        setSubmitted(true);
       }
     } catch {
       // No exit found — employee might not have an active exit
@@ -114,7 +112,7 @@ export function MyExitInterviewPage() {
         answer_rating: answers[q.id]?.rating || undefined,
       }));
 
-      await apiPost(`/interviews/exit/${exitId}/responses`, {
+      await apiPost("/self-service/my-interview/responses", {
         responses,
         overall_rating: overallRating || undefined,
         would_recommend: wouldRecommend,
@@ -243,29 +241,8 @@ export function MyExitInterviewPage() {
     );
   }
 
-  // No active exit
-  if (!exitId) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-rose-600" />
-            My Exit Interview
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">Submit your exit interview responses.</p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">No active exit request</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            You do not have an active exit request with a scheduled interview.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // No interview scheduled
+  // No interview scheduled (covers both "no active exit" and "exit but no
+  // interview yet" — in both cases there is nothing for the employee to fill in)
   if (!interview) {
     return (
       <div className="space-y-6">

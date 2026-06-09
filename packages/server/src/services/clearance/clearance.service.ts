@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { getDB } from "../../db/adapters";
+import { getEmpCloudDB } from "../../db/empcloud";
 import { NotFoundError } from "../../utils/errors";
 import { logger } from "../../utils/logger";
 import { sendClearancePendingEmail, sendClearanceCompletedEmail } from "../email/exit-email.service";
@@ -270,8 +271,31 @@ export async function getMyClearances(orgId: number, userId: number) {
     departments.filter(Boolean).map((d) => [d!.id, d!]),
   );
 
-  return filtered.map((record) => ({
-    ...record,
-    department: deptMap.get(record.department_id) || null,
-  }));
+  // Enrich with the exit's employee (name) so the UI shows who the clearance is
+  // for, not a raw exit UUID.
+  const exitMap = new Map(exits.filter(Boolean).map((e) => [e!.id, e!]));
+  const employeeIds = [
+    ...new Set(
+      filtered
+        .map((r) => exitMap.get(r.exit_request_id)?.employee_id)
+        .filter((id): id is number => typeof id === "number"),
+    ),
+  ];
+  const empMap = new Map<number, any>();
+  if (employeeIds.length > 0) {
+    const empDb = getEmpCloudDB();
+    const employees = await empDb("users")
+      .whereIn("id", employeeIds)
+      .select("id", "first_name", "last_name", "designation");
+    for (const e of employees) empMap.set(e.id, e);
+  }
+
+  return filtered.map((record) => {
+    const exit = exitMap.get(record.exit_request_id);
+    return {
+      ...record,
+      department: deptMap.get(record.department_id) || null,
+      employee: exit ? empMap.get(exit.employee_id) ?? null : null,
+    };
+  });
 }

@@ -5,7 +5,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { getDB } from "../../db/adapters";
-import { findUserById } from "../../db/empcloud";
+import { findUserById, getEmpCloudDB } from "../../db/empcloud";
 import { NotFoundError, ValidationError, ConflictError } from "../../utils/errors";
 import { logger } from "../../utils/logger";
 import { sendFnFCalculatedEmail, sendFnFApprovedEmail } from "../email/exit-email.service";
@@ -353,4 +353,66 @@ export async function markPaid(
 
   logger.info(`FnF marked as paid for exit ${exitRequestId}, ref: ${paymentReference}`);
   return updated;
+}
+
+// ---------------------------------------------------------------------------
+// List
+// ---------------------------------------------------------------------------
+
+/**
+ * List FnF settlements for an org, enriched with the employee + exit context
+ * (status, last working date) so the UI can render a manageable list instead of
+ * forcing an admin to look settlements up by raw exit UUID.
+ */
+export async function listFnF(
+  orgId: number,
+  params: { status?: string } = {},
+): Promise<any[]> {
+  const db = getDB();
+
+  // FnF rows are scoped to the org via their exit request.
+  const exitFilters: Record<string, any> = { organization_id: orgId };
+  const exitsResult = await db.findMany<ExitRequest>("exit_requests", {
+    filters: exitFilters,
+    limit: 1000,
+  });
+  const exitById = new Map(exitsResult.data.map((e) => [e.id, e]));
+  const exitIds = exitsResult.data.map((e) => e.id);
+  if (exitIds.length === 0) return [];
+
+  const settlementFilters: Record<string, any> = { exit_request_id: exitIds };
+  if (params.status) settlementFilters.status = params.status;
+
+  const settlements = await db.findMany<FnFSettlement>("fnf_settlements", {
+    filters: settlementFilters,
+    sort: { field: "updated_at", order: "desc" },
+    limit: 1000,
+  });
+
+  // Enrich with employee details from EmpCloud.
+  const empDb = getEmpCloudDB();
+  const employeeIds = [
+    ...new Set(
+      settlements.data
+        .map((f) => exitById.get(f.exit_request_id)?.employee_id)
+        .filter((id): id is number => typeof id === "number"),
+    ),
+  ];
+  const empMap = new Map<number, any>();
+  if (employeeIds.length > 0) {
+    const employees = await empDb("users")
+      .whereIn("id", employeeIds)
+      .select("id", "first_name", "last_name", "email", "emp_code", "designation");
+    for (const e of employees) empMap.set(e.id, e);
+  }
+
+  return settlements.data.map((f) => {
+    const exit = exitById.get(f.exit_request_id);
+    return {
+      ...f,
+      exit_status: exit?.status ?? null,
+      last_working_date: exit?.last_working_date ?? null,
+      employee: exit ? empMap.get(exit.employee_id) ?? null : null,
+    };
+  });
 }

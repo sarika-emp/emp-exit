@@ -14,6 +14,23 @@ const router = Router();
 // All routes require authentication
 router.use(authenticate);
 
+// GET / — list all FnF settlements for the org (admin management view)
+router.get(
+  "/",
+  authorize("org_admin", "hr_admin", "hr_manager"),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const orgId = req.user!.empcloudOrgId;
+      const list = await fnfService.listFnF(orgId, {
+        status: req.query.status as string | undefined,
+      });
+      sendSuccess(res, list);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 // POST /exit/:exitId/calculate — calculate FnF for an exit
 router.post(
   "/exit/:exitId/calculate",

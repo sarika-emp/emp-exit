@@ -124,17 +124,27 @@ export async function listAlumni(
     return { data, total: Number(total), page, perPage };
   }
 
-  const result = await db.findMany("alumni_profiles", {
-    filters: { organization_id: orgId, opted_in: true },
-    page,
-    limit: perPage,
-    sort: { field: "created_at", order: "desc" },
-  });
+  // Default listing — JOIN empcloud.users so names/department resolve, matching
+  // the search path. (Previously this used findMany without the JOIN, so the UI
+  // fell back to "Employee #<id>" with a blank department until you searched.)
+  const rows = await db.raw<any>(
+    `SELECT ap.*, u.first_name, u.last_name, u.email as work_email
+     FROM alumni_profiles ap
+     LEFT JOIN empcloud.users u ON u.id = ap.employee_id
+     WHERE ap.organization_id = ? AND ap.opted_in = 1
+     ORDER BY ap.created_at DESC
+     LIMIT ? OFFSET ?`,
+    [orgId, perPage, (page - 1) * perPage],
+  );
 
-  return {
-    data: result.data,
-    total: result.total,
-    page: result.page,
-    perPage,
-  };
+  const [countResult] = await db.raw<any>(
+    `SELECT COUNT(*) as total FROM alumni_profiles ap
+     WHERE ap.organization_id = ? AND ap.opted_in = 1`,
+    [orgId],
+  );
+
+  const data = Array.isArray(rows) && Array.isArray(rows[0]) ? rows[0] : rows;
+  const total = countResult?.[0]?.total || 0;
+
+  return { data, total: Number(total), page, perPage };
 }

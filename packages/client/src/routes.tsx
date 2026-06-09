@@ -1,6 +1,13 @@
 import { lazy } from "react";
-import { Route } from "react-router-dom";
+import { Route, Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { isAdmin, EMPLOYEE_HOME } from "@/lib/auth-store";
+
+// Guards an admin-only page: employees are bounced to their self-service hub
+// instead of seeing an org-wide management console (or an empty, role-scoped one).
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  return isAdmin() ? <>{children}</> : <Navigate to={EMPLOYEE_HOME} replace />;
+}
 
 // Lazy-loaded pages
 const LoginPage = lazy(() =>
@@ -140,67 +147,72 @@ export function AppRoutes() {
       {/* Public auth */}
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Protected routes inside DashboardLayout */}
+      {/* Protected routes inside DashboardLayout.
+          Self-service pages (/exits/my, /interviews/my, /kt/my, /alumni/my,
+          /exits/resign) are open to employees; everything else is wrapped in
+          <AdminRoute> so employees are redirected to their own hub. */}
       <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />
 
         {/* Exits */}
-        <Route path="/exits" element={<ExitListPage />} />
-        <Route path="/exits/new" element={<InitiateExitPage />} />
+        <Route path="/exits" element={<AdminRoute><ExitListPage /></AdminRoute>} />
+        <Route path="/exits/new" element={<AdminRoute><InitiateExitPage /></AdminRoute>} />
         <Route path="/exits/resign" element={<ResignationPage />} />
         <Route path="/exits/my" element={<MyExitPage />} />
-        <Route path="/exits/:id" element={<ExitDetailPage />} />
+        <Route path="/exits/:id" element={<AdminRoute><ExitDetailPage /></AdminRoute>} />
 
         {/* Checklists */}
-        <Route path="/checklists" element={<ChecklistTemplatesPage />} />
-        <Route path="/checklists/:id" element={<ChecklistInstancePage />} />
+        <Route path="/checklists" element={<AdminRoute><ChecklistTemplatesPage /></AdminRoute>} />
+        <Route path="/checklists/:id" element={<AdminRoute><ChecklistInstancePage /></AdminRoute>} />
 
         {/* Clearance */}
-        <Route path="/clearance" element={<ClearanceRecordsPage />} />
-        <Route path="/clearance/departments" element={<ClearanceDeptPage />} />
+        <Route path="/clearance" element={<AdminRoute><ClearanceRecordsPage /></AdminRoute>} />
+        <Route path="/clearance/departments" element={<AdminRoute><ClearanceDeptPage /></AdminRoute>} />
 
         {/* Interviews */}
-        <Route path="/interviews" element={<InterviewListPage />} />
-        <Route path="/interviews/templates" element={<InterviewTemplatesPage />} />
+        <Route path="/interviews" element={<AdminRoute><InterviewListPage /></AdminRoute>} />
+        <Route path="/interviews/templates" element={<AdminRoute><InterviewTemplatesPage /></AdminRoute>} />
         <Route path="/interviews/my" element={<MyExitInterviewPage />} />
-        <Route path="/interviews/:id" element={<InterviewDetailPage />} />
+        <Route path="/interviews/:id" element={<AdminRoute><InterviewDetailPage /></AdminRoute>} />
 
         {/* FnF */}
-        <Route path="/fnf" element={<FnFListPage />} />
-        <Route path="/fnf/:id" element={<FnFDetailPage />} />
+        <Route path="/fnf" element={<AdminRoute><FnFListPage /></AdminRoute>} />
+        <Route path="/fnf/:id" element={<AdminRoute><FnFDetailPage /></AdminRoute>} />
 
-        {/* Buyout */}
-        <Route path="/buyout" element={<BuyoutListPage />} />
+        {/* Buyout — the list is admin-only, but the calculator is also the
+            employee's self-service "request a buyout" page (it defaults to
+            /self-service/my-buyout/*), so it must stay reachable by employees. */}
+        <Route path="/buyout" element={<AdminRoute><BuyoutListPage /></AdminRoute>} />
         <Route path="/buyout/calculator" element={<BuyoutCalculatorPage />} />
 
         {/* Assets */}
-        <Route path="/assets" element={<AssetListPage />} />
+        <Route path="/assets" element={<AdminRoute><AssetListPage /></AdminRoute>} />
 
         {/* KT */}
-        <Route path="/kt" element={<KTListPage />} />
+        <Route path="/kt" element={<AdminRoute><KTListPage /></AdminRoute>} />
         <Route path="/kt/my" element={<MyKTPage />} />
-        <Route path="/kt/:id" element={<KTDetailPage />} />
+        <Route path="/kt/:id" element={<AdminRoute><KTDetailPage /></AdminRoute>} />
 
         {/* Letters */}
-        <Route path="/letters" element={<GeneratedLettersPage />} />
-        <Route path="/letters/templates" element={<LetterTemplatesPage />} />
+        <Route path="/letters" element={<AdminRoute><GeneratedLettersPage /></AdminRoute>} />
+        <Route path="/letters/templates" element={<AdminRoute><LetterTemplatesPage /></AdminRoute>} />
 
         {/* Alumni */}
-        <Route path="/alumni" element={<AlumniListPage />} />
+        <Route path="/alumni" element={<AdminRoute><AlumniListPage /></AdminRoute>} />
         <Route path="/alumni/my" element={<MyAlumniPage />} />
 
         {/* Rehire */}
-        <Route path="/rehire" element={<RehireListPage />} />
-        <Route path="/rehire/:id" element={<RehireDetailPage />} />
+        <Route path="/rehire" element={<AdminRoute><RehireListPage /></AdminRoute>} />
+        <Route path="/rehire/:id" element={<AdminRoute><RehireDetailPage /></AdminRoute>} />
 
         {/* Analytics */}
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/analytics/nps" element={<NPSPage />} />
-        <Route path="/analytics/flight-risk" element={<AttritionPredictionPage />} />
-        <Route path="/analytics/flight-risk/:employeeId" element={<EmployeeRiskDetailPage />} />
+        <Route path="/analytics" element={<AdminRoute><AnalyticsPage /></AdminRoute>} />
+        <Route path="/analytics/nps" element={<AdminRoute><NPSPage /></AdminRoute>} />
+        <Route path="/analytics/flight-risk" element={<AdminRoute><AttritionPredictionPage /></AdminRoute>} />
+        <Route path="/analytics/flight-risk/:employeeId" element={<AdminRoute><EmployeeRiskDetailPage /></AdminRoute>} />
 
         {/* Settings */}
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<AdminRoute><SettingsPage /></AdminRoute>} />
       </Route>
 
       {/* 404 */}
