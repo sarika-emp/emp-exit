@@ -17,6 +17,13 @@ import {
   Clock,
   Pencil,
   Eye,
+  Banknote,
+  RefreshCw,
+  Star,
+  Send,
+  SkipForward,
+  Search,
+  X,
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -105,6 +112,10 @@ export function ExitDetailPage() {
   const [clearance, setClearance] = useState<any>(null);
   const [buyout, setBuyout] = useState<any>(null);
   const [kt, setKt] = useState<any>(null);
+  const [fnf, setFnf] = useState<any>(null);
+  const [assets, setAssets] = useState<any[] | null>(null);
+  const [interview, setInterview] = useState<any>(null);
+  const [interviewTemplates, setInterviewTemplates] = useState<any[]>([]);
   const [letters, setLetters] = useState<any[] | null>(null);
   const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -131,6 +142,9 @@ export function ExitDetailPage() {
     if (activeTab === "clearance") loadClearance();
     if (activeTab === "buyout") loadBuyout();
     if (activeTab === "kt") loadKt();
+    if (activeTab === "fnf") loadFnf();
+    if (activeTab === "assets") loadAssets();
+    if (activeTab === "interview") loadInterview();
     if (activeTab === "letters") loadLetters();
   }, [activeTab, id, exit]);
 
@@ -307,6 +321,41 @@ export function ExitDetailPage() {
     }
   }
 
+  async function loadFnf() {
+    try {
+      // GET returns { data: null } (not 404) when no FnF has been calculated.
+      const res = await apiGet<any>(`/fnf/exit/${id}`);
+      setFnf(res.data);
+    } catch {
+      setFnf(null);
+    }
+  }
+
+  async function loadAssets() {
+    try {
+      const res = await apiGet<any[]>(`/assets/exit/${id}`);
+      setAssets(res.data ?? []);
+    } catch {
+      setAssets([]);
+    }
+  }
+
+  async function loadInterview() {
+    try {
+      // GET returns { data: null } (not 404) when no interview is scheduled.
+      const res = await apiGet<any>(`/interviews/exit/${id}`);
+      setInterview(res.data);
+    } catch {
+      setInterview(null);
+    }
+    try {
+      const tplRes = await apiGet<any[]>(`/interviews/templates`);
+      setInterviewTemplates(tplRes.data ?? []);
+    } catch {
+      setInterviewTemplates([]);
+    }
+  }
+
   async function handleKtItemUpdate(itemId: string, status: string) {
     try {
       await apiPut(`/kt/items/${itemId}`, { status });
@@ -444,10 +493,21 @@ export function ExitDetailPage() {
             actionLoading={actionLoading}
           />
         )}
-        {activeTab === "interview" && <PlaceholderTab name="Exit Interview" />}
-        {activeTab === "fnf" && <PlaceholderTab name="Full & Final Settlement" />}
+        {activeTab === "interview" && (
+          <InterviewTab
+            interview={interview}
+            templates={interviewTemplates}
+            exitId={id!}
+            onReload={loadInterview}
+          />
+        )}
+        {activeTab === "fnf" && (
+          <FnFTab fnf={fnf} exitId={id!} onReload={loadFnf} onExitChanged={loadExit} />
+        )}
         {activeTab === "buyout" && <BuyoutTab buyout={buyout} exitId={id!} onReload={loadBuyout} />}
-        {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
+        {activeTab === "assets" && (
+          <AssetsTab assets={assets} exitId={id!} onReload={loadAssets} />
+        )}
         {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
         {activeTab === "letters" && (
           <LettersTab
@@ -900,6 +960,1026 @@ function formatINR(amountPaise: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(rupees);
+}
+
+const FNF_STATUS_COLORS: Record<string, string> = {
+  draft: "bg-gray-100 text-gray-600",
+  calculated: "bg-blue-100 text-blue-700",
+  approved: "bg-green-100 text-green-700",
+  paid: "bg-emerald-100 text-emerald-700",
+};
+
+function FnFTab({
+  fnf,
+  exitId,
+  onReload,
+  onExitChanged,
+}: {
+  fnf: any;
+  exitId: string;
+  onReload: () => void;
+  onExitChanged: () => void;
+}) {
+  const [actionLoading, setActionLoading] = useState(false);
+  const [basicSalaryDue, setBasicSalaryDue] = useState(0);
+  const [leaveEncashment, setLeaveEncashment] = useState(0);
+  const [gratuity, setGratuity] = useState(0);
+  const [bonusDue, setBonusDue] = useState(0);
+  const [otherEarnings, setOtherEarnings] = useState(0);
+  const [noticePayRecovery, setNoticePayRecovery] = useState(0);
+  const [otherDeductions, setOtherDeductions] = useState(0);
+  const [remarks, setRemarks] = useState("");
+  const [showPay, setShowPay] = useState(false);
+  const [payRef, setPayRef] = useState("");
+  const [pendingAction, setPendingAction] = useState<null | "recalculate" | "approve">(null);
+
+  // The parent owns the fetch; seed the editable fields whenever fnf changes.
+  useEffect(() => {
+    if (!fnf) return;
+    setBasicSalaryDue(fnf.basic_salary_due ?? 0);
+    setLeaveEncashment(fnf.leave_encashment ?? 0);
+    setGratuity(fnf.gratuity ?? 0);
+    setBonusDue(fnf.bonus_due ?? 0);
+    setOtherEarnings(fnf.other_earnings ?? 0);
+    setNoticePayRecovery(fnf.notice_pay_recovery ?? 0);
+    setOtherDeductions(fnf.other_deductions ?? 0);
+    setRemarks(fnf.remarks || "");
+  }, [fnf]);
+
+  const isPaid = fnf?.status === "paid";
+  const isEditable = !isPaid;
+  const totalEarnings = basicSalaryDue + leaveEncashment + gratuity + bonusDue + otherEarnings;
+  const totalDeductions = noticePayRecovery + otherDeductions;
+  const netPayable = totalEarnings - totalDeductions;
+
+  async function handleCalculate() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/fnf/exit/${exitId}/calculate`);
+      onReload();
+      setPendingAction(null);
+      toast.success("FnF calculated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to calculate FnF");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleSave() {
+    setActionLoading(true);
+    try {
+      await apiPut(`/fnf/exit/${exitId}`, {
+        basic_salary_due: basicSalaryDue,
+        leave_encashment: leaveEncashment,
+        gratuity,
+        bonus_due: bonusDue,
+        other_earnings: otherEarnings,
+        notice_pay_recovery: noticePayRecovery,
+        other_deductions: otherDeductions,
+        remarks: remarks || undefined,
+      });
+      onReload();
+      toast.success("FnF updated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to save FnF");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleApprove() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/fnf/exit/${exitId}/approve`);
+      onReload();
+      setPendingAction(null);
+      toast.success("FnF approved");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to approve FnF");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleMarkPaid() {
+    if (!payRef.trim()) return;
+    setActionLoading(true);
+    try {
+      await apiPost(`/fnf/exit/${exitId}/mark-paid`, { payment_reference: payRef.trim() });
+      setShowPay(false);
+      setPayRef("");
+      onReload();
+      onExitChanged(); // mark-paid flips the parent exit to fnf_processed
+      toast.success("FnF marked as paid");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to mark as paid");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  const AmountField = ({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: number;
+    onChange: (v: number) => void;
+  }) => (
+    <div className="flex items-center justify-between border-b border-gray-100 py-2.5 last:border-0">
+      <span className="text-sm text-gray-700">{label}</span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs text-gray-400">INR</span>
+        <input
+          type="number"
+          value={value / 100}
+          onChange={(e) => onChange(Math.round(parseFloat(e.target.value || "0") * 100))}
+          disabled={!isEditable}
+          step="0.01"
+          className="w-32 rounded border border-gray-300 px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500"
+        />
+      </div>
+    </div>
+  );
+
+  // Empty state — no FnF calculated yet.
+  if (!fnf) {
+    return (
+      <div className="py-8 text-center">
+        <Calculator className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+        <p className="mb-4 text-sm text-gray-500">No full &amp; final settlement yet.</p>
+        <button
+          onClick={handleCalculate}
+          disabled={actionLoading}
+          className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+        >
+          {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+          Calculate Settlement
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Header + status */}
+      <div className="flex items-center gap-3">
+        <Calculator className="h-5 w-5 text-rose-500" />
+        <h3 className="text-sm font-semibold text-gray-900">Full &amp; Final Settlement</h3>
+        <span
+          className={cn(
+            "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+            FNF_STATUS_COLORS[fnf.status] || "bg-gray-100 text-gray-600",
+          )}
+        >
+          {fnf.status}
+        </span>
+      </div>
+
+      {isPaid && fnf.paid_date && (
+        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+          <Banknote className="h-5 w-5 text-emerald-600" />
+          <div>
+            <p className="text-sm font-medium text-emerald-800">Payment Completed</p>
+            <p className="text-xs text-emerald-600">Paid on {formatDate(fnf.paid_date)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Earnings / Deductions */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-600">Earnings</h4>
+          <AmountField label="Pending Salary (pro-rata)" value={basicSalaryDue} onChange={setBasicSalaryDue} />
+          <AmountField label="Leave Encashment" value={leaveEncashment} onChange={setLeaveEncashment} />
+          <AmountField label="Gratuity" value={gratuity} onChange={setGratuity} />
+          <AmountField label="Bonus" value={bonusDue} onChange={setBonusDue} />
+          <AmountField label="Other Earnings" value={otherEarnings} onChange={setOtherEarnings} />
+          <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-sm font-semibold text-emerald-700">
+            <span>Total Earnings</span><span>{formatINR(totalEarnings)}</span>
+          </div>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-red-600">Deductions</h4>
+          <AmountField label="Notice Period Recovery" value={noticePayRecovery} onChange={setNoticePayRecovery} />
+          <AmountField label="Other Deductions" value={otherDeductions} onChange={setOtherDeductions} />
+          <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-sm font-semibold text-red-700">
+            <span>Total Deductions</span><span>{formatINR(totalDeductions)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Net payable */}
+      <div
+        className={cn(
+          "flex items-center justify-between rounded-lg p-4",
+          netPayable >= 0 ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800",
+        )}
+      >
+        <span className="text-sm font-semibold">Net Payable</span>
+        <span className="text-lg font-bold">{formatINR(netPayable)}</span>
+      </div>
+
+      {/* Remarks */}
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">Remarks</label>
+        <textarea
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          disabled={!isEditable}
+          rows={2}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-gray-50"
+        />
+      </div>
+
+      {isEditable && (
+        <p className="text-xs text-gray-400">
+          Auto-calculation seeds amounts from notice/tenure only — enter the actual salary-based amounts above and Save.
+        </p>
+      )}
+
+      {/* Mark-paid inline input */}
+      {showPay && (
+        <div className="flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="flex-1 min-w-[200px]">
+            <label className="mb-1 block text-xs font-medium text-gray-600">Payment reference</label>
+            <input
+              value={payRef}
+              onChange={(e) => setPayRef(e.target.value)}
+              placeholder="e.g. NEFT-FNF-2026-0042"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <button
+            onClick={handleMarkPaid}
+            disabled={!payRef.trim() || actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            Confirm Payment
+          </button>
+          <button
+            onClick={() => { setShowPay(false); setPayRef(""); }}
+            disabled={actionLoading}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Status-driven actions */}
+      {!isPaid && !showPay && (
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-4">
+          {isEditable && fnf.status !== "approved" && (
+            <button
+              onClick={() => setPendingAction("recalculate")}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <RefreshCw className="h-4 w-4" /> Recalculate
+            </button>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+          >
+            {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />} Save Changes
+          </button>
+          {fnf.status === "calculated" && (
+            <button
+              onClick={() => setPendingAction("approve")}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              <CheckCircle className="h-4 w-4" /> Approve
+            </button>
+          )}
+          {fnf.status === "approved" && (
+            <button
+              onClick={() => setShowPay(true)}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+            >
+              <Banknote className="h-4 w-4" /> Mark Paid
+            </button>
+          )}
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={pendingAction !== null}
+        title={pendingAction === "approve" ? "Approve FnF settlement?" : "Recalculate FnF?"}
+        message={
+          pendingAction === "approve"
+            ? "Approving locks the settlement from recalculation. Continue?"
+            : "Recalculating overwrites any manual amount edits with auto-derived values. Continue?"
+        }
+        confirmLabel={pendingAction === "approve" ? "Approve" : "Recalculate"}
+        tone="primary"
+        loading={actionLoading}
+        onConfirm={() => { if (pendingAction === "approve") handleApprove(); else handleCalculate(); }}
+        onCancel={() => setPendingAction(null)}
+      />
+    </div>
+  );
+}
+
+const INTERVIEW_STATUS_COLORS: Record<string, string> = {
+  scheduled: "bg-blue-100 text-blue-700",
+  completed: "bg-green-100 text-green-700",
+  skipped: "bg-gray-100 text-gray-600",
+};
+
+function InterviewTab({
+  interview,
+  templates,
+  exitId,
+  onReload,
+}: {
+  interview: any;
+  templates: any[];
+  exitId: string;
+  onReload: () => void;
+}) {
+  const [actionLoading, setActionLoading] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [answers, setAnswers] = useState<Record<string, { text?: string; rating?: number }>>({});
+  const [overallRating, setOverallRating] = useState(0);
+  const [wouldRecommend, setWouldRecommend] = useState<boolean | null>(null);
+  const [pendingAction, setPendingAction] = useState<null | "complete" | "skip">(null);
+
+  // Schedule form state (not-scheduled state)
+  const [templateId, setTemplateId] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [interviewer, setInterviewer] = useState<any | null>(null);
+  const [intvQuery, setIntvQuery] = useState("");
+  const [intvResults, setIntvResults] = useState<any[]>([]);
+  const [intvSearching, setIntvSearching] = useState(false);
+  const [showIntvResults, setShowIntvResults] = useState(false);
+
+  const isCompleted = interview?.status === "completed";
+  const isSkipped = interview?.status === "skipped";
+  const isReadOnly = isCompleted || isSkipped;
+
+  // Fetch the full ordered question list (GET only returns answered questions
+  // nested in responses[]) and pre-fill answers from any existing responses.
+  useEffect(() => {
+    if (!interview) {
+      setQuestions([]);
+      return;
+    }
+    if (interview.template_id) {
+      apiGet<any>(`/interviews/templates/${interview.template_id}`)
+        .then((r) => setQuestions(r.data?.questions ?? []))
+        .catch(() => setQuestions([]));
+    } else {
+      setQuestions([]);
+    }
+    const filled: Record<string, { text?: string; rating?: number }> = {};
+    for (const resp of interview.responses ?? []) {
+      filled[resp.question_id] = {
+        text: resp.answer_text || undefined,
+        rating: resp.answer_rating || undefined,
+      };
+    }
+    setAnswers(filled);
+    setOverallRating(interview.overall_rating || 0);
+    if (interview.summary?.includes("Would recommend: Yes")) setWouldRecommend(true);
+    else if (interview.summary?.includes("Would recommend: No")) setWouldRecommend(false);
+    else setWouldRecommend(null);
+  }, [interview]);
+
+  // Debounced interviewer search (only used in the schedule form).
+  useEffect(() => {
+    if (interview || interviewer) return;
+    const q = intvQuery.trim();
+    if (!q) { setIntvResults([]); return; }
+    const handle = setTimeout(async () => {
+      setIntvSearching(true);
+      try {
+        const res = await apiGet<any[]>("/users/search", { q });
+        if (intvQuery.trim() === q) setIntvResults(res.data ?? []);
+      } catch { /* ignore */ } finally {
+        setIntvSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [intvQuery, interviewer, interview]);
+
+  function handleAnswerChange(qid: string, field: "text" | "rating", value: string | number) {
+    setAnswers((prev) => ({ ...prev, [qid]: { ...prev[qid], [field]: value } }));
+  }
+
+  async function handleSchedule() {
+    if (!templateId || !interviewer || !scheduledAt) {
+      toast.error("Select a template, an interviewer, and a date");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await apiPost(`/interviews/exit/${exitId}`, {
+        template_id: templateId,
+        conducted_by: Number(interviewer.id),
+        scheduled_at: scheduledAt,
+      });
+      toast.success("Interview scheduled");
+      onReload();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to schedule interview");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleSubmitResponses() {
+    setActionLoading(true);
+    try {
+      const responses = questions.map((q) => ({
+        question_id: q.id,
+        answer_text: answers[q.id]?.text || undefined,
+        answer_rating: answers[q.id]?.rating || undefined,
+      }));
+      await apiPost(`/interviews/exit/${exitId}/responses`, {
+        responses,
+        overall_rating: overallRating || undefined,
+        would_recommend: wouldRecommend,
+      });
+      toast.success("Responses saved");
+      onReload();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to save responses");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function runComplete() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/interviews/exit/${exitId}/complete`);
+      setPendingAction(null);
+      toast.success("Interview completed");
+      onReload();
+    } catch (err: any) {
+      setPendingAction(null);
+      toast.error(err?.response?.data?.error?.message || "Failed to complete interview");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function runSkip() {
+    setActionLoading(true);
+    try {
+      await apiPost(`/interviews/exit/${exitId}/skip`);
+      setPendingAction(null);
+      toast.success("Interview skipped");
+      onReload();
+    } catch (err: any) {
+      setPendingAction(null);
+      toast.error(err?.response?.data?.error?.message || "Failed to skip interview");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  function renderQuestionInput(q: any) {
+    const answer = answers[q.id] || {};
+    if (q.question_type === "rating") {
+      return (
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              disabled={isReadOnly}
+              onClick={() => handleAnswerChange(q.id, "rating", star)}
+              className="disabled:cursor-default"
+            >
+              <Star
+                className={cn(
+                  "h-6 w-6",
+                  (answer.rating || 0) >= star ? "fill-amber-400 text-amber-400" : "text-gray-300",
+                )}
+              />
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (q.question_type === "yes_no") {
+      return (
+        <div className="flex gap-2">
+          {["Yes", "No"].map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              disabled={isReadOnly}
+              onClick={() => handleAnswerChange(q.id, "text", opt)}
+              className={cn(
+                "rounded-lg border px-4 py-1.5 text-sm font-medium disabled:cursor-default",
+                answer.text === opt
+                  ? "border-rose-500 bg-rose-50 text-rose-700"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50",
+              )}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (q.question_type === "multiple_choice") {
+      let opts: string[] = [];
+      if (q.options) {
+        try {
+          const p = JSON.parse(q.options);
+          opts = Array.isArray(p) ? p.map(String) : [];
+        } catch {
+          opts = String(q.options).split(",").map((o) => o.trim());
+        }
+      }
+      return (
+        <div className="space-y-1.5">
+          {opts.map((opt) => (
+            <label key={opt} className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="radio"
+                name={`q-${q.id}`}
+                disabled={isReadOnly}
+                checked={answer.text === opt}
+                onChange={() => handleAnswerChange(q.id, "text", opt)}
+              />
+              {opt}
+            </label>
+          ))}
+        </div>
+      );
+    }
+    // text
+    return (
+      <textarea
+        value={answer.text || ""}
+        disabled={isReadOnly}
+        onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
+        rows={2}
+        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-gray-50"
+      />
+    );
+  }
+
+  // ── State A: not scheduled ──────────────────────────────────────────────────
+  if (!interview) {
+    return (
+      <div className="space-y-5">
+        <div className="py-6 text-center">
+          <MessageSquare className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+          <p className="text-sm text-gray-500">No exit interview scheduled.</p>
+        </div>
+        <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          {templates.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              No interview templates available. Create one in Interview Templates first.
+            </p>
+          ) : (
+            <>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Template</label>
+                <select
+                  value={templateId}
+                  onChange={(e) => setTemplateId(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                >
+                  <option value="" disabled>Select a template…</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Interviewer</label>
+                {interviewer ? (
+                  <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2">
+                    <span className="text-sm text-gray-800">
+                      {interviewer.first_name} {interviewer.last_name}
+                      <span className="ml-1 text-xs text-gray-400">
+                        {interviewer.emp_code || interviewer.email}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setInterviewer(null); setIntvQuery(""); setIntvResults([]); }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                      value={intvQuery}
+                      onChange={(e) => { setIntvQuery(e.target.value); setShowIntvResults(true); }}
+                      onFocus={() => setShowIntvResults(true)}
+                      onBlur={() => setTimeout(() => setShowIntvResults(false), 150)}
+                      placeholder="Search employee by name or email…"
+                      className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-rose-400 focus:outline-none"
+                    />
+                    {showIntvResults && (intvSearching || intvResults.length > 0) && (
+                      <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                        {intvSearching ? (
+                          <div className="px-3 py-2 text-xs text-gray-400">Searching…</div>
+                        ) : (
+                          intvResults.map((u) => (
+                            <button
+                              key={u.id}
+                              type="button"
+                              onMouseDown={() => { setInterviewer(u); setShowIntvResults(false); }}
+                              className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                            >
+                              {u.first_name} {u.last_name}
+                              <span className="ml-1 text-xs text-gray-400">{u.emp_code || u.email}</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">Scheduled Date</label>
+                <input
+                  type="date"
+                  value={scheduledAt}
+                  onChange={(e) => setScheduledAt(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSchedule}
+                  disabled={actionLoading || !templateId || !interviewer || !scheduledAt}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+                >
+                  {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Schedule Interview
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── State B/C: scheduled (editable) or completed/skipped (read-only) ────────
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+        <MessageSquare className="h-5 w-5 text-rose-500" />
+        <h3 className="text-sm font-semibold text-gray-900">Exit Interview</h3>
+        <span
+          className={cn(
+            "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+            INTERVIEW_STATUS_COLORS[interview.status] || "bg-gray-100 text-gray-600",
+          )}
+        >
+          {interview.status}
+        </span>
+        {interview.scheduled_date && <span>Scheduled: {formatDate(interview.scheduled_date)}</span>}
+        {interview.completed_date && <span>Completed: {formatDate(interview.completed_date)}</span>}
+      </div>
+
+      {isSkipped && (
+        <p className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-500">This interview was skipped.</p>
+      )}
+
+      {questions.length === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">No questions on this interview template.</p>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {questions.map((q, idx) => (
+              <div key={q.id} className="rounded-lg border border-gray-200 p-4">
+                <p className="mb-2 text-sm font-medium text-gray-900">
+                  {idx + 1}. {q.question_text}
+                  {q.is_required ? <span className="ml-1 text-red-500">*</span> : null}
+                </p>
+                {renderQuestionInput(q)}
+              </div>
+            ))}
+          </div>
+
+          {/* Overall feedback */}
+          <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-600">Overall Rating (1–10)</label>
+              <div className="flex flex-wrap gap-1">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    disabled={isReadOnly}
+                    onClick={() => setOverallRating(n)}
+                    className={cn(
+                      "h-8 w-8 rounded-md border text-xs font-medium disabled:cursor-default",
+                      overallRating === n
+                        ? "border-rose-500 bg-rose-500 text-white"
+                        : "border-gray-300 text-gray-600 hover:bg-gray-50",
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-gray-600">Would recommend as an employer?</label>
+              <div className="flex gap-2">
+                {[{ v: true, l: "Yes" }, { v: false, l: "No" }].map(({ v, l }) => (
+                  <button
+                    key={l}
+                    type="button"
+                    disabled={isReadOnly}
+                    onClick={() => setWouldRecommend(v)}
+                    className={cn(
+                      "rounded-lg border px-4 py-1.5 text-sm font-medium disabled:cursor-default",
+                      wouldRecommend === v
+                        ? "border-rose-500 bg-rose-50 text-rose-700"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50",
+                    )}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Actions (scheduled only) */}
+      {!isReadOnly && (
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-4">
+          <button
+            onClick={() => setPendingAction("skip")}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            <SkipForward className="h-4 w-4" /> Skip
+          </button>
+          {questions.length > 0 && (
+            <button
+              onClick={handleSubmitResponses}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Send className="h-4 w-4" /> Save Responses
+            </button>
+          )}
+          <button
+            onClick={() => setPendingAction("complete")}
+            disabled={actionLoading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+          >
+            <CheckCircle className="h-4 w-4" /> Complete
+          </button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={pendingAction !== null}
+        title={pendingAction === "skip" ? "Skip this interview?" : "Complete this interview?"}
+        message={
+          pendingAction === "skip"
+            ? "Skipping marks the interview as skipped. This cannot be undone."
+            : "Completing locks the interview from further changes. Continue?"
+        }
+        confirmLabel={pendingAction === "skip" ? "Skip" : "Complete"}
+        tone={pendingAction === "skip" ? "danger" : "primary"}
+        loading={actionLoading}
+        onConfirm={() => { if (pendingAction === "skip") runSkip(); else runComplete(); }}
+        onCancel={() => setPendingAction(null)}
+      />
+    </div>
+  );
+}
+
+const ASSET_STATUS_COLORS: Record<string, string> = {
+  pending: "bg-gray-100 text-gray-600",
+  returned: "bg-green-100 text-green-700",
+  damaged: "bg-amber-100 text-amber-700",
+  lost: "bg-red-100 text-red-700",
+  waived: "bg-blue-100 text-blue-700",
+};
+
+const ASSET_CATEGORIES: { value: string; label: string }[] = [
+  { value: "laptop", label: "Laptop" },
+  { value: "phone", label: "Phone" },
+  { value: "id_card", label: "ID Card" },
+  { value: "access_card", label: "Access Card" },
+  { value: "vehicle", label: "Vehicle" },
+  { value: "furniture", label: "Furniture" },
+  { value: "other", label: "Other" },
+];
+
+const ASSET_STATUSES = ["pending", "returned", "damaged", "lost", "waived"];
+
+function AssetsTab({
+  assets,
+  exitId,
+  onReload,
+}: {
+  assets: any[] | null;
+  exitId: string;
+  onReload: () => void;
+}) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [form, setForm] = useState({ category: "laptop", asset_name: "", asset_tag: "", replacement_cost: "" });
+
+  async function handleAdd() {
+    if (!form.asset_name.trim()) {
+      toast.error("Asset name is required");
+      return;
+    }
+    setSaving(true);
+    try {
+      await apiPost(`/assets/exit/${exitId}`, {
+        category: form.category,
+        asset_name: form.asset_name.trim(),
+        asset_tag: form.asset_tag.trim() || undefined,
+        replacement_cost: form.replacement_cost
+          ? Math.round(parseFloat(form.replacement_cost) * 100)
+          : undefined,
+      });
+      setForm({ category: "laptop", asset_name: "", asset_tag: "", replacement_cost: "" });
+      setShowAdd(false);
+      onReload();
+      toast.success("Asset added");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to add asset");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleStatusChange(assetId: string, status: string) {
+    setBusyId(assetId);
+    try {
+      // When marking returned, stamp today's date so the record is complete.
+      const body: Record<string, any> = { status };
+      if (status === "returned") body.returned_date = new Date().toISOString().slice(0, 10);
+      await apiPut(`/assets/${assetId}`, body);
+      onReload();
+      toast.success("Asset updated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to update asset");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  const list = assets ?? [];
+  const isLoading = assets === null;
+
+  return (
+    <div className="space-y-5">
+      {/* Add control */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-700">Company Assets</h3>
+        <button
+          onClick={() => setShowAdd((v) => !v)}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <Package className="h-3.5 w-3.5" />
+          {showAdd ? "Close" : "Add Asset"}
+        </button>
+      </div>
+
+      {showAdd && (
+        <div className="grid grid-cols-1 gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Category</label>
+            <select
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            >
+              {ASSET_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Asset Name</label>
+            <input
+              value={form.asset_name}
+              onChange={(e) => setForm({ ...form, asset_name: e.target.value })}
+              placeholder="e.g. Dell Latitude 5430"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Asset Tag</label>
+            <input
+              value={form.asset_tag}
+              onChange={(e) => setForm({ ...form, asset_tag: e.target.value })}
+              placeholder="e.g. LAP-2231"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Replacement Cost (INR)</label>
+            <input
+              type="number"
+              value={form.replacement_cost}
+              onChange={(e) => setForm({ ...form, replacement_cost: e.target.value })}
+              placeholder="0"
+              step="0.01"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <div className="sm:col-span-2 flex justify-end">
+            <button
+              onClick={handleAdd}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              Add Asset
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Asset list */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+        </div>
+      ) : list.length === 0 ? (
+        <div className="py-10 text-center">
+          <Package className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+          <p className="text-sm text-gray-500">No assets recorded for this exit.</p>
+          <p className="text-xs text-gray-400">Use "Add Asset" above to track company property to be returned.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {list.map((a) => {
+            const cat = ASSET_CATEGORIES.find((c) => c.value === a.category);
+            return (
+              <div key={a.id} className="flex items-center justify-between py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-900">{a.asset_name}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {cat?.label || a.category}
+                    {a.asset_tag ? ` · ${a.asset_tag}` : ""}
+                    {a.replacement_cost ? ` · ${formatINR(a.replacement_cost)}` : ""}
+                    {a.returned_date ? ` · Returned ${formatDate(a.returned_date)}` : ""}
+                  </p>
+                  {a.condition_notes && (
+                    <p className="mt-0.5 text-xs italic text-gray-400">{a.condition_notes}</p>
+                  )}
+                </div>
+                <div className="ml-4 flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                      ASSET_STATUS_COLORS[a.status] || "bg-gray-100 text-gray-600",
+                    )}
+                  >
+                    {a.status}
+                  </span>
+                  {busyId === a.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  ) : (
+                    <select
+                      value={a.status}
+                      onChange={(e) => handleStatusChange(a.id, e.target.value)}
+                      className="rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-rose-400 focus:outline-none"
+                    >
+                      {ASSET_STATUSES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const LETTER_TYPES: Record<string, string> = {
