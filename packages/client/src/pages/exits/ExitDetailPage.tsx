@@ -108,6 +108,7 @@ export function ExitDetailPage() {
   const [buyout, setBuyout] = useState<any>(null);
   const [kt, setKt] = useState<any>(null);
   const [fnf, setFnf] = useState<any>(null);
+  const [assets, setAssets] = useState<any[] | null>(null);
   const [letters, setLetters] = useState<any[] | null>(null);
   const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
@@ -135,6 +136,7 @@ export function ExitDetailPage() {
     if (activeTab === "buyout") loadBuyout();
     if (activeTab === "kt") loadKt();
     if (activeTab === "fnf") loadFnf();
+    if (activeTab === "assets") loadAssets();
     if (activeTab === "letters") loadLetters();
   }, [activeTab, id, exit]);
 
@@ -321,6 +323,15 @@ export function ExitDetailPage() {
     }
   }
 
+  async function loadAssets() {
+    try {
+      const res = await apiGet<any[]>(`/assets/exit/${id}`);
+      setAssets(res.data ?? []);
+    } catch {
+      setAssets([]);
+    }
+  }
+
   async function handleKtItemUpdate(itemId: string, status: string) {
     try {
       await apiPut(`/kt/items/${itemId}`, { status });
@@ -463,7 +474,9 @@ export function ExitDetailPage() {
           <FnFTab fnf={fnf} exitId={id!} onReload={loadFnf} onExitChanged={loadExit} />
         )}
         {activeTab === "buyout" && <BuyoutTab buyout={buyout} exitId={id!} onReload={loadBuyout} />}
-        {activeTab === "assets" && <PlaceholderTab name="Asset Returns" />}
+        {activeTab === "assets" && (
+          <AssetsTab assets={assets} exitId={id!} onReload={loadAssets} />
+        )}
         {activeTab === "kt" && <KtTab kt={kt} onUpdateItem={handleKtItemUpdate} />}
         {activeTab === "letters" && (
           <LettersTab
@@ -1240,6 +1253,216 @@ function FnFTab({
         onConfirm={() => { if (pendingAction === "approve") handleApprove(); else handleCalculate(); }}
         onCancel={() => setPendingAction(null)}
       />
+    </div>
+  );
+}
+
+const ASSET_STATUS_COLORS: Record<string, string> = {
+  pending: "bg-gray-100 text-gray-600",
+  returned: "bg-green-100 text-green-700",
+  damaged: "bg-amber-100 text-amber-700",
+  lost: "bg-red-100 text-red-700",
+  waived: "bg-blue-100 text-blue-700",
+};
+
+const ASSET_CATEGORIES: { value: string; label: string }[] = [
+  { value: "laptop", label: "Laptop" },
+  { value: "phone", label: "Phone" },
+  { value: "id_card", label: "ID Card" },
+  { value: "access_card", label: "Access Card" },
+  { value: "vehicle", label: "Vehicle" },
+  { value: "furniture", label: "Furniture" },
+  { value: "other", label: "Other" },
+];
+
+const ASSET_STATUSES = ["pending", "returned", "damaged", "lost", "waived"];
+
+function AssetsTab({
+  assets,
+  exitId,
+  onReload,
+}: {
+  assets: any[] | null;
+  exitId: string;
+  onReload: () => void;
+}) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [form, setForm] = useState({ category: "laptop", asset_name: "", asset_tag: "", replacement_cost: "" });
+
+  async function handleAdd() {
+    if (!form.asset_name.trim()) {
+      toast.error("Asset name is required");
+      return;
+    }
+    setSaving(true);
+    try {
+      await apiPost(`/assets/exit/${exitId}`, {
+        category: form.category,
+        asset_name: form.asset_name.trim(),
+        asset_tag: form.asset_tag.trim() || undefined,
+        replacement_cost: form.replacement_cost
+          ? Math.round(parseFloat(form.replacement_cost) * 100)
+          : undefined,
+      });
+      setForm({ category: "laptop", asset_name: "", asset_tag: "", replacement_cost: "" });
+      setShowAdd(false);
+      onReload();
+      toast.success("Asset added");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to add asset");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleStatusChange(assetId: string, status: string) {
+    setBusyId(assetId);
+    try {
+      // When marking returned, stamp today's date so the record is complete.
+      const body: Record<string, any> = { status };
+      if (status === "returned") body.returned_date = new Date().toISOString().slice(0, 10);
+      await apiPut(`/assets/${assetId}`, body);
+      onReload();
+      toast.success("Asset updated");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error?.message || "Failed to update asset");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  const list = assets ?? [];
+  const isLoading = assets === null;
+
+  return (
+    <div className="space-y-5">
+      {/* Add control */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-700">Company Assets</h3>
+        <button
+          onClick={() => setShowAdd((v) => !v)}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <Package className="h-3.5 w-3.5" />
+          {showAdd ? "Close" : "Add Asset"}
+        </button>
+      </div>
+
+      {showAdd && (
+        <div className="grid grid-cols-1 gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Category</label>
+            <select
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            >
+              {ASSET_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Asset Name</label>
+            <input
+              value={form.asset_name}
+              onChange={(e) => setForm({ ...form, asset_name: e.target.value })}
+              placeholder="e.g. Dell Latitude 5430"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Asset Tag</label>
+            <input
+              value={form.asset_tag}
+              onChange={(e) => setForm({ ...form, asset_tag: e.target.value })}
+              placeholder="e.g. LAP-2231"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Replacement Cost (INR)</label>
+            <input
+              type="number"
+              value={form.replacement_cost}
+              onChange={(e) => setForm({ ...form, replacement_cost: e.target.value })}
+              placeholder="0"
+              step="0.01"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+            />
+          </div>
+          <div className="sm:col-span-2 flex justify-end">
+            <button
+              onClick={handleAdd}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              Add Asset
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Asset list */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+        </div>
+      ) : list.length === 0 ? (
+        <div className="py-10 text-center">
+          <Package className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+          <p className="text-sm text-gray-500">No assets recorded for this exit.</p>
+          <p className="text-xs text-gray-400">Use "Add Asset" above to track company property to be returned.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {list.map((a) => {
+            const cat = ASSET_CATEGORIES.find((c) => c.value === a.category);
+            return (
+              <div key={a.id} className="flex items-center justify-between py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-900">{a.asset_name}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {cat?.label || a.category}
+                    {a.asset_tag ? ` · ${a.asset_tag}` : ""}
+                    {a.replacement_cost ? ` · ${formatINR(a.replacement_cost)}` : ""}
+                    {a.returned_date ? ` · Returned ${formatDate(a.returned_date)}` : ""}
+                  </p>
+                  {a.condition_notes && (
+                    <p className="mt-0.5 text-xs italic text-gray-400">{a.condition_notes}</p>
+                  )}
+                </div>
+                <div className="ml-4 flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                      ASSET_STATUS_COLORS[a.status] || "bg-gray-100 text-gray-600",
+                    )}
+                  >
+                    {a.status}
+                  </span>
+                  {busyId === a.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  ) : (
+                    <select
+                      value={a.status}
+                      onChange={(e) => handleStatusChange(a.id, e.target.value)}
+                      className="rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-rose-400 focus:outline-none"
+                    >
+                      {ASSET_STATUSES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
