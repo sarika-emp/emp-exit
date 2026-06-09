@@ -24,7 +24,7 @@ import { isLoggedIn, getUser, useAuthStore } from "@/lib/auth-store";
 import { cn, getInitials } from "@/lib/utils";
 import { BackToDashboard } from "@/components/BackToDashboard";
 
-type Role = "org_admin" | "hr_admin" | "hr_manager" | "employee";
+type Role = "super_admin" | "org_admin" | "hr_admin" | "hr_manager" | "employee";
 
 interface NavItem {
   to: string;
@@ -51,7 +51,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
-const ADMIN_ROLES: Role[] = ["org_admin", "hr_admin", "hr_manager"];
+const ADMIN_ROLES: Role[] = ["super_admin", "org_admin", "hr_admin", "hr_manager"];
 
 export function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -65,12 +65,14 @@ export function DashboardLayout() {
 
   if (!isLoggedIn()) return <Navigate to="/login" replace />;
   const displayName = user ? `${user.firstName} ${user.lastName}` : "User";
-  const roleLabel =
-    user?.role === "hr_admin"
-      ? "HR Admin"
-      : user?.role === "hr_manager"
-        ? "HR Manager"
-        : "Employee";
+  const ROLE_LABELS: Record<string, string> = {
+    super_admin: "Super Admin",
+    org_admin: "Org Admin",
+    hr_admin: "HR Admin",
+    hr_manager: "HR Manager",
+    employee: "Employee",
+  };
+  const roleLabel = ROLE_LABELS[user?.role || "employee"] || "Employee";
 
   function SidebarContent() {
     return (
