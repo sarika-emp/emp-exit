@@ -15,6 +15,8 @@ import * as checklistService from "../../services/checklist/checklist.service";
 import * as buyoutService from "../../services/buyout/notice-buyout.service";
 import * as letterService from "../../services/letter/letter.service";
 import * as ktService from "../../services/kt/knowledge-transfer.service";
+import * as interviewService from "../../services/interview/exit-interview.service";
+import { submitInterviewResponseSchema } from "@emp-exit/shared";
 
 const router = Router();
 
@@ -287,6 +289,72 @@ router.put("/my-kt/complete", async (req, res, next) => {
     }
 
     const updated = await ktService.updateKT(orgId, exit.id, { status: "completed" });
+    sendSuccess(res, updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /my-interview — my exit interview plus its template/questions, resolved
+// from my own exit. Returns { interview, template } so the page needs one call
+// and never has to fetch the admin-only /interviews/templates/:id endpoint.
+router.get("/my-interview", async (req, res, next) => {
+  try {
+    const orgId = req.user!.empcloudOrgId;
+    const userId = req.user!.empcloudUserId;
+
+    const exit = await exitService.getMyExit(orgId, userId);
+    if (!exit) {
+      return sendSuccess(res, { interview: null, template: null });
+    }
+
+    const interview = await interviewService.getInterview(orgId, exit.id);
+    let template = null;
+    if (interview?.template_id) {
+      template = await interviewService.getTemplate(orgId, interview.template_id);
+    }
+
+    sendSuccess(res, { interview, template });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /my-interview/responses — submit answers to my own exit interview.
+// Ownership is enforced: the interview must belong to the requester's own exit.
+router.post("/my-interview/responses", async (req, res, next) => {
+  try {
+    const orgId = req.user!.empcloudOrgId;
+    const userId = req.user!.empcloudUserId;
+
+    const exit = await exitService.getMyExit(orgId, userId);
+    if (!exit) {
+      throw new NotFoundError("Exit interview", "");
+    }
+
+    const parsed = submitInterviewResponseSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError("Invalid response data", {
+        validation: parsed.error.errors.map((e) => e.message),
+      });
+    }
+
+    const interview = await interviewService.getInterview(orgId, exit.id);
+    if (!interview) {
+      throw new NotFoundError("Exit interview", "");
+    }
+
+    const updated = await interviewService.submitResponses(
+      orgId,
+      interview.id,
+      parsed.data.responses.map((r) => ({
+        questionId: r.question_id,
+        responseText: r.answer_text,
+        responseRating: r.answer_rating,
+      })),
+      parsed.data.overall_rating,
+      req.body.would_recommend,
+    );
     sendSuccess(res, updated);
   } catch (err) {
     next(err);
