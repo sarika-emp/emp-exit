@@ -13,6 +13,23 @@ import { ValidationError } from "../../utils/errors";
 const router = Router();
 router.use(authenticate);
 
+// GET /assets — org-wide list of all asset returns (admin management view)
+router.get(
+  "/",
+  authorize("super_admin", "org_admin", "hr_admin", "hr_manager"),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const orgId = req.user!.empcloudOrgId;
+      const assets = await assetService.listAllAssets(orgId, {
+        status: req.query.status as string | undefined,
+      });
+      return sendSuccess(res, assets);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 // GET /assets/exit/:exitId — list assets for an exit
 router.get("/exit/:exitId", async (req: Request, res: Response, next: NextFunction) => {
   try {
