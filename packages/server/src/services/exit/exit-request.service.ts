@@ -156,7 +156,20 @@ export async function listExits(
   const filters: Record<string, any> = { organization_id: orgId };
 
   if (params.status) {
-    filters.status = params.status;
+    // "active" is a virtual group (matches the dashboard's Active Exits count):
+    // any exit still in progress, i.e. not completed/cancelled. Expands to a
+    // status IN (...) filter; the adapter turns an array value into whereIn.
+    if (params.status === "active") {
+      filters.status = [
+        "initiated",
+        "notice_period",
+        "clearance_pending",
+        "fnf_pending",
+        "fnf_processed",
+      ];
+    } else {
+      filters.status = params.status;
+    }
   }
   if (params.exit_type) {
     filters.exit_type = params.exit_type;

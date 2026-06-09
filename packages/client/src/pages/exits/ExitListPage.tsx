@@ -6,6 +6,7 @@ import { cn, formatDate } from "@/lib/utils";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Statuses" },
+  { value: "active", label: "Active (in progress)" },
   { value: "initiated", label: "Initiated" },
   { value: "notice_period", label: "Notice Period" },
   { value: "clearance_pending", label: "Clearance Pending" },
