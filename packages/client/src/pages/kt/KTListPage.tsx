@@ -9,6 +9,8 @@ import {
   Loader2,
   FileText,
   User,
+  Search,
+  ChevronRight,
 } from "lucide-react";
 import { apiGet, apiPost, apiPut } from "@/api/client";
 import toast from "react-hot-toast";
@@ -19,6 +21,21 @@ const KT_STATUS: Record<string, { label: string; color: string }> = {
   in_progress: { label: "In Progress", color: "bg-blue-100 text-blue-700" },
   completed: { label: "Completed", color: "bg-green-100 text-green-700" },
 };
+
+// Exit lifecycle status → badge colour + readable label.
+const EXIT_STATUS: Record<string, { label: string; color: string }> = {
+  initiated: { label: "Initiated", color: "bg-blue-100 text-blue-700" },
+  notice_period: { label: "Notice Period", color: "bg-amber-100 text-amber-700" },
+  clearance_pending: { label: "Clearance Pending", color: "bg-orange-100 text-orange-700" },
+  fnf_pending: { label: "FnF Pending", color: "bg-purple-100 text-purple-700" },
+  fnf_processed: { label: "FnF Processed", color: "bg-indigo-100 text-indigo-700" },
+  completed: { label: "Completed", color: "bg-green-100 text-green-700" },
+  cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-500" },
+};
+
+function initials(first?: string, last?: string): string {
+  return `${(first?.[0] || "").toUpperCase()}${(last?.[0] || "").toUpperCase()}` || "?";
+}
 
 interface ExitOption {
   id: string;
@@ -42,6 +59,7 @@ export function KTListPage() {
   // hint and there's no in-UI way to proceed.
   const [exitOptions, setExitOptions] = useState<ExitOption[]>([]);
   const [loadingExits, setLoadingExits] = useState(false);
+  const [exitSearch, setExitSearch] = useState("");
   useEffect(() => {
     if (exitId) return;
     let cancelled = false;
@@ -185,63 +203,99 @@ export function KTListPage() {
       </div>
 
       {/* Exit picker — shown only when no exit is selected via the URL.
-          Clicking a row sets ?exitId=... and the rest of the page renders
-          the KT plan / items for that exit. */}
-      {!exitId && (
-        <div className="rounded-lg border border-gray-200 bg-white">
-          <div className="border-b border-gray-100 px-4 py-3">
-            <h2 className="text-sm font-semibold text-gray-900">Select an exit</h2>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Pick the exit you want to manage knowledge transfer for.
-            </p>
-          </div>
-          {loadingExits ? (
-            <div className="flex h-32 items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+          Clicking a card sets ?exitId=... and the rest of the page renders
+          the KT plan / items for that exit. Cancelled exits are hidden since
+          KT can't meaningfully run on them. */}
+      {!exitId && (() => {
+        // Hide cancelled exits, then apply the search filter.
+        const visible = exitOptions
+          .filter((e) => e.status !== "cancelled")
+          .filter((e) => {
+            if (!exitSearch.trim()) return true;
+            const q = exitSearch.toLowerCase();
+            const name = `${e.employee?.first_name ?? ""} ${e.employee?.last_name ?? ""}`.toLowerCase();
+            return (
+              name.includes(q) ||
+              (e.employee?.emp_code ?? "").toLowerCase().includes(q) ||
+              (e.employee?.designation ?? "").toLowerCase().includes(q)
+            );
+          });
+
+        return (
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">Select an exit</h2>
+                <p className="mt-0.5 text-sm text-gray-500">
+                  Pick the exit you want to manage knowledge transfer for.
+                </p>
+              </div>
+              <div className="relative w-full sm:w-72">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  value={exitSearch}
+                  onChange={(e) => setExitSearch(e.target.value)}
+                  placeholder="Search by name, code, designation…"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                />
+              </div>
             </div>
-          ) : exitOptions.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-gray-500">
-              No exits found. Initiate an exit first to manage its KT plan.
-            </p>
-          ) : (
-            <ul className="divide-y divide-gray-100">
-              {exitOptions.map((exit) => {
-                const name = exit.employee
-                  ? `${exit.employee.first_name} ${exit.employee.last_name}`
-                  : "(unknown employee)";
-                return (
-                  <li key={exit.id}>
+
+            {loadingExits ? (
+              <div className="flex h-40 items-center justify-center rounded-xl border border-gray-200 bg-white">
+                <Loader2 className="h-6 w-6 animate-spin text-rose-500" />
+              </div>
+            ) : visible.length === 0 ? (
+              <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
+                <BookOpen className="mx-auto h-10 w-10 text-gray-300" />
+                <p className="mt-3 text-sm text-gray-500">
+                  {exitSearch
+                    ? "No exits match your search."
+                    : "No active exits found. Initiate an exit first to manage its KT plan."}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {visible.map((exit) => {
+                  const name = exit.employee
+                    ? `${exit.employee.first_name} ${exit.employee.last_name}`
+                    : "Unknown employee";
+                  const st = EXIT_STATUS[exit.status] || { label: exit.status, color: "bg-gray-100 text-gray-600" };
+                  return (
                     <button
+                      key={exit.id}
                       type="button"
                       onClick={() => selectExit(exit.id)}
-                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-rose-50"
+                      className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-all hover:border-rose-200 hover:shadow-md"
                     >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-gray-900">{name}</p>
-                        <p className="truncate text-xs text-gray-500">
-                          {exit.employee?.emp_code ? `${exit.employee.emp_code} · ` : ""}
-                          {exit.exit_type.replace(/_/g, " ")}
-                          {exit.last_working_date ? ` · LWD ${formatDate(exit.last_working_date)}` : ""}
-                        </p>
+                      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-700">
+                        {initials(exit.employee?.first_name, exit.employee?.last_name)}
                       </div>
-                      <span className={cn(
-                        "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium capitalize",
-                        exit.status === "completed"
-                          ? "bg-green-100 text-green-700"
-                          : exit.status === "active"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700",
-                      )}>
-                        {exit.status}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
+                        {exit.employee?.designation && (
+                          <p className="truncate text-xs text-gray-500">{exit.employee.designation}</p>
+                        )}
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", st.color)}>
+                            {st.label}
+                          </span>
+                          {exit.last_working_date && (
+                            <span className="text-[11px] text-gray-400">
+                              LWD {formatDate(exit.last_working_date)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-300 transition-colors group-hover:text-rose-500" />
                     </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {loading ? (
         <div className="flex h-32 items-center justify-center">
