@@ -17,16 +17,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 — redirect to login (but skip for SSO exchange requests)
+// Handle 401 — the session expired or the token is invalid. Clear it and send
+// the user to login with a flag so the login page can explain why. Skipped for
+// the SSO exchange and for the login request itself (a 401 there means bad
+// credentials, which the login page surfaces directly — not "session expired").
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const requestUrl = error.config?.url || "";
-    if (error.response?.status === 401 && !requestUrl.includes("/auth/sso")) {
+    const isAuthRequest = requestUrl.includes("/auth/sso") || requestUrl.includes("/auth/login");
+    const hadSession = !!localStorage.getItem("access_token");
+
+    if (error.response?.status === 401 && !isAuthRequest && hadSession) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      window.location.href = "/login?session=expired";
     }
     return Promise.reject(error);
   }
