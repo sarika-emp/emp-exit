@@ -414,14 +414,19 @@ export async function submitResignation(
 export async function getMyExit(orgId: number, userId: number) {
   const db = getDB();
 
-  const exit = await db.findOne<ExitRequest>("exit_requests", {
-    organization_id: orgId,
-    employee_id: userId,
+  // An employee may have an old cancelled exit plus a new one after re-submitting,
+  // so fetch all their exits and pick the most recent non-cancelled one rather
+  // than relying on findOne's (unordered) first row.
+  const result = await db.findMany<ExitRequest>("exit_requests", {
+    filters: { organization_id: orgId, employee_id: userId },
+    sort: { field: "created_at", order: "desc" },
+    limit: 50,
   });
 
-  if (!exit || exit.status === "cancelled") {
+  const active = result.data.find((e) => e.status !== "cancelled");
+  if (!active) {
     return null;
   }
 
-  return getExit(orgId, exit.id);
+  return getExit(orgId, active.id);
 }
