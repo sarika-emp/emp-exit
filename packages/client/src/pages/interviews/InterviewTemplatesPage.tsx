@@ -33,6 +33,16 @@ interface TemplateWithQuestions extends ExitInterviewTemplate {
   questions: ExitInterviewQuestion[];
 }
 
+// Normalize a comma-separated options string: trim each value and drop blanks,
+// so a stray trailing comma (e.g. "a, b,") doesn't create an empty option.
+function cleanOptions(raw: string): string {
+  return raw
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+    .join(",");
+}
+
 export function InterviewTemplatesPage() {
   const [templates, setTemplates] = useState<ExitInterviewTemplate[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -151,7 +161,7 @@ export function InterviewTemplatesPage() {
       await apiPost(`/interviews/templates/${expandedId}/questions`, {
         question_text: qText.trim(),
         question_type: qType,
-        options: qType === "multiple_choice" ? qOptions.trim() : undefined,
+        options: qType === "multiple_choice" ? cleanOptions(qOptions) : undefined,
         is_required: qRequired,
       });
       resetQuestionForm();
@@ -167,7 +177,7 @@ export function InterviewTemplatesPage() {
       await apiPut(`/interviews/templates/${expandedId}/questions/${editingQuestionId}`, {
         question_text: qText.trim(),
         question_type: qType,
-        options: qType === "multiple_choice" ? qOptions.trim() : undefined,
+        options: qType === "multiple_choice" ? cleanOptions(qOptions) : undefined,
         is_required: qRequired,
       });
       resetQuestionForm();

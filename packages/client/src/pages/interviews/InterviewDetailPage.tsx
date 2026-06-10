@@ -186,7 +186,7 @@ export function InterviewDetailPage() {
         );
 
       case "multiple_choice": {
-        const options = q.options ? q.options.split(",").map((o) => o.trim()) : [];
+        const options = q.options ? q.options.split(",").map((o) => o.trim()).filter(Boolean) : [];
         return (
           <div className="space-y-2">
             {options.map((opt) => (
@@ -375,7 +375,7 @@ export function InterviewDetailPage() {
               <div className="flex-1">
                 <p className="font-medium text-gray-900">
                   {q.question_text}
-                  {q.is_required && <span className="ml-1 text-red-500">*</span>}
+                  {Boolean(Number(q.is_required)) && <span className="ml-1 text-red-500">*</span>}
                 </p>
                 <div className="mt-3">{renderQuestionInput(q)}</div>
               </div>
