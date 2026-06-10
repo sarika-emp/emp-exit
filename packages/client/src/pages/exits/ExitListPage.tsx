@@ -50,6 +50,10 @@ interface ExitListItem {
   created_at: string;
   last_working_date: string | null;
   resignation_date: string | null;
+  // Always present on the API response (lives directly on exit_requests). We
+  // need it for the "deleted employee" fallback when the join into empcloud
+  // returns null because the underlying user was hard-deleted.
+  employee_id: number;
   employee?: {
     id: number;
     first_name: string;
@@ -177,7 +181,7 @@ export function ExitListPage() {
                         >
                           {exit.employee
                             ? `${exit.employee.first_name} ${exit.employee.last_name}`
-                            : `Employee #${exit.id.slice(0, 8)}`}
+                            : `Deleted employee #${exit.employee_id}`}
                         </Link>
                         {exit.employee?.designation && (
                           <p className="text-xs text-gray-500">{exit.employee.designation}</p>

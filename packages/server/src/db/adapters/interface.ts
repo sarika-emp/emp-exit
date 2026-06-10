@@ -9,6 +9,12 @@ export interface QueryOptions {
   limit?: number;
   sort?: { field: string; order: "asc" | "desc" };
   filters?: Record<string, any>;
+  // Exclude rows whose `field` is in `values`. Knex maps this to
+  // .whereNotIn(field, values). Used by services that want to hide
+  // tombstone-style statuses (e.g. cancelled / revoked) from a default
+  // list view without forbidding an explicit status filter that still
+  // returns them.
+  notIn?: { field: string; values: any[] };
 }
 
 export interface QueryResult<T> {
