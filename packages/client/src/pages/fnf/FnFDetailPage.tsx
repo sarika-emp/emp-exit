@@ -30,6 +30,64 @@ function formatCurrency(amount: number): string {
   }).format(rupees);
 }
 
+// Renders the FnF breakdown_json as a friendly label/value list instead of a
+// raw JSON dump. Known keys get a human label + typed formatting; anything
+// unrecognized still shows, so nothing is hidden.
+const BREAKDOWN_FIELDS: { key: string; label: string; type: "money" | "date" | "days" | "bool" }[] = [
+  { key: "last_basic_salary", label: "Last Basic Salary", type: "money" },
+  { key: "date_of_joining", label: "Date of Joining", type: "date" },
+  { key: "lwd", label: "Last Working Date", type: "date" },
+  { key: "notice_start_date", label: "Notice Period Start", type: "date" },
+  { key: "notice_days", label: "Notice Period", type: "days" },
+  { key: "notice_waived", label: "Notice Waived", type: "bool" },
+  { key: "calculated_at", label: "Calculated On", type: "date" },
+];
+
+function CalculationDetails({ raw }: { raw: string }) {
+  let data: Record<string, any>;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return <p className="text-xs text-gray-400">No calculation details available.</p>;
+  }
+
+  const fmt = (type: string, value: any): string => {
+    if (value === null || value === undefined || value === "") return "—";
+    switch (type) {
+      case "money":
+        return formatCurrency(Number(value) || 0);
+      case "date":
+        return formatDate(value);
+      case "days":
+        return `${value} days`;
+      case "bool":
+        return value === 1 || value === true || value === "1" ? "Yes" : "No";
+      default:
+        return String(value);
+    }
+  };
+
+  const known = new Set(BREAKDOWN_FIELDS.map((f) => f.key));
+  const extras = Object.keys(data).filter((k) => !known.has(k));
+
+  return (
+    <dl className="grid grid-cols-1 gap-x-8 gap-y-2.5 sm:grid-cols-2">
+      {BREAKDOWN_FIELDS.filter((f) => f.key in data).map((f) => (
+        <div key={f.key} className="flex items-center justify-between border-b border-gray-50 py-1">
+          <dt className="text-xs text-gray-500">{f.label}</dt>
+          <dd className="text-sm font-medium text-gray-900">{fmt(f.type, data[f.key])}</dd>
+        </div>
+      ))}
+      {extras.map((k) => (
+        <div key={k} className="flex items-center justify-between border-b border-gray-50 py-1">
+          <dt className="text-xs text-gray-500">{k.replace(/_/g, " ")}</dt>
+          <dd className="text-sm font-medium text-gray-900">{String(data[k])}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function FnFDetailPage() {
   const { id: exitId } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -372,10 +430,8 @@ export function FnFDetailPage() {
           {/* Breakdown info */}
           {fnf.breakdown_json && (
             <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Calculation Details</h3>
-              <pre className="text-xs text-gray-500 bg-gray-50 rounded p-3 overflow-x-auto">
-                {JSON.stringify(JSON.parse(fnf.breakdown_json), null, 2)}
-              </pre>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Calculation Details</h3>
+              <CalculationDetails raw={fnf.breakdown_json} />
             </div>
           )}
 

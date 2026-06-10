@@ -5,6 +5,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { getDB } from "../../db/adapters";
+import { getEmpCloudDB } from "../../db/empcloud";
 import { NotFoundError, ValidationError, ConflictError } from "../../utils/errors";
 import { logger } from "../../utils/logger";
 import { InterviewStatus } from "@emp-exit/shared";
@@ -287,6 +288,62 @@ export async function getInterview(
   );
 
   return { ...interview, responses };
+}
+
+/**
+ * List all exit interviews for the org, enriched with the employee and the
+ * exit's status, so the Interviews page can show a real list instead of a
+ * placeholder. Optional status filter.
+ */
+export async function listInterviews(
+  orgId: number,
+  params: { status?: string } = {},
+): Promise<any[]> {
+  const db = getDB();
+
+  // Interviews are scoped to the org via their exit request.
+  const exitsResult = await db.findMany<any>("exit_requests", {
+    filters: { organization_id: orgId },
+    limit: 1000,
+  });
+  const exitById = new Map(exitsResult.data.map((e) => [e.id, e]));
+  const exitIds = exitsResult.data.map((e) => e.id);
+  if (exitIds.length === 0) return [];
+
+  const filters: Record<string, any> = { exit_request_id: exitIds };
+  if (params.status) filters.status = params.status;
+
+  const interviews = await db.findMany<ExitInterview>("exit_interviews", {
+    filters,
+    sort: { field: "created_at", order: "desc" },
+    limit: 1000,
+  });
+
+  // Enrich with employee details from EmpCloud.
+  const empDb = getEmpCloudDB();
+  const employeeIds = [
+    ...new Set(
+      interviews.data
+        .map((i) => exitById.get(i.exit_request_id)?.employee_id)
+        .filter((id): id is number => typeof id === "number"),
+    ),
+  ];
+  const empMap = new Map<number, any>();
+  if (employeeIds.length > 0) {
+    const employees = await empDb("users")
+      .whereIn("id", employeeIds)
+      .select("id", "first_name", "last_name", "designation");
+    for (const e of employees) empMap.set(e.id, e);
+  }
+
+  return interviews.data.map((i) => {
+    const exit = exitById.get(i.exit_request_id);
+    return {
+      ...i,
+      exit_status: exit?.status ?? null,
+      employee: exit ? empMap.get(exit.employee_id) ?? null : null,
+    };
+  });
 }
 
 export async function submitResponses(

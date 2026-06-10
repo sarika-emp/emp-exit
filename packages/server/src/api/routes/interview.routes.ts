@@ -160,6 +160,24 @@ router.delete(
 // Exit interview routes (per exit request)
 // ---------------------------------------------------------------------------
 
+// GET /list — all exit interviews for the org (admin management view).
+// (Mounted at /list because GET / is the templates alias.)
+router.get(
+  "/list",
+  authorize("org_admin", "hr_admin", "hr_manager"),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const orgId = req.user!.empcloudOrgId;
+      const interviews = await interviewService.listInterviews(orgId, {
+        status: req.query.status as string | undefined,
+      });
+      sendSuccess(res, interviews);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 // GET /exit/:exitId — get interview for an exit request
 router.get(
   "/exit/:exitId",

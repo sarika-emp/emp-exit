@@ -354,6 +354,16 @@ export function InterviewDetailPage() {
         )}
       </div>
 
+      {/* A completed/skipped interview with no recorded answers — make it
+          explicit instead of showing a blank, fillable-looking form. */}
+      {isReadOnly && (!interview.responses || interview.responses.length === 0) && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {isSkipped
+            ? "This interview was skipped — no responses were recorded."
+            : "This interview is marked completed, but no responses were recorded."}
+        </div>
+      )}
+
       {/* Questions */}
       <div className="space-y-4">
         {questions.map((q, idx) => (
