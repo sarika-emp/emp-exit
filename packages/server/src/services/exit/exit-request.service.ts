@@ -175,6 +175,13 @@ export async function listExits(
     filters.exit_type = params.exit_type;
   }
 
+  // When no explicit status filter is set, hide cancelled / revoked exits.
+  // These have historically piled up because the empcloud user webhook
+  // sometimes pointed at user_ids that were later hard-deleted, leaving
+  // orphan rows we then cancelled — they cluttered the list with
+  // "Deleted employee #N" placeholders. Admins can still see them by
+  // explicitly choosing the Cancelled status in the filter.
+  const HIDDEN_BY_DEFAULT = ["cancelled", "revoked"];
   const result = await db.findMany<ExitRequest>("exit_requests", {
     page,
     limit,
@@ -182,6 +189,7 @@ export async function listExits(
     sort: params.sort
       ? { field: params.sort, order: params.order || "desc" }
       : { field: "created_at", order: "desc" },
+    notIn: params.status ? undefined : { field: "status", values: HIDDEN_BY_DEFAULT },
   });
 
   // Enrich with employee names from empcloud
