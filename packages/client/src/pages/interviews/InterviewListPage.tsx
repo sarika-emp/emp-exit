@@ -21,7 +21,16 @@ interface InterviewListItem {
   status: string;
   overall_rating: number | null;
   created_at: string;
+  exit_status: string | null;
+  employee?: { first_name: string; last_name: string; designation: string | null } | null;
 }
+
+const STATUS_FILTERS = [
+  { value: "", label: "All Statuses" },
+  { value: "scheduled", label: "Scheduled" },
+  { value: "completed", label: "Completed" },
+  { value: "skipped", label: "Skipped" },
+];
 
 const STATUS_CONFIG: Record<string, { bg: string; label: string; icon: React.ReactNode }> = {
   scheduled: {
@@ -45,18 +54,21 @@ export function InterviewListPage() {
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState<InterviewListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("");
 
   const fetchInterviews = useCallback(async () => {
+    setLoading(true);
     try {
-      // The API gets interview per exit, so we fetch from a general list
-      // For now we show a placeholder with navigation to detail pages
-      setInterviews([]);
+      const params: Record<string, any> = {};
+      if (statusFilter) params.status = statusFilter;
+      const res = await apiGet<InterviewListItem[]>("/interviews/list", params);
+      setInterviews(res.data ?? []);
     } catch {
-      // silently handle
+      setInterviews([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchInterviews();
@@ -92,50 +104,97 @@ export function InterviewListPage() {
         </button>
       </div>
 
-      {/* Info card */}
-      <div className="rounded-lg border border-gray-200 bg-white p-8">
-        <div className="text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">
-            Exit interviews are managed per exit request
-          </h3>
-          <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
-            Navigate to an exit request detail page and go to the interview tab to schedule,
-            conduct, or review exit interviews. Use the templates page to manage question
-            templates.
-          </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <button
-              onClick={() => navigate("/exits")}
-              className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 transition-colors"
-            >
-              View Exits
-            </button>
-            <button
-              onClick={() => navigate("/interviews/templates")}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Manage Templates
-            </button>
-          </div>
-        </div>
-
-        {/* Status legend */}
-        <div className="mt-8 flex items-center justify-center gap-6">
-          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-            <span
-              key={key}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium",
-                cfg.bg,
-              )}
-            >
-              {cfg.icon}
-              {cfg.label}
-            </span>
+      {/* Filter */}
+      <div className="flex items-center gap-3">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+        >
+          {STATUS_FILTERS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
-        </div>
+        </select>
+        <span className="text-sm text-gray-500">
+          {interviews.length} interview{interviews.length === 1 ? "" : "s"}
+        </span>
       </div>
+
+      {/* List */}
+      {interviews.length === 0 ? (
+        <div className="rounded-lg border border-gray-200 bg-white p-10 text-center">
+          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
+          <h3 className="mt-4 text-sm font-medium text-gray-900">No exit interviews yet</h3>
+          <p className="mt-2 mx-auto max-w-md text-sm text-gray-500">
+            Interviews are scheduled from an exit request. Open an exit and use its Interview tab to
+            schedule one.
+          </p>
+          <button
+            onClick={() => navigate("/exits")}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 transition-colors"
+          >
+            View Exits
+          </button>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Employee</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Scheduled</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Rating</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th className="px-6 py-3" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {interviews.map((iv) => {
+                const cfg = STATUS_CONFIG[iv.status] || STATUS_CONFIG.scheduled;
+                const name = iv.employee
+                  ? `${iv.employee.first_name} ${iv.employee.last_name}`
+                  : "—";
+                return (
+                  <tr key={iv.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-900">{name}</p>
+                      {iv.employee?.designation && (
+                        <p className="text-xs text-gray-500">{iv.employee.designation}</p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {iv.scheduled_date ? formatDate(iv.scheduled_date) : "—"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {iv.overall_rating != null ? `${iv.overall_rating}/10` : "—"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                          cfg.bg,
+                        )}
+                      >
+                        {cfg.icon}
+                        {cfg.label}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => navigate(`/interviews/${iv.exit_request_id}`)}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 hover:text-rose-700"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

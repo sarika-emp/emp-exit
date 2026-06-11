@@ -578,11 +578,15 @@ export async function getFlightRiskDashboard(orgId: number): Promise<DashboardSu
     riskLevel: scoreToRiskLevel(Math.round(Number(r.avg_score))),
   }));
 
+  // Count the factors driving risk across anyone who is at least moderately at
+  // risk (score >= 40, factor impact >= 40). The previous thresholds (>= 60 on
+  // both) meant "Top Risk Factor" stayed N/A unless someone crossed the high-
+  // risk line, even when the team had real elevated risk.
   const allFactorsRaw = await db.raw<any>(
     `SELECT factors
      FROM flight_risk_scores
      WHERE organization_id = ?
-       AND score >= 60`,
+       AND score >= 40`,
     [orgId],
   );
   const allFactorsData =
@@ -595,7 +599,7 @@ export async function getFlightRiskDashboard(orgId: number): Promise<DashboardSu
     const factors: RiskFactor[] =
       typeof row.factors === "string" ? JSON.parse(row.factors) : row.factors || [];
     for (const f of factors) {
-      if (f.impact >= 60) {
+      if (f.impact >= 40) {
         factorCounts[f.name] = (factorCounts[f.name] || 0) + 1;
       }
     }
