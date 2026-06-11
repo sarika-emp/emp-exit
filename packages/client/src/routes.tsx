@@ -168,6 +168,8 @@ export function AppRoutes() {
         {/* Clearance */}
         <Route path="/clearance" element={<AdminRoute><ClearanceRecordsPage /></AdminRoute>} />
         <Route path="/clearance/departments" element={<AdminRoute><ClearanceDeptPage /></AdminRoute>} />
+        {/* Alias so a /clearance/dept deep-link doesn't 404. */}
+        <Route path="/clearance/dept" element={<Navigate to="/clearance/departments" replace />} />
 
         {/* Interviews */}
         <Route path="/interviews" element={<AdminRoute><InterviewListPage /></AdminRoute>} />

@@ -13,6 +13,7 @@ import {
   Package,
   BookOpen,
   FileSignature,
+  Settings2,
   ArrowLeft,
   Clock,
   Pencil,
@@ -1007,7 +1008,8 @@ function FnFTab({
   }, [fnf]);
 
   const isPaid = fnf?.status === "paid";
-  const isEditable = !isPaid;
+  // Lock amounts once the settlement is approved or paid.
+  const isEditable = !isPaid && fnf?.status !== "approved";
   const totalEarnings = basicSalaryDue + leaveEncashment + gratuity + bonusDue + otherEarnings;
   const totalDeductions = noticePayRecovery + otherDeductions;
   const netPayable = totalEarnings - totalDeductions;
@@ -1242,13 +1244,15 @@ function FnFTab({
               <RefreshCw className="h-4 w-4" /> Recalculate
             </button>
           )}
-          <button
-            onClick={handleSave}
-            disabled={actionLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
-          >
-            {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />} Save Changes
-          </button>
+          {isEditable && (
+            <button
+              onClick={handleSave}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 animate-spin" />} Save Changes
+            </button>
+          )}
           {fnf.status === "calculated" && (
             <button
               onClick={() => setPendingAction("approve")}
@@ -2098,13 +2102,47 @@ function LettersTab({
       {/* Generate control */}
       <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
         {!canGenerate ? (
-          <p className="text-sm text-gray-500">
-            Letters can be generated once the exit is <b>completed</b> — finish clearance and the
-            full &amp; final settlement, then mark the exit complete.
-          </p>
+          <div className="w-full space-y-3">
+            <p className="text-sm text-gray-500">
+              Letters can be generated once the exit is <b>completed</b> — finish clearance and the
+              full &amp; final settlement, then mark the exit complete.
+            </p>
+            {templates.length > 0 ? (
+              <div>
+                <p className="mb-1.5 text-xs font-medium text-gray-600">
+                  Templates that will be available:
+                </p>
+                <ul className="flex flex-wrap gap-2">
+                  {templates.map((t) => (
+                    <li
+                      key={t.id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-700"
+                    >
+                      <FileSignature className="h-3 w-3 text-rose-500" />
+                      {t.name}
+                      <span className="text-gray-400">({LETTER_TYPES[t.letter_type] || t.letter_type})</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">No letter templates configured yet.</p>
+            )}
+            <Link
+              to="/letters/templates"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 hover:underline"
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              Manage letter templates
+            </Link>
+          </div>
         ) : templates.length === 0 ? (
           <p className="text-sm text-gray-500">
-            No letter templates available. Create one in Letter Templates first.
+            No letter templates available.{" "}
+            <Link to="/letters/templates" className="font-medium text-rose-600 hover:underline">
+              Create one in Letter Templates
+            </Link>{" "}
+            first.
           </p>
         ) : (
           <>

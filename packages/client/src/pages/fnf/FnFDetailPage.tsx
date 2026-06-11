@@ -142,7 +142,8 @@ export function FnFDetailPage() {
 
   const isPaid = fnf?.status === "paid";
   const isApproved = fnf?.status === "approved";
-  const isEditable = !isPaid;
+  // Once approved or paid, the settlement is locked — amounts shouldn't change.
+  const isEditable = !isPaid && !isApproved;
 
   const handleCalculate = async () => {
     if (!exitId) return;

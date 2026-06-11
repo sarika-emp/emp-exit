@@ -20,6 +20,18 @@ const KT_STATUS: Record<string, { label: string; color: string }> = {
   completed: { label: "Completed", color: "bg-green-100 text-green-700" },
 };
 
+// Exit lifecycle status → readable label (the picker otherwise showed raw
+// values like "fnf_processed" / "notice_period").
+const EXIT_STATUS_LABELS: Record<string, string> = {
+  initiated: "Initiated",
+  notice_period: "Notice Period",
+  clearance_pending: "Clearance Pending",
+  fnf_pending: "FnF Pending",
+  fnf_processed: "FnF Processed",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
 interface ExitOption {
   id: string;
   status: string;
@@ -225,14 +237,14 @@ export function KTListPage() {
                         </p>
                       </div>
                       <span className={cn(
-                        "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium capitalize",
+                        "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium",
                         exit.status === "completed"
                           ? "bg-green-100 text-green-700"
                           : exit.status === "active"
                           ? "bg-blue-100 text-blue-700"
                           : "bg-gray-100 text-gray-700",
                       )}>
-                        {exit.status}
+                        {EXIT_STATUS_LABELS[exit.status] || exit.status}
                       </span>
                     </button>
                   </li>

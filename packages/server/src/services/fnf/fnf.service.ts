@@ -252,8 +252,8 @@ export async function updateFnF(
   });
   if (!fnf) throw new NotFoundError("FnF settlement for exit", exitRequestId);
 
-  if (fnf.status === "paid") {
-    throw new ConflictError("Cannot update a paid FnF settlement");
+  if (fnf.status === "paid" || fnf.status === "approved") {
+    throw new ConflictError(`Cannot update a ${fnf.status} FnF settlement`);
   }
 
   // Recalculate total

@@ -259,7 +259,13 @@ export async function scheduleInterview(
 export async function getInterview(
   orgId: number,
   exitRequestId: string,
-): Promise<(ExitInterview & { responses: (ExitInterviewResponse & { question?: ExitInterviewQuestion })[] }) | null> {
+): Promise<
+  | (ExitInterview & {
+      responses: (ExitInterviewResponse & { question?: ExitInterviewQuestion })[];
+      interviewer: { id: number; first_name: string; last_name: string; designation: string | null } | null;
+    })
+  | null
+> {
   const db = getDB();
 
   // Verify exit request belongs to org
@@ -287,7 +293,18 @@ export async function getInterview(
     }),
   );
 
-  return { ...interview, responses };
+  // Resolve the interviewer to a name (the UI otherwise shows "ID: <n>").
+  let interviewer = null;
+  if (interview.interviewer_id) {
+    const empDb = getEmpCloudDB();
+    interviewer =
+      (await empDb("users")
+        .where({ id: interview.interviewer_id })
+        .select("id", "first_name", "last_name", "designation")
+        .first()) ?? null;
+  }
+
+  return { ...interview, interviewer, responses };
 }
 
 /**

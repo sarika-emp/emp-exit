@@ -22,6 +22,7 @@ import type {
 
 interface InterviewDetail extends ExitInterview {
   responses: (ExitInterviewResponse & { question?: ExitInterviewQuestion })[];
+  interviewer?: { first_name: string; last_name: string; designation: string | null } | null;
 }
 
 interface TemplateWithQuestions extends ExitInterviewTemplate {
@@ -348,7 +349,9 @@ export function InterviewDetailPage() {
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Interviewer</p>
             <p className="mt-1 text-sm font-medium text-gray-900 flex items-center gap-1">
               <User className="h-4 w-4 text-gray-400" />
-              ID: {interview.interviewer_id}
+              {interview.interviewer
+                ? `${interview.interviewer.first_name} ${interview.interviewer.last_name}`
+                : `ID: ${interview.interviewer_id}`}
             </p>
           </div>
         )}
