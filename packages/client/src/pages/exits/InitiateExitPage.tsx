@@ -54,8 +54,24 @@ export function InitiateExitPage() {
   const [reasonDetail, setReasonDetail] = useState("");
   const [resignationDate, setResignationDate] = useState("");
   const [lastWorkingDate, setLastWorkingDate] = useState("");
+  // Tracks whether the admin has manually overridden the auto-suggested LWD,
+  // so we stop recomputing it from resignation date + notice period.
+  const [lwdManuallySet, setLwdManuallySet] = useState(false);
   const [noticePeriodDays, setNoticePeriodDays] = useState("30");
   const [noticePeriodWaived, setNoticePeriodWaived] = useState(false);
+
+  // Auto-suggest Last Working Date = Resignation Date + Notice Period.
+  // This is the normal flow (resign → serve notice → leave) and stops admins
+  // from typing an LWD that's before the resignation date. The admin can still
+  // override it; once they do, we leave their value alone.
+  useEffect(() => {
+    if (lwdManuallySet || !resignationDate) return;
+    const days = noticePeriodWaived ? 0 : Number(noticePeriodDays) || 0;
+    const d = new Date(resignationDate);
+    if (isNaN(d.getTime())) return;
+    d.setDate(d.getDate() + days);
+    setLastWorkingDate(d.toISOString().split("T")[0]);
+  }, [resignationDate, noticePeriodDays, noticePeriodWaived, lwdManuallySet]);
 
   // Debounced employee search (300ms). Discards stale responses by
   // comparing against the latest query at resolve time.
@@ -309,10 +325,15 @@ export function InitiateExitPage() {
                 id="last_working_date"
                 type="date"
                 value={lastWorkingDate}
-                onChange={(e) => setLastWorkingDate(e.target.value)}
+                onChange={(e) => { setLastWorkingDate(e.target.value); setLwdManuallySet(true); }}
                 min={resignationDate || undefined}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
+              {resignationDate && !lwdManuallySet && lastWorkingDate && !dateError && (
+                <p className="mt-1 text-xs text-gray-400">
+                  Suggested from resignation date + {noticePeriodWaived ? "0 (waived)" : `${noticePeriodDays || 0}`} day notice.
+                </p>
+              )}
             </div>
           </div>
 
