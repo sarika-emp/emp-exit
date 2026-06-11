@@ -65,7 +65,7 @@ export async function getKT(orgId: number, exitRequestId: string) {
 export async function updateKT(
   orgId: number,
   exitRequestId: string,
-  data: { assignee_id?: number; status?: string },
+  data: { assignee_id?: number | null; due_date?: string | null; status?: string },
 ) {
   const db = getDB();
 
@@ -85,7 +85,8 @@ export async function updateKT(
   }
 
   const updateData: Record<string, any> = {};
-  if (data.assignee_id !== undefined) updateData.assignee_id = data.assignee_id;
+  if (data.assignee_id !== undefined) updateData.assignee_id = data.assignee_id || null;
+  if (data.due_date !== undefined) updateData.due_date = data.due_date || null;
   if (data.status !== undefined) {
     updateData.status = data.status;
     if (data.status === "completed") {

@@ -11,6 +11,7 @@ import {
   User,
   Search,
   ChevronRight,
+  Pencil,
 } from "lucide-react";
 import { apiGet, apiPost, apiPut } from "@/api/client";
 import toast from "react-hot-toast";
@@ -89,6 +90,12 @@ export function KTListPage() {
   const [submitting, setSubmitting] = useState(false);
   const [creating, setCreating] = useState(false);
 
+  // Edit-plan form (successor + due date)
+  const [editingPlan, setEditingPlan] = useState(false);
+  const [planForm, setPlanForm] = useState({ assignee_id: "", due_date: "" });
+  const [savingPlan, setSavingPlan] = useState(false);
+  const [employees, setEmployees] = useState<{ id: number; first_name: string; last_name: string; emp_code: string | null }[]>([]);
+
   async function fetchKT() {
     if (!exitId) return;
     setLoading(true);
@@ -104,6 +111,23 @@ export function KTListPage() {
 
   useEffect(() => {
     fetchKT();
+  }, [exitId]);
+
+  // Load the org's active employees once an exit is selected, so the successor
+  // name (not a raw ID) shows on the plan and the edit dropdown is ready.
+  useEffect(() => {
+    if (!exitId || employees.length > 0) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await apiGet<any>("/users", { limit: 200 });
+        const list = res.data?.data ?? res.data ?? [];
+        if (!cancelled) setEmployees(Array.isArray(list) ? list : []);
+      } catch {
+        /* successor will fall back to ID */
+      }
+    })();
+    return () => { cancelled = true; };
   }, [exitId]);
 
   async function handleCreateKT() {
@@ -135,6 +159,43 @@ export function KTListPage() {
       toast.error(err.response?.data?.error?.message || "Failed to complete KT plan");
     } finally {
       setCompletingPlan(false);
+    }
+  }
+
+  async function openEditPlan() {
+    setPlanForm({
+      assignee_id: kt?.assignee_id ? String(kt.assignee_id) : "",
+      due_date: kt?.due_date ? String(kt.due_date).slice(0, 10) : "",
+    });
+    setEditingPlan(true);
+    // Load active employees for the successor dropdown (once).
+    if (employees.length === 0) {
+      try {
+        const res = await apiGet<any>("/users", { limit: 200 });
+        const list = res.data?.data ?? res.data ?? [];
+        setEmployees(Array.isArray(list) ? list : []);
+      } catch {
+        setEmployees([]);
+      }
+    }
+  }
+
+  async function handleSavePlan(e: React.FormEvent) {
+    e.preventDefault();
+    if (!exitId) return;
+    setSavingPlan(true);
+    try {
+      await apiPut(`/kt/exit/${exitId}`, {
+        assignee_id: planForm.assignee_id ? Number(planForm.assignee_id) : null,
+        due_date: planForm.due_date || null,
+      });
+      toast.success("KT plan updated");
+      setEditingPlan(false);
+      fetchKT();
+    } catch (err: any) {
+      toast.error(err.response?.data?.error?.message || "Failed to update KT plan");
+    } finally {
+      setSavingPlan(false);
     }
   }
 
@@ -338,21 +399,85 @@ export function KTListPage() {
                     </button>
                   );
                 })()}
+                {kt.status !== "completed" && !editingPlan && (
+                  <button
+                    type="button"
+                    onClick={openEditPlan}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </button>
+                )}
                 <span className={cn("rounded-full px-3 py-1 text-xs font-medium", KT_STATUS[kt.status]?.color || KT_STATUS.not_started.color)}>
                   {KT_STATUS[kt.status]?.label || kt.status}
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2 text-gray-600">
-                <User className="h-4 w-4" />
-                <span>Successor ID: {kt.assignee_id || "Not assigned"}</span>
+
+            {editingPlan ? (
+              <form onSubmit={handleSavePlan} className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-700">Successor</label>
+                  <select
+                    value={planForm.assignee_id}
+                    onChange={(e) => setPlanForm((f) => ({ ...f, assignee_id: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  >
+                    <option value="">Not assigned</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.first_name} {emp.last_name}{emp.emp_code ? ` (${emp.emp_code})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-700">Due date</label>
+                  <input
+                    type="date"
+                    value={planForm.due_date}
+                    onChange={(e) => setPlanForm((f) => ({ ...f, due_date: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  />
+                </div>
+                <div className="flex gap-3 sm:col-span-2">
+                  <button
+                    type="submit"
+                    disabled={savingPlan}
+                    className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+                  >
+                    {savingPlan && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingPlan(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <User className="h-4 w-4" />
+                  <span>
+                    Successor:{" "}
+                    {(() => {
+                      const s = employees.find((e) => e.id === kt.assignee_id);
+                      if (s) return `${s.first_name} ${s.last_name}`;
+                      return kt.assignee_id ? `ID ${kt.assignee_id}` : "Not assigned";
+                    })()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Clock className="h-4 w-4" />
+                  <span>Due: {kt.due_date ? formatDate(kt.due_date) : "Not set"}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Clock className="h-4 w-4" />
-                <span>Due: {kt.due_date ? formatDate(kt.due_date) : "Not set"}</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Add item form */}
