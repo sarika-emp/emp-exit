@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { Route, Navigate } from "react-router-dom";
+import { Route, Navigate, useParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { isAdmin, EMPLOYEE_HOME } from "@/lib/auth-store";
 
@@ -7,6 +7,13 @@ import { isAdmin, EMPLOYEE_HOME } from "@/lib/auth-store";
 // instead of seeing an org-wide management console (or an empty, role-scoped one).
 function AdminRoute({ children }: { children: React.ReactNode }) {
   return isAdmin() ? <>{children}</> : <Navigate to={EMPLOYEE_HOME} replace />;
+}
+
+// /exits/:id/resignation has no dedicated page — the resignation details live on
+// the exit detail page. Redirect there (preserving the id) instead of 404-ing.
+function ExitResignationRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/exits/${id}`} replace />;
 }
 
 // Lazy-loaded pages
@@ -159,6 +166,7 @@ export function AppRoutes() {
         <Route path="/exits/new" element={<AdminRoute><InitiateExitPage /></AdminRoute>} />
         <Route path="/exits/resign" element={<ResignationPage />} />
         <Route path="/exits/my" element={<MyExitPage />} />
+        <Route path="/exits/:id/resignation" element={<ExitResignationRedirect />} />
         <Route path="/exits/:id" element={<AdminRoute><ExitDetailPage /></AdminRoute>} />
 
         {/* Checklists */}

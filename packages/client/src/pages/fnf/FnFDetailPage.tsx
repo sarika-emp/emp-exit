@@ -230,7 +230,8 @@ export function FnFDetailPage() {
           value={value / 100}
           onChange={(e) => onChange(Math.round(parseFloat(e.target.value || "0") * 100))}
           disabled={disabled || !isEditable}
-          className="w-32 rounded border border-gray-300 px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500"
+          readOnly={!isEditable}
+          className="w-32 rounded border border-gray-300 px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500 read-only:bg-gray-50 read-only:text-gray-500"
           step="0.01"
         />
       </div>
