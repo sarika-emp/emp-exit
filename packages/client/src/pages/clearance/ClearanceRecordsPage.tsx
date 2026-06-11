@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Shield, Loader2, Settings } from "lucide-react";
+import { Shield, Loader2, Settings, X } from "lucide-react";
 import { apiGet, apiPut } from "@/api/client";
 import { cn, formatDate } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const CLEARANCE_STATUS_COLORS: Record<string, string> = {
   pending: "bg-gray-100 text-gray-600",
@@ -38,6 +39,10 @@ export function ClearanceRecordsPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
+  // Reject dialog (replaces the native prompt)
+  const [rejectTarget, setRejectTarget] = useState<MyClearance | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+
   useEffect(() => {
     loadClearances();
   }, []);
@@ -66,15 +71,22 @@ export function ClearanceRecordsPage() {
     }
   }
 
-  async function handleReject(clearanceId: string) {
-    const remarks = prompt("Reason for rejection:");
-    if (remarks === null) return;
-    setActionLoading(clearanceId);
+  async function handleConfirmReject() {
+    if (!rejectTarget) return;
+    if (!rejectReason.trim()) {
+      toast.error("Please enter a reason for rejection");
+      return;
+    }
+    const id = rejectTarget.id;
+    setActionLoading(id);
     try {
-      await apiPut(`/clearance/${clearanceId}`, { status: "rejected", remarks });
+      await apiPut(`/clearance/${id}`, { status: "rejected", remarks: rejectReason.trim() });
+      toast.success("Clearance rejected");
+      setRejectTarget(null);
+      setRejectReason("");
       await loadClearances();
     } catch {
-      // handled
+      toast.error("Failed to reject clearance");
     } finally {
       setActionLoading(null);
     }
@@ -166,7 +178,7 @@ export function ClearanceRecordsPage() {
                           Approve
                         </button>
                         <button
-                          onClick={() => handleReject(c.id)}
+                          onClick={() => { setRejectTarget(c); setRejectReason(""); }}
                           disabled={actionLoading === c.id}
                           className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
                         >
@@ -184,6 +196,55 @@ export function ClearanceRecordsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Reject dialog (replaces the native prompt) */}
+      {rejectTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Reject Clearance</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {rejectTarget.department?.name || "Department"}
+                  {rejectTarget.employee ? ` · ${rejectTarget.employee.first_name} ${rejectTarget.employee.last_name}` : ""}
+                </p>
+              </div>
+              <button
+                onClick={() => setRejectTarget(null)}
+                className="rounded-md p-1 text-gray-400 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Reason for rejection</label>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={3}
+              autoFocus
+              placeholder="Explain why this clearance is being rejected…"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+            />
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setRejectTarget(null)}
+                disabled={actionLoading === rejectTarget.id}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmReject}
+                disabled={!rejectReason.trim() || actionLoading === rejectTarget.id}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {actionLoading === rejectTarget.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                Reject
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

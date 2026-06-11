@@ -155,7 +155,9 @@ export function BuyoutListPage() {
                     <tr key={b.id} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-6 py-4">
                         <p className="text-sm font-medium text-gray-900">
-                          Employee #{b.employee_id}
+                          {b.employee
+                            ? `${b.employee.first_name} ${b.employee.last_name}`
+                            : `Employee #${b.employee_id}`}
                         </p>
                         <p className="text-xs text-gray-500">Exit: {b.exit_request_id?.slice(0, 8)}...</p>
                       </td>
