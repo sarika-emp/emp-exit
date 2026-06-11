@@ -6,7 +6,7 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { getDB } from "../../db/adapters";
-import { findUserById } from "../../db/empcloud";
+import { findUserById, getEmpCloudDB } from "../../db/empcloud";
 import { NotFoundError, ValidationError, ConflictError } from "../../utils/errors";
 import { logger } from "../../utils/logger";
 import type { ExitRequest, NoticeBuyoutRequest } from "@emp-exit/shared";
@@ -269,8 +269,24 @@ export async function listBuyoutRequests(
       : { field: "created_at", order: "desc" },
   });
 
+  // Enrich with employee names from empcloud (the list otherwise shows
+  // "Employee #<id>"). employee_id lives directly on the buyout row.
+  const empDb = getEmpCloudDB();
+  const employeeIds = [
+    ...new Set(
+      result.data.map((b) => b.employee_id).filter((id): id is number => typeof id === "number"),
+    ),
+  ];
+  const empMap = new Map<number, any>();
+  if (employeeIds.length > 0) {
+    const employees = await empDb("users")
+      .whereIn("id", employeeIds)
+      .select("id", "first_name", "last_name", "email", "emp_code", "designation");
+    for (const e of employees) empMap.set(e.id, e);
+  }
+
   return {
-    data: result.data,
+    data: result.data.map((b) => ({ ...b, employee: empMap.get(b.employee_id) ?? null })),
     total: result.total,
     page: result.page,
     perPage: result.limit,

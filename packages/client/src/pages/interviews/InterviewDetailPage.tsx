@@ -22,6 +22,7 @@ import type {
 
 interface InterviewDetail extends ExitInterview {
   responses: (ExitInterviewResponse & { question?: ExitInterviewQuestion })[];
+  interviewer?: { first_name: string; last_name: string; designation: string | null } | null;
 }
 
 interface TemplateWithQuestions extends ExitInterviewTemplate {
@@ -186,7 +187,7 @@ export function InterviewDetailPage() {
         );
 
       case "multiple_choice": {
-        const options = q.options ? q.options.split(",").map((o) => o.trim()) : [];
+        const options = q.options ? q.options.split(",").map((o) => o.trim()).filter(Boolean) : [];
         return (
           <div className="space-y-2">
             {options.map((opt) => (
@@ -348,11 +349,23 @@ export function InterviewDetailPage() {
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Interviewer</p>
             <p className="mt-1 text-sm font-medium text-gray-900 flex items-center gap-1">
               <User className="h-4 w-4 text-gray-400" />
-              ID: {interview.interviewer_id}
+              {interview.interviewer
+                ? `${interview.interviewer.first_name} ${interview.interviewer.last_name}`
+                : `ID: ${interview.interviewer_id}`}
             </p>
           </div>
         )}
       </div>
+
+      {/* A completed/skipped interview with no recorded answers — make it
+          explicit instead of showing a blank, fillable-looking form. */}
+      {isReadOnly && (!interview.responses || interview.responses.length === 0) && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {isSkipped
+            ? "This interview was skipped — no responses were recorded."
+            : "This interview is marked completed, but no responses were recorded."}
+        </div>
+      )}
 
       {/* Questions */}
       <div className="space-y-4">
@@ -365,7 +378,7 @@ export function InterviewDetailPage() {
               <div className="flex-1">
                 <p className="font-medium text-gray-900">
                   {q.question_text}
-                  {q.is_required && <span className="ml-1 text-red-500">*</span>}
+                  {Boolean(Number(q.is_required)) && <span className="ml-1 text-red-500">*</span>}
                 </p>
                 <div className="mt-3">{renderQuestionInput(q)}</div>
               </div>

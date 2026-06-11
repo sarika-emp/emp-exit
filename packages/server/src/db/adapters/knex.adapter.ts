@@ -138,6 +138,11 @@ export class KnexAdapter implements IDBAdapter {
       }
     }
 
+    // Apply notIn exclusion (e.g. hide cancelled/revoked from default list)
+    if (options?.notIn && options.notIn.values.length > 0) {
+      query = query.whereNotIn(options.notIn.field, options.notIn.values);
+    }
+
     // Get total count
     const [{ count: total }] = await query.clone().count("* as count");
 

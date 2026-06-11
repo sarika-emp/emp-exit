@@ -60,6 +60,34 @@ router.get(
   },
 );
 
+// POST /my-exit/withdraw — withdraw (cancel) my own resignation.
+// Only allowed while the exit is still early (initiated / notice_period); once
+// clearance or F&F has started the employee can no longer self-withdraw.
+router.post(
+  "/my-exit/withdraw",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const orgId = req.user!.empcloudOrgId;
+      const userId = req.user!.empcloudUserId;
+
+      const exit = await exitService.getMyExit(orgId, userId);
+      if (!exit) {
+        throw new NotFoundError("Exit request", "");
+      }
+      if (exit.status !== "initiated" && exit.status !== "notice_period") {
+        throw new ValidationError(
+          "This resignation can no longer be withdrawn. Please contact HR.",
+        );
+      }
+
+      const cancelled = await exitService.cancelExit(orgId, exit.id);
+      sendSuccess(res, cancelled);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 // GET /my-checklist — get my exit checklist
 router.get(
   "/my-checklist",

@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { DoorOpen, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { DoorOpen, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { useLogin } from "@/api/hooks";
-import { useAuthStore } from "@/lib/auth-store";
+import { useAuthStore, homeFor } from "@/lib/auth-store";
 import toast from "react-hot-toast";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionExpired = searchParams.get("session") === "expired";
   const loginMutation = useLogin();
   const login = useAuthStore((s) => s.login);
   const [email, setEmail] = useState("");
@@ -20,7 +22,7 @@ export function LoginPage() {
       if (res.success) {
         login(res.data.user, res.data.tokens);
         toast.success(`Welcome back, ${res.data.user.firstName}!`);
-        navigate("/dashboard");
+        navigate(homeFor(res.data.user));
       } else {
         toast.error(res.error?.message || "Login failed");
       }
@@ -81,6 +83,13 @@ export function LoginPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
             <p className="mt-1 text-sm text-gray-500">Sign in to manage employee exits</p>
+
+            {sessionExpired && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <span>Your session has expired. Please log in again.</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div>

@@ -8,11 +8,13 @@ import {
   FileText,
   Plus,
   Settings2,
+  Search,
+  ChevronRight,
 } from "lucide-react";
 import { apiGet, apiPost } from "@/api/client";
 import { api } from "@/api/client";
 import toast from "react-hot-toast";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 
 const LETTER_TYPES: Record<string, string> = {
   experience: "Experience Letter",
@@ -20,6 +22,21 @@ const LETTER_TYPES: Record<string, string> = {
   service_certificate: "Service Certificate",
   noc: "NOC",
 };
+
+// Exit lifecycle status → badge colour + readable label.
+const EXIT_STATUS: Record<string, { label: string; color: string }> = {
+  initiated: { label: "Initiated", color: "bg-blue-100 text-blue-700" },
+  notice_period: { label: "Notice Period", color: "bg-amber-100 text-amber-700" },
+  clearance_pending: { label: "Clearance Pending", color: "bg-orange-100 text-orange-700" },
+  fnf_pending: { label: "FnF Pending", color: "bg-purple-100 text-purple-700" },
+  fnf_processed: { label: "FnF Processed", color: "bg-indigo-100 text-indigo-700" },
+  completed: { label: "Completed", color: "bg-green-100 text-green-700" },
+  cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-500" },
+};
+
+function initials(first?: string, last?: string): string {
+  return `${(first?.[0] || "").toUpperCase()}${(last?.[0] || "").toUpperCase()}` || "?";
+}
 
 interface ExitOption {
   id: string;
@@ -48,6 +65,7 @@ export function GeneratedLettersPage() {
   // with a "?exitId=UUID in the URL" hint.
   const [exitOptions, setExitOptions] = useState<ExitOption[]>([]);
   const [loadingExits, setLoadingExits] = useState(false);
+  const [exitSearch, setExitSearch] = useState("");
   useEffect(() => {
     if (exitId) return;
     let cancelled = false;
@@ -162,6 +180,7 @@ export function GeneratedLettersPage() {
                 const next = new URLSearchParams(searchParams);
                 next.delete("exitId");
                 setSearchParams(next);
+                setShowGenerate(false);
               }}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
@@ -191,64 +210,125 @@ export function GeneratedLettersPage() {
       </div>
 
       {/* In-page exit picker — shown only when no exit is selected via the URL.
-          Clicking a row sets ?exitId=... and the rest of the page renders
-          letters for that exit. */}
-      {!exitId && (
-        <div className="rounded-lg border border-gray-200 bg-white">
-          <div className="border-b border-gray-100 px-4 py-3">
-            <h2 className="text-sm font-semibold text-gray-900">Select an exit</h2>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Pick the exit you want to view or generate letters for.
-            </p>
-          </div>
-          {loadingExits ? (
-            <div className="flex h-32 items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-            </div>
-          ) : exitOptions.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-gray-500">
-              No exits found. Initiate an exit first to generate its letters.
-            </p>
-          ) : (
-            <ul className="divide-y divide-gray-100">
-              {exitOptions.map((exit) => {
-                const name = exit.employee
-                  ? `${exit.employee.first_name} ${exit.employee.last_name}`
-                  : "(unknown employee)";
-                return (
-                  <li key={exit.id}>
-                    <button
-                      type="button"
-                      onClick={() => selectExit(exit.id)}
-                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-rose-50"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-gray-900">{name}</p>
-                        <p className="truncate text-xs text-gray-500">
-                          {exit.employee?.emp_code ? `${exit.employee.emp_code} · ` : ""}
-                          {exit.exit_type.replace(/_/g, " ")}
-                          {exit.last_working_date ? ` · LWD ${formatDate(exit.last_working_date)}` : ""}
-                        </p>
-                      </div>
-                      <span className={
-                        exit.status === "completed"
-                          ? "shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700 capitalize"
-                          : exit.status === "active"
-                            ? "shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 capitalize"
-                            : "shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-700 capitalize"
-                      }>
-                        {exit.status}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      )}
+          Clicking a card sets ?exitId=... and the rest of the page renders
+          letters for that exit. Cancelled exits are hidden. */}
+      {!exitId && (() => {
+        const visible = exitOptions
+          .filter((e) => e.status !== "cancelled")
+          .filter((e) => {
+            if (!exitSearch.trim()) return true;
+            const q = exitSearch.toLowerCase();
+            const name = `${e.employee?.first_name ?? ""} ${e.employee?.last_name ?? ""}`.toLowerCase();
+            return (
+              name.includes(q) ||
+              (e.employee?.emp_code ?? "").toLowerCase().includes(q) ||
+              (e.employee?.designation ?? "").toLowerCase().includes(q)
+            );
+          });
 
-      {showGenerate && (
+        return (
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">Select an exit</h2>
+                <p className="mt-0.5 text-sm text-gray-500">
+                  Pick the exit you want to view or generate letters for.
+                </p>
+              </div>
+              <div className="relative w-full sm:w-72">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  value={exitSearch}
+                  onChange={(e) => setExitSearch(e.target.value)}
+                  placeholder="Search by name, code, designation…"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                />
+              </div>
+            </div>
+
+            {loadingExits ? (
+              <div className="flex h-40 items-center justify-center rounded-xl border border-gray-200 bg-white">
+                <Loader2 className="h-6 w-6 animate-spin text-rose-500" />
+              </div>
+            ) : visible.length === 0 ? (
+              <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
+                <FileSignature className="mx-auto h-10 w-10 text-gray-300" />
+                <p className="mt-3 text-sm text-gray-500">
+                  {exitSearch
+                    ? "No exits match your search."
+                    : "No active exits found. Initiate an exit first to generate its letters."}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Employee</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Emp Code</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Exit Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Working Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                      <th className="px-6 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {visible.map((exit) => {
+                      const name = exit.employee
+                        ? `${exit.employee.first_name} ${exit.employee.last_name}`
+                        : "Unknown employee";
+                      const st = EXIT_STATUS[exit.status] || { label: exit.status, color: "bg-gray-100 text-gray-600" };
+                      return (
+                        <tr
+                          key={exit.id}
+                          onClick={() => selectExit(exit.id)}
+                          className="cursor-pointer transition-colors hover:bg-rose-50"
+                        >
+                          <td className="whitespace-nowrap px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-semibold text-rose-700">
+                                {initials(exit.employee?.first_name, exit.employee?.last_name)}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-gray-900">{name}</p>
+                                {exit.employee?.designation && (
+                                  <p className="truncate text-xs text-gray-500">{exit.employee.designation}</p>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                            {exit.employee?.emp_code || "—"}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm capitalize text-gray-600">
+                            {exit.exit_type.replace(/_/g, " ")}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                            {exit.last_working_date ? formatDate(exit.last_working_date) : "—"}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4">
+                            <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium", st.color)}>
+                              {st.label}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-right">
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-rose-600">
+                              Select
+                              <ChevronRight className="h-4 w-4" />
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {exitId && showGenerate && (
         <form onSubmit={handleGenerate} className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Generate Letter</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -302,7 +382,8 @@ export function GeneratedLettersPage() {
         </form>
       )}
 
-      {loading ? (
+      {/* Letters list — only relevant once an exit is selected. */}
+      {exitId && (loading ? (
         <div className="flex h-32 items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
         </div>
@@ -351,7 +432,7 @@ export function GeneratedLettersPage() {
             </div>
           ))}
         </div>
-      )}
+      ))}
     </div>
   );
 }

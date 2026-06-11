@@ -63,6 +63,8 @@ export function MyExitPage() {
   const [letters, setLetters] = useState<any[]>([]);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,6 +127,23 @@ export function MyExitPage() {
     }
   }
 
+  async function handleWithdraw() {
+    setWithdrawing(true);
+    try {
+      const res = await api.post("/self-service/my-exit/withdraw");
+      setExit(res.data?.data ?? null);
+      toast.success("Resignation withdrawn");
+      setConfirmWithdraw(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error?.message || "Failed to withdraw resignation");
+    } finally {
+      setWithdrawing(false);
+    }
+  }
+
+  // Employees can withdraw their own resignation only while it's still early.
+  const canWithdraw = exit && (exit.status === "initiated" || exit.status === "notice_period");
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -180,6 +199,15 @@ export function MyExitPage() {
               {exit.exit_type?.replace(/_/g, " ")} &middot; {exit.reason_category?.replace(/_/g, " ")}
             </p>
           </div>
+          {canWithdraw && (
+            <button
+              onClick={() => setConfirmWithdraw(true)}
+              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              <UserMinus className="h-3.5 w-3.5" />
+              Withdraw Resignation
+            </button>
+          )}
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -368,6 +396,36 @@ export function MyExitPage() {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw confirmation */}
+      {confirmWithdraw && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900">Withdraw Resignation?</h3>
+            <p className="mt-2 text-sm text-gray-500">
+              This cancels your exit request. Your manager and HR will be notified. You can submit a
+              new resignation later if needed.
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmWithdraw(false)}
+                disabled={withdrawing}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Keep Resignation
+              </button>
+              <button
+                onClick={handleWithdraw}
+                disabled={withdrawing}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {withdrawing && <Loader2 className="h-4 w-4 animate-spin" />}
+                Withdraw
+              </button>
+            </div>
           </div>
         </div>
       )}
