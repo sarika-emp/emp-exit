@@ -628,7 +628,20 @@ function buildCompleteSpec(): unknown {
   return merged;
 }
 
-export function openapiHandler(_req: Request, res: Response) {
+export function openapiHandler(req: Request, res: Response) {
   if (!cachedSpec) cachedSpec = buildCompleteSpec();
-  res.json(cachedSpec);
+  // Serve the spec with the request's OWN origin as the primary server, so
+  // "Try it out" targets the host the docs are loaded from (e.g.
+  // https://exit-api.empcloud.com) rather than localhost. Honors the proxy's
+  // X-Forwarded-* headers; falls back to req.protocol/host when direct.
+  const proto =
+    (req.headers["x-forwarded-proto"] as string | undefined)?.split(",")[0].trim() || req.protocol;
+  const host = (req.headers["x-forwarded-host"] as string | undefined) || req.get("host");
+  const servers = host
+    ? [
+        { url: `${proto}://${host}`, description: "This server" },
+        { url: "http://localhost:3004", description: "Local development" },
+      ]
+    : (cachedSpec as any).servers;
+  res.json({ ...(cachedSpec as any), servers });
 }
