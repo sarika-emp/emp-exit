@@ -14,10 +14,10 @@ import { cn, formatDate } from "@/lib/utils";
 import type { FnFSettlement, FnFStatus } from "@emp-exit/shared";
 
 const STATUS_CONFIG: Record<string, { bg: string; label: string }> = {
-  draft: { bg: "bg-gray-100 text-gray-600", label: "Draft" },
-  calculated: { bg: "bg-blue-100 text-blue-700", label: "Calculated" },
-  approved: { bg: "bg-green-100 text-green-700", label: "Approved" },
-  paid: { bg: "bg-emerald-100 text-emerald-700", label: "Paid" },
+  draft: { bg: "bg-muted text-muted-foreground", label: "Draft" },
+  calculated: { bg: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300", label: "Calculated" },
+  approved: { bg: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300", label: "Approved" },
+  paid: { bg: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300", label: "Paid" },
 };
 
 function formatCurrency(amount: number): string {
@@ -48,7 +48,7 @@ function CalculationDetails({ raw }: { raw: string }) {
   try {
     data = JSON.parse(raw);
   } catch {
-    return <p className="text-xs text-gray-400">No calculation details available.</p>;
+    return <p className="text-xs text-muted-foreground">No calculation details available.</p>;
   }
 
   const fmt = (type: string, value: any): string => {
@@ -73,15 +73,15 @@ function CalculationDetails({ raw }: { raw: string }) {
   return (
     <dl className="grid grid-cols-1 gap-x-8 gap-y-2.5 sm:grid-cols-2">
       {BREAKDOWN_FIELDS.filter((f) => f.key in data).map((f) => (
-        <div key={f.key} className="flex items-center justify-between border-b border-gray-50 py-1">
-          <dt className="text-xs text-gray-500">{f.label}</dt>
-          <dd className="text-sm font-medium text-gray-900">{fmt(f.type, data[f.key])}</dd>
+        <div key={f.key} className="flex items-center justify-between border-b border-border py-1">
+          <dt className="text-xs text-muted-foreground">{f.label}</dt>
+          <dd className="text-sm font-medium text-foreground">{fmt(f.type, data[f.key])}</dd>
         </div>
       ))}
       {extras.map((k) => (
-        <div key={k} className="flex items-center justify-between border-b border-gray-50 py-1">
-          <dt className="text-xs text-gray-500">{k.replace(/_/g, " ")}</dt>
-          <dd className="text-sm font-medium text-gray-900">{String(data[k])}</dd>
+        <div key={k} className="flex items-center justify-between border-b border-border py-1">
+          <dt className="text-xs text-muted-foreground">{k.replace(/_/g, " ")}</dt>
+          <dd className="text-sm font-medium text-foreground">{String(data[k])}</dd>
         </div>
       ))}
     </dl>
@@ -221,17 +221,17 @@ export function FnFDetailPage() {
     onChange: (v: number) => void;
     disabled?: boolean;
   }) => (
-    <div className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0">
-      <span className="text-sm text-gray-700">{label}</span>
+    <div className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
       <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-400">INR</span>
+        <span className="text-xs text-muted-foreground">INR</span>
         <input
           type="number"
           value={value / 100}
           onChange={(e) => onChange(Math.round(parseFloat(e.target.value || "0") * 100))}
           disabled={disabled || !isEditable}
           readOnly={!isEditable}
-          className="w-32 rounded border border-gray-300 px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500 read-only:bg-gray-50 read-only:text-gray-500"
+          className="w-32 rounded border border-border px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground read-only:bg-muted/50 read-only:text-muted-foreground"
           step="0.01"
         />
       </div>
@@ -241,7 +241,7 @@ export function FnFDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 dark:border-rose-900 border-t-rose-600" />
       </div>
     );
   }
@@ -255,16 +255,16 @@ export function FnFDetailPage() {
         <div>
           <button
             onClick={() => navigate(-1)}
-            className="mb-2 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+            className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Calculator className="h-6 w-6 text-rose-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Calculator className="h-6 w-6 text-rose-600 dark:text-rose-400" />
             Full & Final Settlement
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Exit #{exitId?.slice(0, 8)}
           </p>
         </div>
@@ -281,7 +281,7 @@ export function FnFDetailPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
             dismiss
@@ -291,10 +291,10 @@ export function FnFDetailPage() {
 
       {/* Calculate button if no FnF exists */}
       {!fnf && (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <Calculator className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">No FnF settlement yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card p-8 text-center">
+          <Calculator className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-sm font-medium text-foreground">No FnF settlement yet</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
             Calculate the full and final settlement for this exit.
           </p>
           <button
@@ -313,10 +313,10 @@ export function FnFDetailPage() {
         <>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Earnings */}
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-              <div className="border-b border-gray-100 px-6 py-4">
-                <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+            <div className="rounded-lg border border-border bg-card shadow-sm">
+              <div className="border-b border-border px-6 py-4">
+                <h2 className="font-semibold text-foreground flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
                   Earnings
                 </h2>
               </div>
@@ -347,10 +347,10 @@ export function FnFDetailPage() {
                   onChange={setOtherEarnings}
                 />
               </div>
-              <div className="border-t border-gray-200 px-6 py-3 bg-green-50">
+              <div className="border-t border-border px-6 py-3 bg-green-50 dark:bg-green-950/40">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-green-800">Total Earnings</span>
-                  <span className="text-sm font-bold font-mono text-green-800">
+                  <span className="text-sm font-semibold text-green-800 dark:text-green-300">Total Earnings</span>
+                  <span className="text-sm font-bold font-mono text-green-800 dark:text-green-300">
                     {formatCurrency(totalEarnings)}
                   </span>
                 </div>
@@ -358,9 +358,9 @@ export function FnFDetailPage() {
             </div>
 
             {/* Deductions */}
-            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-              <div className="border-b border-gray-100 px-6 py-4">
-                <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <div className="rounded-lg border border-border bg-card shadow-sm">
+              <div className="border-b border-border px-6 py-4">
+                <h2 className="font-semibold text-foreground flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-red-500" />
                   Deductions
                 </h2>
@@ -377,10 +377,10 @@ export function FnFDetailPage() {
                   onChange={setOtherDeductions}
                 />
               </div>
-              <div className="border-t border-gray-200 px-6 py-3 bg-red-50">
+              <div className="border-t border-border px-6 py-3 bg-red-50 dark:bg-red-950/40">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-red-800">Total Deductions</span>
-                  <span className="text-sm font-bold font-mono text-red-800">
+                  <span className="text-sm font-semibold text-red-800 dark:text-red-300">Total Deductions</span>
+                  <span className="text-sm font-bold font-mono text-red-800 dark:text-red-300">
                     {formatCurrency(totalDeductions)}
                   </span>
                 </div>
@@ -393,14 +393,14 @@ export function FnFDetailPage() {
             className={cn(
               "rounded-lg border-2 p-6",
               netPayable >= 0
-                ? "border-green-300 bg-green-50"
-                : "border-red-300 bg-red-50",
+                ? "border-green-300 bg-green-50 dark:bg-green-950/40"
+                : "border-red-300 bg-red-50 dark:bg-red-950/40",
             )}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Net Payable</p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-sm font-medium text-muted-foreground">Net Payable</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Earnings ({formatCurrency(totalEarnings)}) - Deductions (
                   {formatCurrency(totalDeductions)})
                 </p>
@@ -408,7 +408,7 @@ export function FnFDetailPage() {
               <span
                 className={cn(
                   "text-2xl font-bold font-mono",
-                  netPayable >= 0 ? "text-green-700" : "text-red-700",
+                  netPayable >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300",
                 )}
               >
                 {formatCurrency(netPayable)}
@@ -417,33 +417,33 @@ export function FnFDetailPage() {
           </div>
 
           {/* Remarks */}
-          <div className="rounded-lg border border-gray-200 bg-white p-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+          <div className="rounded-lg border border-border bg-card p-5">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">Remarks</label>
             <textarea
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
               disabled={!isEditable}
               rows={3}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
               placeholder="Optional remarks..."
             />
           </div>
 
           {/* Breakdown info */}
           {fnf.breakdown_json && (
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Calculation Details</h3>
+            <div className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">Calculation Details</h3>
               <CalculationDetails raw={fnf.breakdown_json} />
             </div>
           )}
 
           {/* Paid info */}
           {fnf.paid_date && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 flex items-center gap-3">
-              <Banknote className="h-5 w-5 text-emerald-600" />
+            <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/40 p-4 flex items-center gap-3">
+              <Banknote className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               <div>
-                <p className="text-sm font-medium text-emerald-800">Payment Completed</p>
-                <p className="text-xs text-emerald-600">Paid on {formatDate(fnf.paid_date)}</p>
+                <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Payment Completed</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">Paid on {formatDate(fnf.paid_date)}</p>
               </div>
             </div>
           )}
@@ -455,7 +455,7 @@ export function FnFDetailPage() {
                 <button
                   onClick={handleCalculate}
                   disabled={saving}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50 transition-colors"
                 >
                   <RefreshCw className="h-4 w-4" />
                   Recalculate
@@ -495,17 +495,17 @@ export function FnFDetailPage() {
       {/* Mark Paid Modal */}
       {showPayModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Mark as Paid</h3>
+          <div className="w-full max-w-md rounded-lg bg-card p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Mark as Paid</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Payment Reference
               </label>
               <input
                 type="text"
                 value={payRef}
                 onChange={(e) => setPayRef(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="e.g. TXN-12345 or bank reference"
               />
             </div>
@@ -515,7 +515,7 @@ export function FnFDetailPage() {
                   setShowPayModal(false);
                   setPayRef("");
                 }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
               >
                 Cancel
               </button>

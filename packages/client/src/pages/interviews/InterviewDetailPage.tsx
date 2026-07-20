@@ -152,7 +152,7 @@ export function InterviewDetailPage() {
             onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
             rows={3}
             disabled={isReadOnly}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
             placeholder="Type your answer..."
           />
         );
@@ -175,13 +175,13 @@ export function InterviewDetailPage() {
                     "h-7 w-7",
                     (answer.rating || 0) >= star
                       ? "fill-amber-400 text-amber-400"
-                      : "text-gray-300",
+                      : "text-muted-foreground/50",
                   )}
                 />
               </button>
             ))}
             {answer.rating && (
-              <span className="ml-2 text-sm text-gray-500">{answer.rating}/5</span>
+              <span className="ml-2 text-sm text-muted-foreground">{answer.rating}/5</span>
             )}
           </div>
         );
@@ -199,9 +199,9 @@ export function InterviewDetailPage() {
                   checked={answer.text === opt}
                   onChange={() => handleAnswerChange(q.id, "text", opt)}
                   disabled={isReadOnly}
-                  className="border-gray-300 text-rose-600 focus:ring-rose-500"
+                  className="border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
                 />
-                <span className="text-sm text-gray-700">{opt}</span>
+                <span className="text-sm text-muted-foreground">{opt}</span>
               </label>
             ))}
           </div>
@@ -220,9 +220,9 @@ export function InterviewDetailPage() {
                   "rounded-lg border px-6 py-2 text-sm font-medium transition-colors",
                   answer.text === opt
                     ? opt === "Yes"
-                      ? "border-green-300 bg-green-50 text-green-700"
-                      : "border-red-300 bg-red-50 text-red-700"
-                    : "border-gray-200 text-gray-600 hover:bg-gray-50",
+                      ? "border-green-300 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300"
+                      : "border-red-300 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300"
+                    : "border-border text-muted-foreground hover:bg-muted/50",
                   isReadOnly && "cursor-default",
                 )}
               >
@@ -240,7 +240,7 @@ export function InterviewDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 dark:border-rose-900 border-t-rose-600" />
       </div>
     );
   }
@@ -250,15 +250,15 @@ export function InterviewDetailPage() {
       <div className="space-y-6">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </button>
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">No interview found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-sm font-medium text-foreground">No interview found</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
             No exit interview has been scheduled for this exit request.
           </p>
         </div>
@@ -268,17 +268,17 @@ export function InterviewDetailPage() {
 
   const statusConfig: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
     scheduled: {
-      bg: "bg-blue-100 text-blue-700",
+      bg: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
       text: "Scheduled",
       icon: <Clock className="h-4 w-4" />,
     },
     completed: {
-      bg: "bg-green-100 text-green-700",
+      bg: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
       text: "Completed",
       icon: <CheckCircle2 className="h-4 w-4" />,
     },
     skipped: {
-      bg: "bg-gray-100 text-gray-600",
+      bg: "bg-muted text-muted-foreground",
       text: "Skipped",
       icon: <SkipForward className="h-4 w-4" />,
     },
@@ -293,16 +293,16 @@ export function InterviewDetailPage() {
         <div>
           <button
             onClick={() => navigate(-1)}
-            className="mb-2 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+            className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-rose-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-rose-600 dark:text-rose-400" />
             Exit Interview
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {template?.name || "Interview"} — Exit #{exitId?.slice(0, 8)}
           </p>
         </div>
@@ -318,7 +318,7 @@ export function InterviewDetailPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
             dismiss
@@ -329,26 +329,26 @@ export function InterviewDetailPage() {
       {/* Interview metadata */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {interview.scheduled_date && (
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Scheduled</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Scheduled</p>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {formatDate(interview.scheduled_date)}
             </p>
           </div>
         )}
         {interview.completed_date && (
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Completed</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Completed</p>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {formatDate(interview.completed_date)}
             </p>
           </div>
         )}
         {interview.interviewer_id && (
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Interviewer</p>
-            <p className="mt-1 text-sm font-medium text-gray-900 flex items-center gap-1">
-              <User className="h-4 w-4 text-gray-400" />
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Interviewer</p>
+            <p className="mt-1 text-sm font-medium text-foreground flex items-center gap-1">
+              <User className="h-4 w-4 text-muted-foreground" />
               {interview.interviewer
                 ? `${interview.interviewer.first_name} ${interview.interviewer.last_name}`
                 : `ID: ${interview.interviewer_id}`}
@@ -360,7 +360,7 @@ export function InterviewDetailPage() {
       {/* A completed/skipped interview with no recorded answers — make it
           explicit instead of showing a blank, fillable-looking form. */}
       {isReadOnly && (!interview.responses || interview.responses.length === 0) && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/40 p-4 text-sm text-amber-800 dark:text-amber-300">
           {isSkipped
             ? "This interview was skipped — no responses were recorded."
             : "This interview is marked completed, but no responses were recorded."}
@@ -370,13 +370,13 @@ export function InterviewDetailPage() {
       {/* Questions */}
       <div className="space-y-4">
         {questions.map((q, idx) => (
-          <div key={q.id} className="rounded-lg border border-gray-200 bg-white p-5">
+          <div key={q.id} className="rounded-lg border border-border bg-card p-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-xs font-semibold text-rose-700">
+              <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-xs font-semibold text-rose-700 dark:text-rose-300">
                 {idx + 1}
               </span>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-foreground">
                   {q.question_text}
                   {Boolean(Number(q.is_required)) && <span className="ml-1 text-red-500">*</span>}
                 </p>
@@ -389,11 +389,11 @@ export function InterviewDetailPage() {
 
       {/* Overall rating & would recommend */}
       {questions.length > 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <h3 className="font-medium text-gray-900 mb-4">Overall Feedback</h3>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <h3 className="font-medium text-foreground mb-4">Overall Feedback</h3>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Overall Rating
               </label>
               <div className="flex items-center gap-1">
@@ -406,7 +406,7 @@ export function InterviewDetailPage() {
                       "flex h-8 w-8 items-center justify-center rounded text-xs font-medium transition-colors",
                       overallRating >= star
                         ? "bg-rose-600 text-white"
-                        : "bg-gray-100 text-gray-500 hover:bg-gray-200",
+                        : "bg-muted text-muted-foreground hover:bg-muted",
                       isReadOnly && "cursor-default",
                     )}
                   >
@@ -416,13 +416,13 @@ export function InterviewDetailPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Would you recommend this company?
               </label>
               <div className="flex gap-3">
                 {[
-                  { val: true, label: "Yes", color: "border-green-300 bg-green-50 text-green-700" },
-                  { val: false, label: "No", color: "border-red-300 bg-red-50 text-red-700" },
+                  { val: true, label: "Yes", color: "border-green-300 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
+                  { val: false, label: "No", color: "border-red-300 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300" },
                 ].map((opt) => (
                   <button
                     key={String(opt.val)}
@@ -430,7 +430,7 @@ export function InterviewDetailPage() {
                     onClick={() => setWouldRecommend(opt.val)}
                     className={cn(
                       "rounded-lg border px-6 py-2 text-sm font-medium transition-colors",
-                      wouldRecommend === opt.val ? opt.color : "border-gray-200 text-gray-600 hover:bg-gray-50",
+                      wouldRecommend === opt.val ? opt.color : "border-border text-muted-foreground hover:bg-muted/50",
                       isReadOnly && "cursor-default",
                     )}
                   >
@@ -456,14 +456,14 @@ export function InterviewDetailPage() {
           </button>
           <button
             onClick={handleComplete}
-            className="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-white px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-card px-4 py-2.5 text-sm font-medium text-green-700 dark:text-green-300 hover:bg-green-50 dark:bg-green-950/40 transition-colors"
           >
             <CheckCircle2 className="h-4 w-4" />
             Complete Interview
           </button>
           <button
             onClick={handleSkip}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
           >
             <SkipForward className="h-4 w-4" />
             Skip

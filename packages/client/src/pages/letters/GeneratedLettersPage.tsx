@@ -25,13 +25,13 @@ const LETTER_TYPES: Record<string, string> = {
 
 // Exit lifecycle status → badge colour + readable label.
 const EXIT_STATUS: Record<string, { label: string; color: string }> = {
-  initiated: { label: "Initiated", color: "bg-blue-100 text-blue-700" },
-  notice_period: { label: "Notice Period", color: "bg-amber-100 text-amber-700" },
-  clearance_pending: { label: "Clearance Pending", color: "bg-orange-100 text-orange-700" },
-  fnf_pending: { label: "FnF Pending", color: "bg-purple-100 text-purple-700" },
-  fnf_processed: { label: "FnF Processed", color: "bg-indigo-100 text-indigo-700" },
-  completed: { label: "Completed", color: "bg-green-100 text-green-700" },
-  cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-500" },
+  initiated: { label: "Initiated", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300" },
+  notice_period: { label: "Notice Period", color: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300" },
+  clearance_pending: { label: "Clearance Pending", color: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300" },
+  fnf_pending: { label: "FnF Pending", color: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300" },
+  fnf_processed: { label: "FnF Processed", color: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300" },
+  completed: { label: "Completed", color: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
+  cancelled: { label: "Cancelled", color: "bg-muted text-muted-foreground" },
 };
 
 function initials(first?: string, last?: string): string {
@@ -169,8 +169,8 @@ export function GeneratedLettersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Generated Letters</h1>
-          <p className="mt-1 text-sm text-gray-500">View, download, and send generated exit letters.</p>
+          <h1 className="text-2xl font-bold text-foreground">Generated Letters</h1>
+          <p className="mt-1 text-sm text-muted-foreground">View, download, and send generated exit letters.</p>
         </div>
         <div className="flex items-center gap-2">
           {exitId && (
@@ -182,7 +182,7 @@ export function GeneratedLettersPage() {
                 setSearchParams(next);
                 setShowGenerate(false);
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
             >
               Switch exit
             </button>
@@ -192,7 +192,7 @@ export function GeneratedLettersPage() {
               find the create-template flow. */}
           <Link
             to="/letters/templates"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
           >
             <Settings2 className="h-4 w-4" />
             Manage Templates
@@ -230,80 +230,80 @@ export function GeneratedLettersPage() {
           <div className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Select an exit</h2>
-                <p className="mt-0.5 text-sm text-gray-500">
+                <h2 className="text-base font-semibold text-foreground">Select an exit</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   Pick the exit you want to view or generate letters for.
                 </p>
               </div>
               <div className="relative w-full sm:w-72">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
                   value={exitSearch}
                   onChange={(e) => setExitSearch(e.target.value)}
                   placeholder="Search by name, code, designation…"
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
             </div>
 
             {loadingExits ? (
-              <div className="flex h-40 items-center justify-center rounded-xl border border-gray-200 bg-white">
+              <div className="flex h-40 items-center justify-center rounded-xl border border-border bg-card">
                 <Loader2 className="h-6 w-6 animate-spin text-rose-500" />
               </div>
             ) : visible.length === 0 ? (
-              <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-                <FileSignature className="mx-auto h-10 w-10 text-gray-300" />
-                <p className="mt-3 text-sm text-gray-500">
+              <div className="rounded-xl border border-border bg-card p-10 text-center">
+                <FileSignature className="mx-auto h-10 w-10 text-muted-foreground/50" />
+                <p className="mt-3 text-sm text-muted-foreground">
                   {exitSearch
                     ? "No exits match your search."
                     : "No active exits found. Initiate an exit first to generate its letters."}
                 </p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Employee</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Emp Code</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Exit Type</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Working Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Employee</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Emp Code</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Exit Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Last Working Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                       <th className="px-6 py-3" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border">
                     {visible.map((exit) => {
                       const name = exit.employee
                         ? `${exit.employee.first_name} ${exit.employee.last_name}`
                         : "Unknown employee";
-                      const st = EXIT_STATUS[exit.status] || { label: exit.status, color: "bg-gray-100 text-gray-600" };
+                      const st = EXIT_STATUS[exit.status] || { label: exit.status, color: "bg-muted text-muted-foreground" };
                       return (
                         <tr
                           key={exit.id}
                           onClick={() => selectExit(exit.id)}
-                          className="cursor-pointer transition-colors hover:bg-rose-50"
+                          className="cursor-pointer transition-colors hover:bg-rose-50 dark:bg-rose-950/40"
                         >
                           <td className="whitespace-nowrap px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-xs font-semibold text-rose-700">
+                              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-xs font-semibold text-rose-700 dark:text-rose-300">
                                 {initials(exit.employee?.first_name, exit.employee?.last_name)}
                               </div>
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-medium text-gray-900">{name}</p>
+                                <p className="truncate text-sm font-medium text-foreground">{name}</p>
                                 {exit.employee?.designation && (
-                                  <p className="truncate text-xs text-gray-500">{exit.employee.designation}</p>
+                                  <p className="truncate text-xs text-muted-foreground">{exit.employee.designation}</p>
                                 )}
                               </div>
                             </div>
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                             {exit.employee?.emp_code || "—"}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm capitalize text-gray-600">
+                          <td className="whitespace-nowrap px-6 py-4 text-sm capitalize text-muted-foreground">
                             {exit.exit_type.replace(/_/g, " ")}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                             {exit.last_working_date ? formatDate(exit.last_working_date) : "—"}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4">
@@ -312,7 +312,7 @@ export function GeneratedLettersPage() {
                             </span>
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 text-right">
-                            <span className="inline-flex items-center gap-1 text-sm font-medium text-rose-600">
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 dark:text-rose-400">
                               Select
                               <ChevronRight className="h-4 w-4" />
                             </span>
@@ -329,11 +329,11 @@ export function GeneratedLettersPage() {
       })()}
 
       {exitId && showGenerate && (
-        <form onSubmit={handleGenerate} className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Generate Letter</h3>
+        <form onSubmit={handleGenerate} className="rounded-lg border border-border bg-card p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-foreground">Generate Letter</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Template</label>
+              <label className="block text-sm font-medium text-muted-foreground">Template</label>
               <select
                 value={generateForm.template_id}
                 onChange={(e) => {
@@ -343,7 +343,7 @@ export function GeneratedLettersPage() {
                     letter_type: tpl?.letter_type || "experience",
                   });
                 }}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               >
                 <option value="">Select a template...</option>
                 {templates.map((t: any) => (
@@ -353,9 +353,9 @@ export function GeneratedLettersPage() {
                 ))}
               </select>
               {templates.length === 0 && (
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-muted-foreground">
                   No templates configured.{" "}
-                  <Link to="/letters/templates" className="font-medium text-rose-600 hover:underline">
+                  <Link to="/letters/templates" className="font-medium text-rose-600 dark:text-rose-400 hover:underline">
                     Create a template
                   </Link>{" "}
                   to start generating letters.
@@ -374,7 +374,7 @@ export function GeneratedLettersPage() {
             <button
               type="button"
               onClick={() => setShowGenerate(false)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
             >
               Cancel
             </button>
@@ -385,11 +385,11 @@ export function GeneratedLettersPage() {
       {/* Letters list — only relevant once an exit is selected. */}
       {exitId && (loading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
         </div>
       ) : letters.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
-          <FileSignature className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+        <div className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground">
+          <FileSignature className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
           No letters generated yet.
         </div>
       ) : (
@@ -397,17 +397,17 @@ export function GeneratedLettersPage() {
           {letters.map((letter: any) => (
             <div
               key={letter.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+              className="flex items-center justify-between rounded-lg border border-border bg-card p-4 hover:shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50">
-                  <FileText className="h-5 w-5 text-rose-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/40">
+                  <FileText className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-foreground">
                     {LETTER_TYPES[letter.letter_type] || letter.letter_type}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Generated {letter.created_at ? formatDate(letter.created_at) : ""}
                     {letter.issued_date && ` | Issued ${formatDate(letter.issued_date)}`}
                   </p>
@@ -416,7 +416,7 @@ export function GeneratedLettersPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleDownload(letter.id, letter.letter_type)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download

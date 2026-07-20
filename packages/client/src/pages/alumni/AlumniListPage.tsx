@@ -138,8 +138,8 @@ export function AlumniListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Alumni Network</h1>
-          <p className="mt-1 text-sm text-gray-500">Browse the alumni directory.</p>
+          <h1 className="text-2xl font-bold text-foreground">Alumni Network</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Browse the alumni directory.</p>
         </div>
         <button
           type="button"
@@ -154,13 +154,13 @@ export function AlumniListPage() {
       {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search alumni by name, email, or designation..."
-            className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+            className="block w-full rounded-lg border border-border pl-10 pr-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
           />
         </div>
         <button
@@ -173,19 +173,19 @@ export function AlumniListPage() {
 
       {loading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
         </div>
       ) : alumni.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <GraduationCap className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-          <p className="text-sm font-medium text-gray-700">No alumni yet</p>
-          <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+        <div className="rounded-lg border border-border bg-card p-8 text-center">
+          <GraduationCap className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+          <p className="text-sm font-medium text-muted-foreground">No alumni yet</p>
+          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
             Alumni profiles are created when a departing employee opts in
             via their self-service portal. You can also add one manually
             from a completed exit using the <strong>Add Alumni</strong>{" "}
             button above.
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-md bg-blue-50 px-3 py-1.5 text-xs text-blue-700">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-md bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 text-xs text-blue-700 dark:text-blue-300">
             <Info className="h-3.5 w-3.5" />
             Tip: only completed exits can be promoted to alumni.
           </div>
@@ -200,17 +200,17 @@ export function AlumniListPage() {
               return (
                 <div
                   key={a.id}
-                  className="rounded-lg border border-gray-200 bg-white p-5 hover:shadow-sm transition-shadow"
+                  className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 text-sm font-semibold">
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-sm font-semibold">
                       {getInitials(name)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-semibold text-gray-900 truncate">{name}</h4>
-                      <p className="text-xs text-gray-500">{a.last_designation || "N/A"}</p>
+                      <h4 className="text-sm font-semibold text-foreground truncate">{name}</h4>
+                      <p className="text-xs text-muted-foreground">{a.last_designation || "N/A"}</p>
                       {a.last_department && (
-                        <p className="text-xs text-gray-400">{a.last_department}</p>
+                        <p className="text-xs text-muted-foreground">{a.last_department}</p>
                       )}
                     </div>
                   </div>
@@ -219,14 +219,14 @@ export function AlumniListPage() {
                     {a.personal_email && (
                       <a
                         href={`mailto:${a.personal_email}`}
-                        className="flex items-center gap-2 text-xs text-gray-600 hover:text-rose-600"
+                        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-rose-600 dark:text-rose-400"
                       >
                         <Mail className="h-3.5 w-3.5" />
                         {a.personal_email}
                       </a>
                     )}
                     {a.phone && (
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Phone className="h-3.5 w-3.5" />
                         {a.phone}
                       </div>
@@ -236,7 +236,7 @@ export function AlumniListPage() {
                         href={a.linkedin_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-xs text-blue-600 hover:underline"
+                        className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         <Linkedin className="h-3.5 w-3.5" />
                         LinkedIn Profile
@@ -244,13 +244,13 @@ export function AlumniListPage() {
                     )}
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-gray-100">
+                  <div className="mt-4 pt-3 border-t border-border">
                     <button
                       onClick={() => {
                         setRehireModal(a);
                         setRehireForm({ position: "", department: "", salary: "", notes: "" });
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:bg-rose-950/40 transition-colors"
                     >
                       <UserPlus className="h-3.5 w-3.5" />
                       Propose Rehire
@@ -264,21 +264,21 @@ export function AlumniListPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
-                  className="rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
-                  className="rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -291,37 +291,37 @@ export function AlumniListPage() {
       {/* Rehire Proposal Modal */}
       {rehireModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="w-full max-w-md rounded-lg bg-card p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
               Propose Rehire
             </h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               For: {rehireModal.first_name ? `${rehireModal.first_name} ${rehireModal.last_name || ""}` : `Alumni #${rehireModal.employee_id}`}
             </p>
             <form onSubmit={handleProposeRehire} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Position *</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Position *</label>
                 <input
                   type="text"
                   required
                   value={rehireForm.position}
                   onChange={(e) => setRehireForm({ ...rehireForm, position: e.target.value })}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="e.g. Senior Engineer"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Department</label>
                 <input
                   type="text"
                   value={rehireForm.department}
                   onChange={(e) => setRehireForm({ ...rehireForm, department: e.target.value })}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="e.g. Engineering"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Proposed Salary *</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Proposed Salary *</label>
                 <input
                   type="number"
                   required
@@ -329,17 +329,17 @@ export function AlumniListPage() {
                   step="0.01"
                   value={rehireForm.salary}
                   onChange={(e) => setRehireForm({ ...rehireForm, salary: e.target.value })}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Monthly salary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Notes</label>
                 <textarea
                   value={rehireForm.notes}
                   onChange={(e) => setRehireForm({ ...rehireForm, notes: e.target.value })}
                   rows={2}
-                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Additional notes..."
                 />
               </div>
@@ -347,7 +347,7 @@ export function AlumniListPage() {
                 <button
                   type="button"
                   onClick={() => setRehireModal(null)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
                 >
                   Cancel
                 </button>
@@ -368,22 +368,22 @@ export function AlumniListPage() {
           which resolves the employee_id from the exit row server-side. */}
       {addModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Add Alumni Profile</h3>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="w-full max-w-md rounded-lg bg-card p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground mb-1">Add Alumni Profile</h3>
+            <p className="text-sm text-muted-foreground mb-4">
               Pick a completed exit to add to the alumni directory.
             </p>
             <form onSubmit={handleAddAlumni} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Exit *
                 </label>
                 {loadingExits ? (
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading exits...
                   </div>
                 ) : exits.length === 0 ? (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     No completed exits available. Complete an exit first to
                     promote that employee to alumni.
                   </p>
@@ -392,7 +392,7 @@ export function AlumniListPage() {
                     required
                     value={selectedExitId}
                     onChange={(e) => setSelectedExitId(e.target.value)}
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   >
                     <option value="">Select an exit...</option>
                     {exits.map((ex: any) => {
@@ -414,7 +414,7 @@ export function AlumniListPage() {
                 <button
                   type="button"
                   onClick={() => setAddModal(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
                 >
                   Cancel
                 </button>

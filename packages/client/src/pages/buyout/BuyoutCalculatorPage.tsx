@@ -139,7 +139,7 @@ export function BuyoutCalculatorPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -148,14 +148,14 @@ export function BuyoutCalculatorPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notice Period Buyout</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Notice Period Buyout</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             You need an active exit request to use the buyout calculator.
           </p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-          <Calculator className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-          <p className="text-gray-500">No active exit request found.</p>
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <Calculator className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+          <p className="text-muted-foreground">No active exit request found.</p>
         </div>
       </div>
     );
@@ -165,18 +165,18 @@ export function BuyoutCalculatorPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notice Period Buyout</h1>
+          <h1 className="text-2xl font-bold text-foreground">Notice Period Buyout</h1>
         </div>
-        <div className="rounded-xl border border-green-200 bg-green-50 p-12 text-center">
+        <div className="rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 p-12 text-center">
           <Send className="mx-auto h-12 w-12 text-green-500 mb-4" />
-          <h2 className="text-lg font-semibold text-green-800 mb-2">Buyout Request Submitted</h2>
-          <p className="text-green-700 mb-1">
+          <h2 className="text-lg font-semibold text-green-800 dark:text-green-300 mb-2">Buyout Request Submitted</h2>
+          <p className="text-green-700 dark:text-green-300 mb-1">
             Your request to leave on <strong>{formatDate(requestedDate)}</strong> has been submitted.
           </p>
-          <p className="text-green-600 text-sm">
+          <p className="text-green-600 dark:text-green-400 text-sm">
             Buyout amount: <strong>{calculation ? formatINR(calculation.buyoutAmount) : "--"}</strong>
           </p>
-          <p className="text-sm text-green-600 mt-4">
+          <p className="text-sm text-green-600 dark:text-green-400 mt-4">
             You will be notified once your manager reviews the request.
           </p>
           <Link
@@ -196,21 +196,21 @@ export function BuyoutCalculatorPage() {
     return (
       <div className="space-y-6">
         <div>
-          <Link to="/exits/my" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-2">
+          <Link to="/exits/my" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground mb-2">
             <ArrowLeft className="h-4 w-4" /> Back to My Exit
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Notice Period Buyout</h1>
+          <h1 className="text-2xl font-bold text-foreground">Notice Period Buyout</h1>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <div className="rounded-xl border border-border bg-card p-6">
           <div className="flex items-center gap-3 mb-6">
             <Calculator className="h-6 w-6 text-rose-500" />
-            <h2 className="text-lg font-semibold text-gray-900">Existing Buyout Request</h2>
+            <h2 className="text-lg font-semibold text-foreground">Existing Buyout Request</h2>
             <span
               className={cn(
                 "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
                 existingBuyout.status === "approved"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-amber-100 text-amber-700",
+                  ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300"
+                  : "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
               )}
             >
               {existingBuyout.status}
@@ -219,27 +219,27 @@ export function BuyoutCalculatorPage() {
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Requested Last Date</p>
-              <p className="mt-0.5 text-sm font-medium text-gray-900">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Requested Last Date</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">
                 {formatDate(existingBuyout.requested_last_date)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Days to Buy Out</p>
-              <p className="mt-0.5 text-sm font-medium text-gray-900">{existingBuyout.remaining_days} days</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Days to Buy Out</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">{existingBuyout.remaining_days} days</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Daily Rate</p>
-              <p className="mt-0.5 text-sm font-medium text-gray-900">{formatINR(existingBuyout.daily_rate)}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Daily Rate</p>
+              <p className="mt-0.5 text-sm font-medium text-foreground">{formatINR(existingBuyout.daily_rate)}</p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Buyout Amount</p>
-              <p className="mt-0.5 text-lg font-bold text-rose-600">{formatINR(existingBuyout.buyout_amount)}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Buyout Amount</p>
+              <p className="mt-0.5 text-lg font-bold text-rose-600 dark:text-rose-400">{formatINR(existingBuyout.buyout_amount)}</p>
             </div>
           </div>
 
           {existingBuyout.status === "approved" && (
-            <div className="mt-4 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700">
+            <div className="mt-4 rounded-lg bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-900 p-3 text-sm text-green-700 dark:text-green-300">
               Your buyout has been approved. Your last working date has been updated to{" "}
               <strong>{formatDate(existingBuyout.requested_last_date)}</strong>.
               The buyout amount will be included in your Full & Final settlement.
@@ -258,17 +258,17 @@ export function BuyoutCalculatorPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/exits/my" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-2">
+        <Link to="/exits/my" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground mb-2">
           <ArrowLeft className="h-4 w-4" /> Back to My Exit
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Notice Period Buyout Calculator</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">Notice Period Buyout Calculator</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Calculate how much it costs to leave before your notice period ends.
         </p>
       </div>
 
       {isTerminal && (
-        <div className="rounded-lg bg-gray-100 border border-gray-200 p-4 text-sm text-gray-600">
+        <div className="rounded-lg bg-muted border border-border p-4 text-sm text-muted-foreground">
           This exit request is {exit.status}. Buyout is no longer applicable.
         </div>
       )}
@@ -276,31 +276,31 @@ export function BuyoutCalculatorPage() {
       {!isTerminal && (
         <>
           {/* Current Exit Info */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="h-5 w-5 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Current Notice Period</h2>
+              <Clock className="h-5 w-5 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Current Notice Period</h2>
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
-                <p className="text-xs text-gray-500">Notice Period</p>
-                <p className="text-sm font-medium text-gray-900">{exit.notice_period_days} days</p>
+                <p className="text-xs text-muted-foreground">Notice Period</p>
+                <p className="text-sm font-medium text-foreground">{exit.notice_period_days} days</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Resignation Date</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-muted-foreground">Resignation Date</p>
+                <p className="text-sm font-medium text-foreground">
                   {exit.resignation_date ? formatDate(exit.resignation_date) : "--"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Last Working Date</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-muted-foreground">Last Working Date</p>
+                <p className="text-sm font-medium text-foreground">
                   {exit.last_working_date ? formatDate(exit.last_working_date) : "--"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Notice Waived</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-muted-foreground">Notice Waived</p>
+                <p className="text-sm font-medium text-foreground">
                   {exit.notice_period_waived ? "Yes" : "No"}
                 </p>
               </div>
@@ -308,10 +308,10 @@ export function BuyoutCalculatorPage() {
           </div>
 
           {/* Date Picker */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="h-5 w-5 text-rose-500" />
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 When do you want your last working day to be?
               </h2>
             </div>
@@ -321,10 +321,10 @@ export function BuyoutCalculatorPage() {
               onChange={(e) => setRequestedDate(e.target.value)}
               min={minDate}
               max={maxDate}
-              className="block w-full max-w-xs rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
+              className="block w-full max-w-xs rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
             />
             {minDate && maxDate && (
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Choose a date between {formatDate(minDate)} and {formatDate(maxDate)}
               </p>
             )}
@@ -334,43 +334,43 @@ export function BuyoutCalculatorPage() {
           {calcLoading && (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-rose-500 mr-2" />
-              <span className="text-sm text-gray-500">Calculating...</span>
+              <span className="text-sm text-muted-foreground">Calculating...</span>
             </div>
           )}
 
           {calcError && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+            <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 p-4 text-sm text-red-700 dark:text-red-300">
               {calcError}
             </div>
           )}
 
           {calculation && !calcLoading && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+            <div className="rounded-xl border border-border bg-card p-6 space-y-5">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-rose-500" />
-                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Buyout Calculation</h2>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Buyout Calculation</h2>
               </div>
 
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                <div className="rounded-lg bg-gray-50 border border-gray-100 p-4">
-                  <p className="text-xs text-gray-500 mb-1">Original Notice Period</p>
-                  <p className="text-lg font-semibold text-gray-900">{calculation.originalNoticeDays} days</p>
+                <div className="rounded-lg bg-muted/50 border border-border p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Original Notice Period</p>
+                  <p className="text-lg font-semibold text-foreground">{calculation.originalNoticeDays} days</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 border border-gray-100 p-4">
-                  <p className="text-xs text-gray-500 mb-1">Days Served</p>
-                  <p className="text-lg font-semibold text-gray-900">{calculation.servedDays} days</p>
+                <div className="rounded-lg bg-muted/50 border border-border p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Days Served</p>
+                  <p className="text-lg font-semibold text-foreground">{calculation.servedDays} days</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 border border-gray-100 p-4">
-                  <p className="text-xs text-gray-500 mb-1">Days to Buy Out</p>
-                  <p className="text-lg font-semibold text-amber-600">{calculation.remainingDays} days</p>
+                <div className="rounded-lg bg-muted/50 border border-border p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Days to Buy Out</p>
+                  <p className="text-lg font-semibold text-amber-600 dark:text-amber-400">{calculation.remainingDays} days</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 border border-gray-100 p-4">
-                  <p className="text-xs text-gray-500 mb-1">Daily Rate</p>
-                  <p className="text-lg font-semibold text-gray-900">{formatINR(calculation.dailyRate)}</p>
+                <div className="rounded-lg bg-muted/50 border border-border p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Daily Rate</p>
+                  <p className="text-lg font-semibold text-foreground">{formatINR(calculation.dailyRate)}</p>
                 </div>
-                <div className="rounded-lg bg-rose-50 border border-rose-200 p-4 sm:col-span-2">
+                <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-4 sm:col-span-2">
                   <p className="text-xs text-rose-500 font-medium mb-1">Buyout Amount</p>
-                  <p className="text-3xl font-bold text-rose-600">{formatINR(calculation.buyoutAmount)}</p>
+                  <p className="text-3xl font-bold text-rose-600 dark:text-rose-400">{formatINR(calculation.buyoutAmount)}</p>
                   <p className="text-xs text-rose-400 mt-1">
                     {calculation.remainingDays} days x {formatINR(calculation.dailyRate)}/day
                   </p>
@@ -378,11 +378,11 @@ export function BuyoutCalculatorPage() {
               </div>
 
               {isDateSoon && (
-                <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3">
+                <div className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-3">
                   <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-amber-800">Early departure warning</p>
-                    <p className="text-xs text-amber-700 mt-0.5">
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Early departure warning</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
                       You are buying out more than 70% of your notice period. The buyout amount will
                       be deducted from your Full & Final settlement.
                     </p>
@@ -391,11 +391,11 @@ export function BuyoutCalculatorPage() {
               )}
 
               {calculation.dailyRate === 0 && (
-                <div className="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3">
+                <div className="flex items-start gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 p-3">
                   <AlertTriangle className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-blue-800">Salary data unavailable</p>
-                    <p className="text-xs text-blue-700 mt-0.5">
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Salary data unavailable</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
                       Your daily rate shows as zero because salary data is not available in the system.
                       HR will update the final amount after reviewing your request.
                     </p>

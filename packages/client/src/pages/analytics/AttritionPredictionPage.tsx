@@ -48,10 +48,10 @@ const RISK_COLORS: Record<string, string> = {
 
 function riskBadge(level: RiskLevel) {
   const colors: Record<RiskLevel, string> = {
-    low: "bg-green-100 text-green-700",
-    medium: "bg-yellow-100 text-yellow-700",
-    high: "bg-orange-100 text-orange-700",
-    critical: "bg-red-100 text-red-700",
+    low: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+    medium: "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300",
+    high: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300",
+    critical: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300",
   };
   return (
     <span
@@ -70,13 +70,13 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="h-2.5 w-24 rounded-full bg-gray-200">
+      <div className="h-2.5 w-24 rounded-full bg-muted">
         <div
           className="h-2.5 rounded-full transition-all"
           style={{ width: `${score}%`, backgroundColor: barColor }}
         />
       </div>
-      <span className="text-xs font-semibold text-gray-700">{score}</span>
+      <span className="text-xs font-semibold text-muted-foreground">{score}</span>
     </div>
   );
 }
@@ -125,21 +125,21 @@ function EmployeeRiskModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl">
+      <div className="relative z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-card shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-foreground">
               {employee.first_name} {employee.last_name}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {employee.designation || "No designation"} &middot;{" "}
               {employee.department_name || "No department"}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
           >
             <X className="h-5 w-5" />
           </button>
@@ -173,7 +173,7 @@ function EmployeeRiskModal({
                 <span className="text-3xl font-bold" style={{ color: gaugeColor }}>
                   {employee.score}
                 </span>
-                <span className="text-[10px] font-medium text-gray-500 uppercase">Risk Score</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase">Risk Score</span>
               </div>
             </div>
             <div className="mt-2">{riskBadge(employee.risk_level)}</div>
@@ -181,17 +181,17 @@ function EmployeeRiskModal({
 
           {/* Risk factors */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Risk Factors</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Risk Factors</h3>
             <div className="space-y-3">
               {(employee.factors || []).map((f: RiskFactor, i: number) => (
-                <div key={i} className="rounded-lg border border-gray-200 p-3">
+                <div key={i} className="rounded-lg border border-border p-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-800">{f.name}</span>
-                    <span className="text-xs font-semibold text-gray-500">
+                    <span className="text-sm font-medium text-foreground">{f.name}</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
                       Impact: {f.impact}/100
                     </span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-gray-200 mb-1.5">
+                  <div className="h-1.5 w-full rounded-full bg-muted mb-1.5">
                     <div
                       className="h-1.5 rounded-full"
                       style={{
@@ -201,7 +201,7 @@ function EmployeeRiskModal({
                       }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500">{f.description}</p>
+                  <p className="text-xs text-muted-foreground">{f.description}</p>
                 </div>
               ))}
             </div>
@@ -209,10 +209,10 @@ function EmployeeRiskModal({
 
           {/* Recommended actions */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Recommended Actions</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Recommended Actions</h3>
             <ul className="space-y-2">
               {(recommendations[employee.risk_level] || []).map((action, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                   <ChevronRight className="h-4 w-4 mt-0.5 text-brand-500 flex-shrink-0" />
                   {action}
                 </li>
@@ -278,7 +278,7 @@ export function AttritionPredictionPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -291,8 +291,8 @@ export function AttritionPredictionPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Flight Risk Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Flight Risk Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Predictive attrition scoring based on employee data patterns.
           </p>
         </div>
@@ -311,10 +311,10 @@ export function AttritionPredictionPage() {
       </div>
 
       {noData ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <UserMinus className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">No Risk Data Yet</h3>
-          <p className="mt-2 text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <UserMinus className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-lg font-semibold text-foreground">No Risk Data Yet</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
             Click "Calculate Scores" to generate flight risk scores for all active employees.
           </p>
         </div>
@@ -322,60 +322,60 @@ export function AttritionPredictionPage() {
         <>
           {/* Summary cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
+            <div className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                  <Shield className="h-5 w-5 text-blue-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/40">
+                  <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-foreground">
                     {dashboard!.totalEmployees}
                   </p>
-                  <p className="text-xs text-gray-500">Total Employees</p>
+                  <p className="text-xs text-muted-foreground">Total Employees</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
+            <div className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/40">
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                     {dashboard!.highRiskCount}
                   </p>
-                  <p className="text-xs text-gray-500">High / Critical Risk</p>
+                  <p className="text-xs text-muted-foreground">High / Critical Risk</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
+            <div className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
-                  <TrendingDown className="h-5 w-5 text-orange-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950/40">
+                  <TrendingDown className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-foreground">
                     {dashboard!.departmentBreakdown.length}
                   </p>
-                  <p className="text-xs text-gray-500">Departments Scored</p>
+                  <p className="text-xs text-muted-foreground">Departments Scored</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
+            <div className="rounded-lg border border-border bg-card p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50">
-                  <UserMinus className="h-5 w-5 text-yellow-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50 dark:bg-yellow-950/40">
+                  <UserMinus className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-foreground">
                     {dashboard!.topRiskFactors.length > 0
                       ? dashboard!.topRiskFactors[0].name
                       : "N/A"}
                   </p>
-                  <p className="text-xs text-gray-500">Top Risk Factor</p>
+                  <p className="text-xs text-muted-foreground">Top Risk Factor</p>
                 </div>
               </div>
             </div>
@@ -384,8 +384,8 @@ export function AttritionPredictionPage() {
           {/* Charts row */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Risk Distribution — Donut */}
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Risk Distribution</h3>
+            <div className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-4">Risk Distribution</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
@@ -415,12 +415,12 @@ export function AttritionPredictionPage() {
             </div>
 
             {/* Department Risk Heatmap — Bar chart colored by risk */}
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+            <div className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-4">
                 Department Risk Heatmap
               </h3>
               {dashboard!.departmentBreakdown.length === 0 ? (
-                <div className="flex h-48 items-center justify-center text-sm text-gray-400">
+                <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
                   No data
                 </div>
               ) : (
@@ -453,8 +453,8 @@ export function AttritionPredictionPage() {
 
           {/* Prediction Trends */}
           {trends.length > 0 && (
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+            <div className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-4">
                 Prediction Trends (Predicted vs Actual)
               </h3>
               <ResponsiveContainer width="100%" height={260}>
@@ -488,21 +488,21 @@ export function AttritionPredictionPage() {
           )}
 
           {/* High Risk Employees Table */}
-          <div className="rounded-lg border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 px-5 py-4">
-              <h3 className="text-sm font-semibold text-gray-900">
+          <div className="rounded-lg border border-border bg-card">
+            <div className="border-b border-border px-5 py-4">
+              <h3 className="text-sm font-semibold text-foreground">
                 High Risk Employees ({highRisk.length})
               </h3>
             </div>
             {highRisk.length === 0 ? (
-              <div className="flex h-32 items-center justify-center text-sm text-gray-400">
+              <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
                 No high-risk employees found
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       <th className="px-5 py-3">Employee</th>
                       <th className="px-5 py-3">Department</th>
                       <th className="px-5 py-3">Tenure</th>
@@ -512,7 +512,7 @@ export function AttritionPredictionPage() {
                       <th className="px-5 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border">
                     {highRisk.map((emp) => {
                       const topFactor =
                         emp.factors && emp.factors.length > 0
@@ -533,30 +533,30 @@ export function AttritionPredictionPage() {
                       return (
                         <tr
                           key={emp.employee_id}
-                          className="hover:bg-gray-50 cursor-pointer"
+                          className="hover:bg-muted/50 cursor-pointer"
                           onClick={() => setSelectedEmployee(emp)}
                         >
                           <td className="px-5 py-3">
                             <div>
-                              <p className="font-medium text-gray-900">
+                              <p className="font-medium text-foreground">
                                 {emp.first_name} {emp.last_name}
                               </p>
-                              <p className="text-xs text-gray-500">{emp.email}</p>
+                              <p className="text-xs text-muted-foreground">{emp.email}</p>
                             </div>
                           </td>
-                          <td className="px-5 py-3 text-gray-700">
+                          <td className="px-5 py-3 text-muted-foreground">
                             {emp.department_name || "N/A"}
                           </td>
-                          <td className="px-5 py-3 text-gray-700">{tenure}</td>
+                          <td className="px-5 py-3 text-muted-foreground">{tenure}</td>
                           <td className="px-5 py-3">
                             <ScoreBar score={emp.score} />
                           </td>
                           <td className="px-5 py-3">{riskBadge(emp.risk_level)}</td>
-                          <td className="px-5 py-3 text-gray-600 text-xs">
+                          <td className="px-5 py-3 text-muted-foreground text-xs">
                             {topFactor ? topFactor.name : "N/A"}
                           </td>
                           <td className="px-5 py-3">
-                            <ChevronRight className="h-4 w-4 text-gray-400" />
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
                           </td>
                         </tr>
                       );
@@ -569,16 +569,16 @@ export function AttritionPredictionPage() {
 
           {/* Top Risk Factors */}
           {dashboard!.topRiskFactors.length > 0 && (
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
+            <div className="rounded-lg border border-border bg-card p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-4">
                 Top Risk Factors (among high-risk employees)
               </h3>
               <div className="space-y-3">
                 {dashboard!.topRiskFactors.map((f, i) => (
                   <div key={i} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">{f.name}</span>
+                    <span className="text-sm text-muted-foreground">{f.name}</span>
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-32 rounded-full bg-gray-200">
+                      <div className="h-2 w-32 rounded-full bg-muted">
                         <div
                           className="h-2 rounded-full bg-red-500"
                           style={{
@@ -594,7 +594,7 @@ export function AttritionPredictionPage() {
                           }}
                         />
                       </div>
-                      <span className="text-xs font-semibold text-gray-500">
+                      <span className="text-xs font-semibold text-muted-foreground">
                         {f.count} employees
                       </span>
                     </div>

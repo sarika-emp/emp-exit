@@ -92,7 +92,7 @@ export function MyAlumniPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -100,25 +100,25 @@ export function MyAlumniPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Alumni Profile</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">My Alumni Profile</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Manage your alumni network profile and stay connected.
         </p>
       </div>
 
       {!profile ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8">
+        <div className="rounded-lg border border-border bg-card p-8">
           <div className="text-center mb-6">
-            <GraduationCap className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-            <h3 className="text-lg font-semibold text-gray-900">Join the Alumni Network</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground/50 mb-3" />
+            <h3 className="text-lg font-semibold text-foreground">Join the Alumni Network</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
               Opt in to stay connected with your former organization.
             </p>
           </div>
 
           <form onSubmit={handleOptIn} className="max-w-md mx-auto space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-muted-foreground">
                 Exit Request ID
               </label>
               <input
@@ -127,7 +127,7 @@ export function MyAlumniPage() {
                 onChange={(e) => setOptInExitId(e.target.value)}
                 required
                 placeholder="Enter your exit request UUID"
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <button
@@ -140,48 +140,48 @@ export function MyAlumniPage() {
           </form>
         </div>
       ) : (
-        <form onSubmit={handleSave} className="rounded-lg border border-gray-200 bg-white p-6 space-y-6">
+        <form onSubmit={handleSave} className="rounded-lg border border-border bg-card p-6 space-y-6">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
-            <span className="text-sm font-medium text-green-700">You are part of the alumni network</span>
+            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <span className="text-sm font-medium text-green-700 dark:text-green-300">You are part of the alumni network</span>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Personal Email</label>
+              <label className="block text-sm font-medium text-muted-foreground">Personal Email</label>
               <input
                 type="email"
                 value={form.personal_email}
                 onChange={(e) => setForm({ ...form, personal_email: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="your.email@gmail.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
+              <label className="block text-sm font-medium text-muted-foreground">Phone</label>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="+91 98765 43210"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">LinkedIn URL</label>
+              <label className="block text-sm font-medium text-muted-foreground">LinkedIn URL</label>
               <input
                 type="url"
                 value={form.linkedin_url}
                 onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="https://linkedin.com/in/yourprofile"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3 text-xs text-gray-500">
+          <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
             <span>Last designation: {profile.last_designation || "N/A"}</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-muted-foreground/50">|</span>
             <span>Department: {profile.last_department || "N/A"}</span>
           </div>
 

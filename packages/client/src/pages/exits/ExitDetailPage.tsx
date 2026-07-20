@@ -33,13 +33,13 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { cn, formatDate } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
-  initiated: "bg-blue-100 text-blue-700 border-blue-200",
-  notice_period: "bg-amber-100 text-amber-700 border-amber-200",
-  clearance_pending: "bg-orange-100 text-orange-700 border-orange-200",
-  fnf_pending: "bg-purple-100 text-purple-700 border-purple-200",
-  fnf_processed: "bg-indigo-100 text-indigo-700 border-indigo-200",
-  completed: "bg-green-100 text-green-700 border-green-200",
-  cancelled: "bg-gray-100 text-gray-500 border-gray-200",
+  initiated: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900",
+  notice_period: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900",
+  clearance_pending: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-900",
+  fnf_pending: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900",
+  fnf_processed: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900",
+  completed: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-900",
+  cancelled: "bg-muted text-muted-foreground border-border",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -77,18 +77,18 @@ const REASON_OPTIONS: { value: string; label: string }[] = [
 ];
 
 const CHECKLIST_STATUS_COLORS: Record<string, string> = {
-  pending: "bg-gray-100 text-gray-600",
-  in_progress: "bg-blue-100 text-blue-700",
-  completed: "bg-green-100 text-green-700",
-  waived: "bg-amber-100 text-amber-700",
-  na: "bg-gray-50 text-gray-400",
+  pending: "bg-muted text-muted-foreground",
+  in_progress: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  completed: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  waived: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  na: "bg-muted/50 text-muted-foreground",
 };
 
 const CLEARANCE_STATUS_COLORS: Record<string, string> = {
-  pending: "bg-gray-100 text-gray-600",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
-  waived: "bg-amber-100 text-amber-700",
+  pending: "bg-muted text-muted-foreground",
+  approved: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  rejected: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300",
+  waived: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
 };
 
 type Tab = "overview" | "checklist" | "clearance" | "interview" | "fnf" | "buyout" | "assets" | "kt" | "letters";
@@ -386,7 +386,7 @@ export function ExitDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -394,11 +394,11 @@ export function ExitDetailPage() {
   if (!exit) {
     return (
       <div className="space-y-4">
-        <Link to="/exits" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
+        <Link to="/exits" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to exits
         </Link>
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-          <p className="text-gray-500">Exit request not found.</p>
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <p className="text-muted-foreground">Exit request not found.</p>
         </div>
       </div>
     );
@@ -411,15 +411,15 @@ export function ExitDetailPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <Link to="/exits" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-2">
+          <Link to="/exits" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground mb-2">
             <ArrowLeft className="h-4 w-4" /> Back to exits
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             {exit.employee
               ? `${exit.employee.first_name} ${exit.employee.last_name}`
               : `Exit #${exit.id.slice(0, 8)}`}
           </h1>
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-500">
+          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span>{TYPE_LABELS[exit.exit_type] || exit.exit_type}</span>
             <span className={cn("inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium", STATUS_COLORS[exit.status])}>
               {STATUS_LABELS[exit.status] || exit.status}
@@ -432,7 +432,7 @@ export function ExitDetailPage() {
             <button
               onClick={openEdit}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
             >
               <Pencil className="h-4 w-4" />
               Edit
@@ -440,7 +440,7 @@ export function ExitDetailPage() {
             <button
               onClick={handleCancel}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
             >
               <XCircle className="h-4 w-4" />
               Cancel Exit
@@ -458,7 +458,7 @@ export function ExitDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-border">
         <nav className="-mb-px flex gap-1 overflow-x-auto">
           {TABS.map((tab) => (
             <button
@@ -467,8 +467,8 @@ export function ExitDetailPage() {
               className={cn(
                 "inline-flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors",
                 activeTab === tab.key
-                  ? "border-rose-500 text-rose-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                  ? "border-rose-500 text-rose-600 dark:text-rose-400"
+                  : "border-transparent text-muted-foreground hover:border-border hover:text-muted-foreground",
               )}
             >
               <tab.icon className="h-4 w-4" />
@@ -479,7 +479,7 @@ export function ExitDetailPage() {
       </div>
 
       {/* Tab Content */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         {activeTab === "overview" && <OverviewTab exit={exit} />}
         {activeTab === "checklist" && (
           <ChecklistTab
@@ -525,20 +525,20 @@ export function ExitDetailPage() {
       {/* Edit Exit modal */}
       {showEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Exit Details</h3>
-              <button onClick={() => setShowEdit(false)} className="text-gray-400 hover:text-gray-600">
+          <div className="w-full max-w-lg rounded-xl bg-card shadow-xl">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <h3 className="text-lg font-semibold text-foreground">Edit Exit Details</h3>
+              <button onClick={() => setShowEdit(false)} className="text-muted-foreground hover:text-muted-foreground">
                 <XCircle className="h-5 w-5" />
               </button>
             </div>
             <div className="max-h-[70vh] space-y-4 overflow-y-auto px-5 py-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Reason Category</label>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">Reason Category</label>
                 <select
                   value={editForm.reason_category}
                   onChange={(e) => setEditForm({ ...editForm, reason_category: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 >
                   {REASON_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -546,50 +546,50 @@ export function ExitDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Reason Detail</label>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">Reason Detail</label>
                 <textarea
                   value={editForm.reason_detail}
                   onChange={(e) => setEditForm({ ...editForm, reason_detail: e.target.value })}
                   rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Notice Start</label>
+                  <label className="mb-1 block text-sm font-medium text-muted-foreground">Notice Start</label>
                   <input type="date" value={editForm.notice_start_date}
                     onChange={(e) => setEditForm({ ...editForm, notice_start_date: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Last Working Date</label>
+                  <label className="mb-1 block text-sm font-medium text-muted-foreground">Last Working Date</label>
                   <input type="date" value={editForm.last_working_date}
                     onChange={(e) => setEditForm({ ...editForm, last_working_date: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Actual Exit Date</label>
+                  <label className="mb-1 block text-sm font-medium text-muted-foreground">Actual Exit Date</label>
                   <input type="date" value={editForm.actual_exit_date}
                     onChange={(e) => setEditForm({ ...editForm, actual_exit_date: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Notice Period (days)</label>
+                  <label className="mb-1 block text-sm font-medium text-muted-foreground">Notice Period (days)</label>
                   <input type="number" min={0} value={editForm.notice_period_days}
                     onChange={(e) => setEditForm({ ...editForm, notice_period_days: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
                 <input type="checkbox" checked={!!editForm.notice_period_waived}
                   onChange={(e) => setEditForm({ ...editForm, notice_period_waived: e.target.checked })} />
                 Notice period waived
               </label>
-              {editError && <p className="text-sm text-red-600">{editError}</p>}
+              {editError && <p className="text-sm text-red-600 dark:text-red-400">{editError}</p>}
             </div>
-            <div className="flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
+            <div className="flex justify-end gap-2 border-t border-border px-5 py-4">
               <button onClick={() => setShowEdit(false)} disabled={actionLoading}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50">
                 Cancel
               </button>
               <button onClick={handleSaveEdit} disabled={actionLoading}
@@ -640,37 +640,37 @@ function OverviewTab({ exit }: { exit: any }) {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {exit.checklist_summary && (
-          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <ClipboardCheck className="h-4 w-4 text-rose-500" />
               Checklist
             </div>
-            <p className="mt-1 text-2xl font-bold text-gray-900">{exit.checklist_summary.progress}%</p>
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-2xl font-bold text-foreground">{exit.checklist_summary.progress}%</p>
+            <p className="text-xs text-muted-foreground">
               {exit.checklist_summary.completed} / {exit.checklist_summary.total} items
             </p>
           </div>
         )}
         {exit.clearance_summary && (
-          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Shield className="h-4 w-4 text-rose-500" />
               Clearance
             </div>
-            <p className="mt-1 text-2xl font-bold text-gray-900">{exit.clearance_summary.progress}%</p>
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-2xl font-bold text-foreground">{exit.clearance_summary.progress}%</p>
+            <p className="text-xs text-muted-foreground">
               {exit.clearance_summary.approved} / {exit.clearance_summary.total} departments
             </p>
           </div>
         )}
         {exit.fnf_summary && (
-          <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <DollarSign className="h-4 w-4 text-rose-500" />
               FnF
             </div>
-            <p className="mt-1 text-2xl font-bold text-gray-900 capitalize">{exit.fnf_summary.status}</p>
-            <p className="text-xs text-gray-500">
+            <p className="mt-1 text-2xl font-bold text-foreground capitalize">{exit.fnf_summary.status}</p>
+            <p className="text-xs text-muted-foreground">
               Total payable: {exit.fnf_summary.total_payable}
             </p>
           </div>
@@ -681,8 +681,8 @@ function OverviewTab({ exit }: { exit: any }) {
       <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         {fields.map((f) => (
           <div key={f.label}>
-            <dt className="text-xs font-medium uppercase tracking-wider text-gray-500">{f.label}</dt>
-            <dd className="mt-0.5 text-sm text-gray-900 capitalize">{f.value}</dd>
+            <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{f.label}</dt>
+            <dd className="mt-0.5 text-sm text-foreground capitalize">{f.value}</dd>
           </div>
         ))}
       </div>
@@ -702,9 +702,9 @@ function ChecklistTab({
   if (!checklist || !checklist.items || checklist.items.length === 0) {
     return (
       <div className="text-center py-8">
-        <ClipboardCheck className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-        <p className="text-sm text-gray-500 mb-4">No checklist generated yet.</p>
-        <p className="text-xs text-gray-400">
+        <ClipboardCheck className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+        <p className="text-sm text-muted-foreground mb-4">No checklist generated yet.</p>
+        <p className="text-xs text-muted-foreground">
           Go to Checklists to generate a checklist from a template.
         </p>
       </div>
@@ -714,33 +714,33 @@ function ChecklistTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-medium text-muted-foreground">
           {checklist.completed} / {checklist.total} completed ({checklist.progress}%)
         </h3>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-muted rounded-full h-2">
         <div
           className="bg-rose-500 h-2 rounded-full transition-all"
           style={{ width: `${checklist.progress}%` }}
         />
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-border">
         {checklist.items.map((item: any) => (
           <div key={item.id} className="flex items-center justify-between py-3">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">{item.title}</p>
+              <p className="text-sm font-medium text-foreground">{item.title}</p>
               {item.description && (
-                <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
               )}
               {item.remarks && (
-                <p className="text-xs text-gray-400 mt-0.5 italic">{item.remarks}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 italic">{item.remarks}</p>
               )}
             </div>
             <div className="flex items-center gap-2 ml-4">
               <span
                 className={cn(
                   "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                  CHECKLIST_STATUS_COLORS[item.status] || "bg-gray-100 text-gray-600",
+                  CHECKLIST_STATUS_COLORS[item.status] || "bg-muted text-muted-foreground",
                 )}
               >
                 {item.status.replace(/_/g, " ")}
@@ -748,7 +748,7 @@ function ChecklistTab({
               {item.status === "pending" && (
                 <button
                   onClick={() => onUpdateItem(item.id, "completed")}
-                  className="rounded-md bg-green-50 p-1 text-green-600 hover:bg-green-100"
+                  className="rounded-md bg-green-50 dark:bg-green-950/40 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:bg-green-950/40"
                   title="Mark complete"
                 >
                   <CheckCircle className="h-4 w-4" />
@@ -763,9 +763,9 @@ function ChecklistTab({
 }
 
 const KT_STATUS_COLORS: Record<string, string> = {
-  not_started: "bg-gray-100 text-gray-600",
-  in_progress: "bg-blue-100 text-blue-700",
-  completed: "bg-green-100 text-green-700",
+  not_started: "bg-muted text-muted-foreground",
+  in_progress: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  completed: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
 };
 
 function KtTab({
@@ -778,9 +778,9 @@ function KtTab({
   if (!kt) {
     return (
       <div className="py-8 text-center">
-        <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-        <p className="mb-1 text-sm text-gray-500">No knowledge transfer plan yet.</p>
-        <p className="text-xs text-gray-400">
+        <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+        <p className="mb-1 text-sm text-muted-foreground">No knowledge transfer plan yet.</p>
+        <p className="text-xs text-muted-foreground">
           A KT plan is created when handover tasks are assigned for this exit.
         </p>
       </div>
@@ -796,54 +796,54 @@ function KtTab({
     <div className="space-y-5">
       {/* Plan summary */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span
             className={cn(
               "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
-              KT_STATUS_COLORS[kt.status] || "bg-gray-100 text-gray-600",
+              KT_STATUS_COLORS[kt.status] || "bg-muted text-muted-foreground",
             )}
           >
             {String(kt.status || "not_started").replace(/_/g, " ")}
           </span>
           {kt.assignee && (
             <span>
-              Assignee: <span className="font-medium text-gray-800">{kt.assignee.first_name} {kt.assignee.last_name}</span>
+              Assignee: <span className="font-medium text-foreground">{kt.assignee.first_name} {kt.assignee.last_name}</span>
             </span>
           )}
           {kt.due_date && <span>Due: {formatDate(kt.due_date)}</span>}
         </div>
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-muted-foreground">
           {completed} / {total} completed ({progress}%)
         </span>
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 w-full rounded-full bg-gray-200">
+      <div className="h-2 w-full rounded-full bg-muted">
         <div className="h-2 rounded-full bg-rose-500 transition-all" style={{ width: `${progress}%` }} />
       </div>
 
       {kt.notes && (
-        <p className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-600">{kt.notes}</p>
+        <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{kt.notes}</p>
       )}
 
       {/* Items */}
       {total === 0 ? (
-        <p className="py-4 text-center text-sm text-gray-400">No knowledge transfer items added yet.</p>
+        <p className="py-4 text-center text-sm text-muted-foreground">No knowledge transfer items added yet.</p>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-border">
           {items.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                <p className="text-sm font-medium text-foreground">{item.title}</p>
                 {item.description && (
-                  <p className="mt-0.5 text-xs text-gray-500">{item.description}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
                 )}
                 {item.document_url && (
                   <a
                     href={item.document_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-0.5 inline-block text-xs text-rose-600 hover:underline"
+                    className="mt-0.5 inline-block text-xs text-rose-600 dark:text-rose-400 hover:underline"
                   >
                     View document
                   </a>
@@ -853,7 +853,7 @@ function KtTab({
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                    KT_STATUS_COLORS[item.status] || "bg-gray-100 text-gray-600",
+                    KT_STATUS_COLORS[item.status] || "bg-muted text-muted-foreground",
                   )}
                 >
                   {String(item.status).replace(/_/g, " ")}
@@ -861,7 +861,7 @@ function KtTab({
                 {item.status === "not_started" && (
                   <button
                     onClick={() => onUpdateItem(item.id, "in_progress")}
-                    className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"
+                    className="rounded-md bg-blue-50 dark:bg-blue-950/40 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:bg-blue-950/40"
                   >
                     Start
                   </button>
@@ -869,7 +869,7 @@ function KtTab({
                 {item.status !== "completed" && (
                   <button
                     onClick={() => onUpdateItem(item.id, "completed")}
-                    className="rounded-md bg-green-50 p-1 text-green-600 hover:bg-green-100"
+                    className="rounded-md bg-green-50 dark:bg-green-950/40 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:bg-green-950/40"
                     title="Mark complete"
                   >
                     <CheckCircle className="h-4 w-4" />
@@ -896,8 +896,8 @@ function ClearanceTab({
   if (!clearance || !clearance.records || clearance.records.length === 0) {
     return (
       <div className="text-center py-8">
-        <Shield className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-        <p className="text-sm text-gray-500 mb-4">No clearance records yet.</p>
+        <Shield className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+        <p className="text-sm text-muted-foreground mb-4">No clearance records yet.</p>
         <button
           onClick={onInitiate}
           disabled={actionLoading}
@@ -913,28 +913,28 @@ function ClearanceTab({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-medium text-muted-foreground">
           {clearance.approved} / {clearance.total} approved ({clearance.progress}%)
         </h3>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="w-full bg-muted rounded-full h-2">
         <div
           className="bg-rose-500 h-2 rounded-full transition-all"
           style={{ width: `${clearance.progress}%` }}
         />
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-border">
         {clearance.records.map((record: any) => (
           <div key={record.id} className="flex items-center justify-between py-3">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-foreground">
                 {record.department?.name || "Unknown Department"}
               </p>
               {record.remarks && (
-                <p className="text-xs text-gray-500 mt-0.5">{record.remarks}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{record.remarks}</p>
               )}
               {record.approved_at && (
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Approved: {formatDate(record.approved_at)}
                 </p>
               )}
@@ -942,7 +942,7 @@ function ClearanceTab({
             <span
               className={cn(
                 "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-                CLEARANCE_STATUS_COLORS[record.status] || "bg-gray-100 text-gray-600",
+                CLEARANCE_STATUS_COLORS[record.status] || "bg-muted text-muted-foreground",
               )}
             >
               {record.status}
@@ -965,10 +965,10 @@ function formatINR(amountPaise: number): string {
 }
 
 const FNF_STATUS_COLORS: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-600",
-  calculated: "bg-blue-100 text-blue-700",
-  approved: "bg-green-100 text-green-700",
-  paid: "bg-emerald-100 text-emerald-700",
+  draft: "bg-muted text-muted-foreground",
+  calculated: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  approved: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  paid: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300",
 };
 
 function FnFTab({
@@ -1091,10 +1091,10 @@ function FnFTab({
     value: number;
     onChange: (v: number) => void;
   }) => (
-    <div className="flex items-center justify-between border-b border-gray-100 py-2.5 last:border-0">
-      <span className="text-sm text-gray-700">{label}</span>
+    <div className="flex items-center justify-between border-b border-border py-2.5 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
       <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-400">INR</span>
+        <span className="text-xs text-muted-foreground">INR</span>
         <input
           type="number"
           value={value / 100}
@@ -1102,7 +1102,7 @@ function FnFTab({
           disabled={!isEditable}
           readOnly={!isEditable}
           step="0.01"
-          className="w-32 rounded border border-gray-300 px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500 read-only:bg-gray-50 read-only:text-gray-500"
+          className="w-32 rounded border border-border px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground read-only:bg-muted/50 read-only:text-muted-foreground"
         />
       </div>
     </div>
@@ -1112,8 +1112,8 @@ function FnFTab({
   if (!fnf) {
     return (
       <div className="py-8 text-center">
-        <Calculator className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-        <p className="mb-4 text-sm text-gray-500">No full &amp; final settlement yet.</p>
+        <Calculator className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+        <p className="mb-4 text-sm text-muted-foreground">No full &amp; final settlement yet.</p>
         <button
           onClick={handleCalculate}
           disabled={actionLoading}
@@ -1131,11 +1131,11 @@ function FnFTab({
       {/* Header + status */}
       <div className="flex items-center gap-3">
         <Calculator className="h-5 w-5 text-rose-500" />
-        <h3 className="text-sm font-semibold text-gray-900">Full &amp; Final Settlement</h3>
+        <h3 className="text-sm font-semibold text-foreground">Full &amp; Final Settlement</h3>
         <span
           className={cn(
             "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-            FNF_STATUS_COLORS[fnf.status] || "bg-gray-100 text-gray-600",
+            FNF_STATUS_COLORS[fnf.status] || "bg-muted text-muted-foreground",
           )}
         >
           {fnf.status}
@@ -1143,33 +1143,33 @@ function FnFTab({
       </div>
 
       {isPaid && fnf.paid_date && (
-        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-          <Banknote className="h-5 w-5 text-emerald-600" />
+        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/40 p-4">
+          <Banknote className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           <div>
-            <p className="text-sm font-medium text-emerald-800">Payment Completed</p>
-            <p className="text-xs text-emerald-600">Paid on {formatDate(fnf.paid_date)}</p>
+            <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Payment Completed</p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">Paid on {formatDate(fnf.paid_date)}</p>
           </div>
         </div>
       )}
 
       {/* Earnings / Deductions */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 p-4">
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-600">Earnings</h4>
+        <div className="rounded-lg border border-border p-4">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Earnings</h4>
           <AmountField label="Pending Salary (pro-rata)" value={basicSalaryDue} onChange={setBasicSalaryDue} />
           <AmountField label="Leave Encashment" value={leaveEncashment} onChange={setLeaveEncashment} />
           <AmountField label="Gratuity" value={gratuity} onChange={setGratuity} />
           <AmountField label="Bonus" value={bonusDue} onChange={setBonusDue} />
           <AmountField label="Other Earnings" value={otherEarnings} onChange={setOtherEarnings} />
-          <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-sm font-semibold text-emerald-700">
+          <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
             <span>Total Earnings</span><span>{formatINR(totalEarnings)}</span>
           </div>
         </div>
-        <div className="rounded-lg border border-gray-200 p-4">
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-red-600">Deductions</h4>
+        <div className="rounded-lg border border-border p-4">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-red-600 dark:text-red-400">Deductions</h4>
           <AmountField label="Notice Period Recovery" value={noticePayRecovery} onChange={setNoticePayRecovery} />
           <AmountField label="Other Deductions" value={otherDeductions} onChange={setOtherDeductions} />
-          <div className="mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-sm font-semibold text-red-700">
+          <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-sm font-semibold text-red-700 dark:text-red-300">
             <span>Total Deductions</span><span>{formatINR(totalDeductions)}</span>
           </div>
         </div>
@@ -1179,7 +1179,7 @@ function FnFTab({
       <div
         className={cn(
           "flex items-center justify-between rounded-lg p-4",
-          netPayable >= 0 ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800",
+          netPayable >= 0 ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300",
         )}
       >
         <span className="text-sm font-semibold">Net Payable</span>
@@ -1188,32 +1188,32 @@ function FnFTab({
 
       {/* Remarks */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-600">Remarks</label>
+        <label className="mb-1 block text-xs font-medium text-muted-foreground">Remarks</label>
         <textarea
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
           disabled={!isEditable}
           rows={2}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-gray-50"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-muted/50"
         />
       </div>
 
       {isEditable && (
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted-foreground">
           Auto-calculation seeds amounts from notice/tenure only — enter the actual salary-based amounts above and Save.
         </p>
       )}
 
       {/* Mark-paid inline input */}
       {showPay && (
-        <div className="flex flex-wrap items-end gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+        <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-muted/50 p-3">
           <div className="flex-1 min-w-[200px]">
-            <label className="mb-1 block text-xs font-medium text-gray-600">Payment reference</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Payment reference</label>
             <input
               value={payRef}
               onChange={(e) => setPayRef(e.target.value)}
               placeholder="e.g. NEFT-FNF-2026-0042"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <button
@@ -1227,7 +1227,7 @@ function FnFTab({
           <button
             onClick={() => { setShowPay(false); setPayRef(""); }}
             disabled={actionLoading}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -1236,12 +1236,12 @@ function FnFTab({
 
       {/* Status-driven actions */}
       {!isPaid && !showPay && (
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-4">
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border pt-4">
           {isEditable && fnf.status !== "approved" && (
             <button
               onClick={() => setPendingAction("recalculate")}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
             >
               <RefreshCw className="h-4 w-4" /> Recalculate
             </button>
@@ -1295,9 +1295,9 @@ function FnFTab({
 }
 
 const INTERVIEW_STATUS_COLORS: Record<string, string> = {
-  scheduled: "bg-blue-100 text-blue-700",
-  completed: "bg-green-100 text-green-700",
-  skipped: "bg-gray-100 text-gray-600",
+  scheduled: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  completed: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  skipped: "bg-muted text-muted-foreground",
 };
 
 function InterviewTab({
@@ -1469,7 +1469,7 @@ function InterviewTab({
               <Star
                 className={cn(
                   "h-6 w-6",
-                  (answer.rating || 0) >= star ? "fill-amber-400 text-amber-400" : "text-gray-300",
+                  (answer.rating || 0) >= star ? "fill-amber-400 text-amber-400" : "text-muted-foreground/50",
                 )}
               />
             </button>
@@ -1489,8 +1489,8 @@ function InterviewTab({
               className={cn(
                 "rounded-lg border px-4 py-1.5 text-sm font-medium disabled:cursor-default",
                 answer.text === opt
-                  ? "border-rose-500 bg-rose-50 text-rose-700"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50",
+                  ? "border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300"
+                  : "border-border text-muted-foreground hover:bg-muted/50",
               )}
             >
               {opt}
@@ -1512,7 +1512,7 @@ function InterviewTab({
       return (
         <div className="space-y-1.5">
           {opts.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 text-sm text-gray-700">
+            <label key={opt} className="flex items-center gap-2 text-sm text-muted-foreground">
               <input
                 type="radio"
                 name={`q-${q.id}`}
@@ -1533,7 +1533,7 @@ function InterviewTab({
         disabled={isReadOnly}
         onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
         rows={2}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-gray-50"
+        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-muted/50"
       />
     );
   }
@@ -1543,22 +1543,22 @@ function InterviewTab({
     return (
       <div className="space-y-5">
         <div className="py-6 text-center">
-          <MessageSquare className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">No exit interview scheduled.</p>
+          <MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+          <p className="text-sm text-muted-foreground">No exit interview scheduled.</p>
         </div>
-        <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <div className="space-y-3 rounded-lg border border-border bg-muted/50 p-4">
           {templates.length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               No interview templates available. Create one in Interview Templates first.
             </p>
           ) : (
             <>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">Template</label>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">Template</label>
                 <select
                   value={templateId}
                   onChange={(e) => setTemplateId(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 >
                   <option value="" disabled>Select a template…</option>
                   {templates.map((t) => (
@@ -1567,48 +1567,48 @@ function InterviewTab({
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">Interviewer</label>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">Interviewer</label>
                 {interviewer ? (
-                  <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2">
-                    <span className="text-sm text-gray-800">
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
+                    <span className="text-sm text-foreground">
                       {interviewer.first_name} {interviewer.last_name}
-                      <span className="ml-1 text-xs text-gray-400">
+                      <span className="ml-1 text-xs text-muted-foreground">
                         {interviewer.emp_code || interviewer.email}
                       </span>
                     </span>
                     <button
                       type="button"
                       onClick={() => { setInterviewer(null); setIntvQuery(""); setIntvResults([]); }}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-muted-foreground hover:text-muted-foreground"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <input
                       value={intvQuery}
                       onChange={(e) => { setIntvQuery(e.target.value); setShowIntvResults(true); }}
                       onFocus={() => setShowIntvResults(true)}
                       onBlur={() => setTimeout(() => setShowIntvResults(false), 150)}
                       placeholder="Search employee by name or email…"
-                      className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-rose-400 focus:outline-none"
+                      className="w-full rounded-lg border border-border py-2 pl-9 pr-3 text-sm focus:border-rose-400 focus:outline-none"
                     />
                     {showIntvResults && (intvSearching || intvResults.length > 0) && (
-                      <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                      <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
                         {intvSearching ? (
-                          <div className="px-3 py-2 text-xs text-gray-400">Searching…</div>
+                          <div className="px-3 py-2 text-xs text-muted-foreground">Searching…</div>
                         ) : (
                           intvResults.map((u) => (
                             <button
                               key={u.id}
                               type="button"
                               onMouseDown={() => { setInterviewer(u); setShowIntvResults(false); }}
-                              className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                              className="block w-full px-3 py-2 text-left text-sm hover:bg-muted/50"
                             >
                               {u.first_name} {u.last_name}
-                              <span className="ml-1 text-xs text-gray-400">{u.emp_code || u.email}</span>
+                              <span className="ml-1 text-xs text-muted-foreground">{u.emp_code || u.email}</span>
                             </button>
                           ))
                         )}
@@ -1618,12 +1618,12 @@ function InterviewTab({
                 )}
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">Scheduled Date</label>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">Scheduled Date</label>
                 <input
                   type="date"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 />
               </div>
               <div className="flex justify-end">
@@ -1647,13 +1647,13 @@ function InterviewTab({
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
         <MessageSquare className="h-5 w-5 text-rose-500" />
-        <h3 className="text-sm font-semibold text-gray-900">Exit Interview</h3>
+        <h3 className="text-sm font-semibold text-foreground">Exit Interview</h3>
         <span
           className={cn(
             "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-            INTERVIEW_STATUS_COLORS[interview.status] || "bg-gray-100 text-gray-600",
+            INTERVIEW_STATUS_COLORS[interview.status] || "bg-muted text-muted-foreground",
           )}
         >
           {interview.status}
@@ -1663,17 +1663,17 @@ function InterviewTab({
       </div>
 
       {isSkipped && (
-        <p className="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-500">This interview was skipped.</p>
+        <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm text-muted-foreground">This interview was skipped.</p>
       )}
 
       {questions.length === 0 ? (
-        <p className="py-4 text-center text-sm text-gray-400">No questions on this interview template.</p>
+        <p className="py-4 text-center text-sm text-muted-foreground">No questions on this interview template.</p>
       ) : (
         <>
           <div className="space-y-4">
             {questions.map((q, idx) => (
-              <div key={q.id} className="rounded-lg border border-gray-200 p-4">
-                <p className="mb-2 text-sm font-medium text-gray-900">
+              <div key={q.id} className="rounded-lg border border-border p-4">
+                <p className="mb-2 text-sm font-medium text-foreground">
                   {idx + 1}. {q.question_text}
                   {q.is_required ? <span className="ml-1 text-red-500">*</span> : null}
                 </p>
@@ -1683,9 +1683,9 @@ function InterviewTab({
           </div>
 
           {/* Overall feedback */}
-          <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+          <div className="rounded-lg border border-border p-4 space-y-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Overall Rating (1–10)</label>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Overall Rating (1–10)</label>
               <div className="flex flex-wrap gap-1">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                   <button
@@ -1697,7 +1697,7 @@ function InterviewTab({
                       "h-8 w-8 rounded-md border text-xs font-medium disabled:cursor-default",
                       overallRating === n
                         ? "border-rose-500 bg-rose-500 text-white"
-                        : "border-gray-300 text-gray-600 hover:bg-gray-50",
+                        : "border-border text-muted-foreground hover:bg-muted/50",
                     )}
                   >
                     {n}
@@ -1706,7 +1706,7 @@ function InterviewTab({
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Would recommend as an employer?</label>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Would recommend as an employer?</label>
               <div className="flex gap-2">
                 {[{ v: true, l: "Yes" }, { v: false, l: "No" }].map(({ v, l }) => (
                   <button
@@ -1717,8 +1717,8 @@ function InterviewTab({
                     className={cn(
                       "rounded-lg border px-4 py-1.5 text-sm font-medium disabled:cursor-default",
                       wouldRecommend === v
-                        ? "border-rose-500 bg-rose-50 text-rose-700"
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50",
+                        ? "border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300"
+                        : "border-border text-muted-foreground hover:bg-muted/50",
                     )}
                   >
                     {l}
@@ -1732,11 +1732,11 @@ function InterviewTab({
 
       {/* Actions (scheduled only) */}
       {!isReadOnly && (
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-4">
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border pt-4">
           <button
             onClick={() => setPendingAction("skip")}
             disabled={actionLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <SkipForward className="h-4 w-4" /> Skip
           </button>
@@ -1779,11 +1779,11 @@ function InterviewTab({
 }
 
 const ASSET_STATUS_COLORS: Record<string, string> = {
-  pending: "bg-gray-100 text-gray-600",
-  returned: "bg-green-100 text-green-700",
-  damaged: "bg-amber-100 text-amber-700",
-  lost: "bg-red-100 text-red-700",
-  waived: "bg-blue-100 text-blue-700",
+  pending: "bg-muted text-muted-foreground",
+  returned: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  damaged: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  lost: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300",
+  waived: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
 };
 
 const ASSET_CATEGORIES: { value: string; label: string }[] = [
@@ -1861,10 +1861,10 @@ function AssetsTab({
     <div className="space-y-5">
       {/* Add control */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">Company Assets</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground">Company Assets</h3>
         <button
           onClick={() => setShowAdd((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
         >
           <Package className="h-3.5 w-3.5" />
           {showAdd ? "Close" : "Add Asset"}
@@ -1872,13 +1872,13 @@ function AssetsTab({
       </div>
 
       {showAdd && (
-        <div className="grid grid-cols-1 gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 rounded-lg border border-border bg-muted/50 p-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Category</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Category</label>
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             >
               {ASSET_CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -1886,32 +1886,32 @@ function AssetsTab({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Asset Name</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Asset Name</label>
             <input
               value={form.asset_name}
               onChange={(e) => setForm({ ...form, asset_name: e.target.value })}
               placeholder="e.g. Dell Latitude 5430"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Asset Tag</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Asset Tag</label>
             <input
               value={form.asset_tag}
               onChange={(e) => setForm({ ...form, asset_tag: e.target.value })}
               placeholder="e.g. LAP-2231"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Replacement Cost (INR)</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Replacement Cost (INR)</label>
             <input
               type="number"
               value={form.replacement_cost}
               onChange={(e) => setForm({ ...form, replacement_cost: e.target.value })}
               placeholder="0"
               step="0.01"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <div className="sm:col-span-2 flex justify-end">
@@ -1930,48 +1930,48 @@ function AssetsTab({
       {/* Asset list */}
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
         </div>
       ) : list.length === 0 ? (
         <div className="py-10 text-center">
-          <Package className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">No assets recorded for this exit.</p>
-          <p className="text-xs text-gray-400">Use "Add Asset" above to track company property to be returned.</p>
+          <Package className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+          <p className="text-sm text-muted-foreground">No assets recorded for this exit.</p>
+          <p className="text-xs text-muted-foreground">Use "Add Asset" above to track company property to be returned.</p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-border">
           {list.map((a) => {
             const cat = ASSET_CATEGORIES.find((c) => c.value === a.category);
             return (
               <div key={a.id} className="flex items-center justify-between py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900">{a.asset_name}</p>
-                  <p className="mt-0.5 text-xs text-gray-500">
+                  <p className="text-sm font-medium text-foreground">{a.asset_name}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {cat?.label || a.category}
                     {a.asset_tag ? ` · ${a.asset_tag}` : ""}
                     {a.replacement_cost ? ` · ${formatINR(a.replacement_cost)}` : ""}
                     {a.returned_date ? ` · Returned ${formatDate(a.returned_date)}` : ""}
                   </p>
                   {a.condition_notes && (
-                    <p className="mt-0.5 text-xs italic text-gray-400">{a.condition_notes}</p>
+                    <p className="mt-0.5 text-xs italic text-muted-foreground">{a.condition_notes}</p>
                   )}
                 </div>
                 <div className="ml-4 flex items-center gap-2">
                   <span
                     className={cn(
                       "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                      ASSET_STATUS_COLORS[a.status] || "bg-gray-100 text-gray-600",
+                      ASSET_STATUS_COLORS[a.status] || "bg-muted text-muted-foreground",
                     )}
                   >
                     {a.status}
                   </span>
                   {busyId === a.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                   ) : (
                     <select
                       value={a.status}
                       onChange={(e) => handleStatusChange(a.id, e.target.value)}
-                      className="rounded-md border border-gray-300 px-2 py-1 text-xs focus:border-rose-400 focus:outline-none"
+                      className="rounded-md border border-border px-2 py-1 text-xs focus:border-rose-400 focus:outline-none"
                     >
                       {ASSET_STATUSES.map((s) => (
                         <option key={s} value={s}>{s}</option>
@@ -2102,46 +2102,46 @@ function LettersTab({
   return (
     <div className="space-y-5">
       {/* Generate control */}
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-muted/50 p-4">
         {!canGenerate ? (
           <div className="w-full space-y-3">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Letters can be generated once the exit is <b>completed</b> — finish clearance and the
               full &amp; final settlement, then mark the exit complete.
             </p>
             {templates.length > 0 ? (
               <div>
-                <p className="mb-1.5 text-xs font-medium text-gray-600">
+                <p className="mb-1.5 text-xs font-medium text-muted-foreground">
                   Templates that will be available:
                 </p>
                 <ul className="flex flex-wrap gap-2">
                   {templates.map((t) => (
                     <li
                       key={t.id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-700"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground"
                     >
                       <FileSignature className="h-3 w-3 text-rose-500" />
                       {t.name}
-                      <span className="text-gray-400">({LETTER_TYPES[t.letter_type] || t.letter_type})</span>
+                      <span className="text-muted-foreground">({LETTER_TYPES[t.letter_type] || t.letter_type})</span>
                     </li>
                   ))}
                 </ul>
               </div>
             ) : (
-              <p className="text-xs text-gray-400">No letter templates configured yet.</p>
+              <p className="text-xs text-muted-foreground">No letter templates configured yet.</p>
             )}
             <Link
               to="/letters/templates"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300 hover:underline"
             >
               <Settings2 className="h-3.5 w-3.5" />
               Manage letter templates
             </Link>
           </div>
         ) : templates.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No letter templates available.{" "}
-            <Link to="/letters/templates" className="font-medium text-rose-600 hover:underline">
+            <Link to="/letters/templates" className="font-medium text-rose-600 dark:text-rose-400 hover:underline">
               Create one in Letter Templates
             </Link>{" "}
             first.
@@ -2149,11 +2149,11 @@ function LettersTab({
         ) : (
           <>
             <div className="flex-1 min-w-[220px]">
-              <label className="mb-1 block text-xs font-medium text-gray-600">Template</label>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Template</label>
               <select
                 value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
               >
                 <option value="" disabled>Select a template…</option>
                 {templates.map((t) => (
@@ -2178,7 +2178,7 @@ function LettersTab({
       {/* Generated letters list */}
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
         </div>
       ) : list.length === 0 ? (
         // Only show the "no letters yet" empty state when generation is actually
@@ -2186,20 +2186,20 @@ function LettersTab({
         // explains why — showing both would be redundant/contradictory.
         canGenerate ? (
           <div className="py-10 text-center">
-            <FileSignature className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-            <p className="text-sm text-gray-500">No letters generated yet.</p>
-            <p className="text-xs text-gray-400">Use the control above to generate one from a template.</p>
+            <FileSignature className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+            <p className="text-sm text-muted-foreground">No letters generated yet.</p>
+            <p className="text-xs text-muted-foreground">Use the control above to generate one from a template.</p>
           </div>
         ) : null
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-border">
           {list.map((l) => (
             <div key={l.id} className="flex items-center justify-between py-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-foreground">
                   {LETTER_TYPES[l.letter_type] || l.letter_type}
                 </p>
-                <p className="mt-0.5 text-xs text-gray-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   Issued: {l.issued_date ? formatDate(l.issued_date) : "—"}
                 </p>
               </div>
@@ -2207,7 +2207,7 @@ function LettersTab({
                 <button
                   onClick={() => handleView(l.id)}
                   disabled={busyId === l.id}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <Eye className="h-3.5 w-3.5" />
                   View
@@ -2215,7 +2215,7 @@ function LettersTab({
                 <button
                   onClick={() => handleDownload(l.id, l.letter_type)}
                   disabled={busyId === l.id}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   {busyId === l.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Download
@@ -2223,7 +2223,7 @@ function LettersTab({
                 <button
                   onClick={() => setPendingSendId(l.id)}
                   disabled={busyId === l.id}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:bg-rose-950/40 disabled:opacity-50"
                 >
                   Send
                 </button>
@@ -2249,9 +2249,9 @@ function LettersTab({
 }
 
 const BUYOUT_STATUS_COLORS: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-700",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
+  pending: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  approved: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  rejected: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300",
 };
 
 function BuyoutTab({
@@ -2299,9 +2299,9 @@ function BuyoutTab({
   if (!buyout) {
     return (
       <div className="text-center py-8">
-        <Calculator className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-        <p className="text-sm text-gray-500 mb-4">No buyout request for this exit.</p>
-        <p className="text-xs text-gray-400">
+        <Calculator className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+        <p className="text-sm text-muted-foreground mb-4">No buyout request for this exit.</p>
+        <p className="text-xs text-muted-foreground">
           The employee can submit a buyout request from their self-service portal.
         </p>
       </div>
@@ -2313,11 +2313,11 @@ function BuyoutTab({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Calculator className="h-5 w-5 text-rose-500" />
-          <h3 className="text-sm font-semibold text-gray-900">Notice Buyout Request</h3>
+          <h3 className="text-sm font-semibold text-foreground">Notice Buyout Request</h3>
           <span
             className={cn(
               "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-              BUYOUT_STATUS_COLORS[buyout.status] || "bg-gray-100 text-gray-600",
+              BUYOUT_STATUS_COLORS[buyout.status] || "bg-muted text-muted-foreground",
             )}
           >
             {buyout.status}
@@ -2327,47 +2327,47 @@ function BuyoutTab({
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Original Last Date</p>
-          <p className="mt-0.5 text-sm text-gray-900">{formatDate(buyout.original_last_date)}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Original Last Date</p>
+          <p className="mt-0.5 text-sm text-foreground">{formatDate(buyout.original_last_date)}</p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Requested Last Date</p>
-          <p className="mt-0.5 text-sm font-medium text-gray-900">{formatDate(buyout.requested_last_date)}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Requested Last Date</p>
+          <p className="mt-0.5 text-sm font-medium text-foreground">{formatDate(buyout.requested_last_date)}</p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Original Notice</p>
-          <p className="mt-0.5 text-sm text-gray-900">{buyout.original_notice_days} days</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Original Notice</p>
+          <p className="mt-0.5 text-sm text-foreground">{buyout.original_notice_days} days</p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Days Served</p>
-          <p className="mt-0.5 text-sm text-gray-900">{buyout.served_days} days</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Days Served</p>
+          <p className="mt-0.5 text-sm text-foreground">{buyout.served_days} days</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg bg-amber-50 border border-amber-100 p-3">
-          <p className="text-xs text-amber-600 font-medium">Days to Buy Out</p>
-          <p className="text-lg font-bold text-amber-700">{buyout.remaining_days} days</p>
+        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-100 p-3">
+          <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">Days to Buy Out</p>
+          <p className="text-lg font-bold text-amber-700 dark:text-amber-300">{buyout.remaining_days} days</p>
         </div>
-        <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
-          <p className="text-xs text-gray-500">Daily Rate</p>
-          <p className="text-lg font-semibold text-gray-900">{formatINR(buyout.daily_rate)}</p>
+        <div className="rounded-lg bg-muted/50 border border-border p-3">
+          <p className="text-xs text-muted-foreground">Daily Rate</p>
+          <p className="text-lg font-semibold text-foreground">{formatINR(buyout.daily_rate)}</p>
         </div>
-        <div className="rounded-lg bg-rose-50 border border-rose-200 p-3">
+        <div className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-3">
           <p className="text-xs text-rose-500 font-medium">Buyout Amount</p>
-          <p className="text-2xl font-bold text-rose-600">{formatINR(buyout.buyout_amount)}</p>
+          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">{formatINR(buyout.buyout_amount)}</p>
         </div>
       </div>
 
       {buyout.status === "rejected" && buyout.rejected_reason && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-          <p className="text-xs font-medium text-red-600 mb-1">Rejection Reason</p>
-          <p className="text-sm text-red-700">{buyout.rejected_reason}</p>
+        <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 p-3">
+          <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-1">Rejection Reason</p>
+          <p className="text-sm text-red-700 dark:text-red-300">{buyout.rejected_reason}</p>
         </div>
       )}
 
       {buyout.status === "approved" && (
-        <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700">
+        <div className="rounded-lg bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-900 p-3 text-sm text-green-700 dark:text-green-300">
           Approved on {buyout.approved_at ? formatDate(buyout.approved_at) : "--"}.
           The buyout amount will be added to the notice period recovery in the F&F settlement.
         </div>
@@ -2386,7 +2386,7 @@ function BuyoutTab({
           {!showReject ? (
             <button
               onClick={() => setShowReject(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:bg-red-950/40"
             >
               <XCircle className="h-4 w-4" />
               Reject
@@ -2398,7 +2398,7 @@ function BuyoutTab({
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Rejection reason..."
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
+                className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
               />
               <button
                 onClick={handleReject}
@@ -2409,7 +2409,7 @@ function BuyoutTab({
               </button>
               <button
                 onClick={() => { setShowReject(false); setRejectReason(""); }}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted/50"
               >
                 Cancel
               </button>
@@ -2424,7 +2424,7 @@ function BuyoutTab({
 function PlaceholderTab({ name }: { name: string }) {
   return (
     <div className="py-12 text-center">
-      <p className="text-sm text-gray-500">{name} — coming soon.</p>
+      <p className="text-sm text-muted-foreground">{name} — coming soon.</p>
     </div>
   );
 }

@@ -6,10 +6,10 @@ import { cn, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 const CLEARANCE_STATUS_COLORS: Record<string, string> = {
-  pending: "bg-gray-100 text-gray-600",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
-  waived: "bg-amber-100 text-amber-700",
+  pending: "bg-muted text-muted-foreground",
+  approved: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  rejected: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300",
+  waived: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
 };
 
 interface MyClearance {
@@ -95,7 +95,7 @@ export function ClearanceRecordsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -104,14 +104,14 @@ export function ClearanceRecordsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clearance Records</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Clearance Records</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Pending department clearance approvals across all exits.
           </p>
         </div>
         <Link
           to="/clearance/departments"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
         >
           <Settings className="h-4 w-4" />
           Manage Departments
@@ -119,15 +119,15 @@ export function ClearanceRecordsPage() {
       </div>
 
       {clearances.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-          <Shield className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-          <p className="text-sm text-gray-500">No pending clearances.</p>
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <Shield className="mx-auto h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-sm text-muted-foreground">No pending clearances.</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto -mx-4 lg:mx-0">
+        <div className="rounded-xl border border-border bg-card overflow-x-auto -mx-4 lg:mx-0">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-3">Department</th>
                 <th className="px-6 py-3">Employee</th>
                 <th className="px-6 py-3">Status</th>
@@ -135,36 +135,36 @@ export function ClearanceRecordsPage() {
                 <th className="px-6 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {clearances.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">
+                <tr key={c.id} className="hover:bg-muted/50">
+                  <td className="px-6 py-4 font-medium text-foreground">
                     {c.department?.name || "Unknown"}
                   </td>
                   <td className="px-6 py-4">
                     <Link
                       to={`/exits/${c.exit_request_id}`}
-                      className="text-sm font-medium text-gray-900 hover:text-rose-600"
+                      className="text-sm font-medium text-foreground hover:text-rose-600 dark:text-rose-400"
                     >
                       {c.employee
                         ? `${c.employee.first_name} ${c.employee.last_name}`
                         : "—"}
                     </Link>
                     {c.employee?.designation && (
-                      <p className="text-xs text-gray-500">{c.employee.designation}</p>
+                      <p className="text-xs text-muted-foreground">{c.employee.designation}</p>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={cn(
                         "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-                        CLEARANCE_STATUS_COLORS[c.status] || "bg-gray-100 text-gray-600",
+                        CLEARANCE_STATUS_COLORS[c.status] || "bg-muted text-muted-foreground",
                       )}
                     >
                       {c.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="px-6 py-4 text-muted-foreground">
                     {c.pending_amount > 0 ? formatINR(c.pending_amount) : "--"}
                   </td>
                   <td className="px-6 py-4">
@@ -173,21 +173,21 @@ export function ClearanceRecordsPage() {
                         <button
                           onClick={() => handleApprove(c.id)}
                           disabled={actionLoading === c.id}
-                          className="rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
+                          className="rounded-lg bg-green-50 dark:bg-green-950/40 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:bg-green-950/40 disabled:opacity-50"
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => { setRejectTarget(c); setRejectReason(""); }}
                           disabled={actionLoading === c.id}
-                          className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50"
+                          className="rounded-lg bg-red-50 dark:bg-red-950/40 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:bg-red-950/40 disabled:opacity-50"
                         >
                           Reject
                         </button>
                       </div>
                     )}
                     {c.status !== "pending" && c.approved_at && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-muted-foreground">
                         {formatDate(c.approved_at)}
                       </span>
                     )}
@@ -202,36 +202,36 @@ export function ClearanceRecordsPage() {
       {/* Reject dialog (replaces the native prompt) */}
       {rejectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-card p-6 shadow-xl">
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Reject Clearance</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <h3 className="text-lg font-semibold text-foreground">Reject Clearance</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
                   {rejectTarget.department?.name || "Department"}
                   {rejectTarget.employee ? ` · ${rejectTarget.employee.first_name} ${rejectTarget.employee.last_name}` : ""}
                 </p>
               </div>
               <button
                 onClick={() => setRejectTarget(null)}
-                className="rounded-md p-1 text-gray-400 hover:bg-gray-100"
+                className="rounded-md p-1 text-muted-foreground hover:bg-muted"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Reason for rejection</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">Reason for rejection</label>
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               rows={3}
               autoFocus
               placeholder="Explain why this clearance is being rejected…"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
             <div className="mt-5 flex justify-end gap-3">
               <button
                 onClick={() => setRejectTarget(null)}
                 disabled={actionLoading === rejectTarget.id}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
               >
                 Cancel
               </button>

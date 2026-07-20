@@ -151,14 +151,14 @@ export function InitiateExitPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Initiate Exit</h1>
-        <p className="mt-1 text-sm text-gray-500">Start a new exit process for an employee.</p>
+        <h1 className="text-2xl font-bold text-foreground">Initiate Exit</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Start a new exit process for an employee.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}
@@ -166,16 +166,16 @@ export function InitiateExitPage() {
           {/* Employee picker — #4 — search by name / email / emp_code,
               resolves to the underlying user.id on selection. */}
           <div className="relative">
-            <label htmlFor="employee_search" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="employee_search" className="block text-sm font-medium text-muted-foreground mb-1">
               Employee <span className="text-red-500">*</span>
             </label>
             {selectedEmployee ? (
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 px-3 py-2.5">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-foreground">
                     {selectedEmployee.first_name} {selectedEmployee.last_name}
                   </p>
-                  <p className="truncate text-xs text-gray-500">
+                  <p className="truncate text-xs text-muted-foreground">
                     {selectedEmployee.emp_code ? `${selectedEmployee.emp_code} · ` : ""}
                     {selectedEmployee.email}
                     {selectedEmployee.designation ? ` · ${selectedEmployee.designation}` : ""}
@@ -185,7 +185,7 @@ export function InitiateExitPage() {
                   type="button"
                   onClick={clearEmployee}
                   aria-label="Clear selection"
-                  className="rounded-lg p-1 text-gray-400 hover:bg-white hover:text-gray-600"
+                  className="rounded-lg p-1 text-muted-foreground hover:bg-card hover:text-muted-foreground"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -193,7 +193,7 @@ export function InitiateExitPage() {
             ) : (
               <>
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     id="employee_search"
                     type="text"
@@ -206,17 +206,17 @@ export function InitiateExitPage() {
                     onFocus={() => setShowResults(true)}
                     onBlur={() => setTimeout(() => setShowResults(false), 150)}
                     placeholder="Search by name, email, or employee code (e.g. E-101)..."
-                    className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="w-full rounded-lg border border-border py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   />
                 </div>
                 {showResults && employeeQuery.trim() && (
-                  <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                  <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-border bg-card shadow-lg">
                     {searchingEmployees ? (
-                      <div className="flex items-center gap-2 px-3 py-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching...
                       </div>
                     ) : employeeResults.length === 0 ? (
-                      <p className="px-3 py-2 text-xs text-gray-500">No matching employees.</p>
+                      <p className="px-3 py-2 text-xs text-muted-foreground">No matching employees.</p>
                     ) : (
                       employeeResults.map((emp) => (
                         <button
@@ -231,18 +231,18 @@ export function InitiateExitPage() {
                             setEmployeeResults([]);
                             setShowResults(false);
                           }}
-                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-gray-50"
+                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/50"
                         >
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-gray-900">
+                            <p className="truncate text-sm font-medium text-foreground">
                               {emp.first_name} {emp.last_name}
                             </p>
-                            <p className="truncate text-xs text-gray-500">
+                            <p className="truncate text-xs text-muted-foreground">
                               {emp.emp_code ? `${emp.emp_code} · ` : ""}{emp.email}
                             </p>
                           </div>
                           {emp.designation && (
-                            <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600">
+                            <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                               {emp.designation}
                             </span>
                           )}
@@ -257,14 +257,14 @@ export function InitiateExitPage() {
 
           {/* Exit Type */}
           <div>
-            <label htmlFor="exit_type" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="exit_type" className="block text-sm font-medium text-muted-foreground mb-1">
               Exit Type <span className="text-red-500">*</span>
             </label>
             <select
               id="exit_type"
               value={exitType}
               onChange={(e) => setExitType(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               {EXIT_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -274,14 +274,14 @@ export function InitiateExitPage() {
 
           {/* Reason Category */}
           <div>
-            <label htmlFor="reason_category" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="reason_category" className="block text-sm font-medium text-muted-foreground mb-1">
               Reason Category <span className="text-red-500">*</span>
             </label>
             <select
               id="reason_category"
               value={reasonCategory}
               onChange={(e) => setReasonCategory(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               {REASON_CATEGORIES.map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -291,7 +291,7 @@ export function InitiateExitPage() {
 
           {/* Reason Detail */}
           <div>
-            <label htmlFor="reason_detail" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="reason_detail" className="block text-sm font-medium text-muted-foreground mb-1">
               Reason Notes
             </label>
             <textarea
@@ -300,14 +300,14 @@ export function InitiateExitPage() {
               onChange={(e) => setReasonDetail(e.target.value)}
               rows={3}
               placeholder="Additional details about the reason for exit..."
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
           {/* Dates */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="resignation_date" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="resignation_date" className="block text-sm font-medium text-muted-foreground mb-1">
                 Resignation Date
               </label>
               <input
@@ -315,11 +315,11 @@ export function InitiateExitPage() {
                 type="date"
                 value={resignationDate}
                 onChange={(e) => setResignationDate(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <div>
-              <label htmlFor="last_working_date" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="last_working_date" className="block text-sm font-medium text-muted-foreground mb-1">
                 Last Working Date
               </label>
               <input
@@ -328,10 +328,10 @@ export function InitiateExitPage() {
                 value={lastWorkingDate}
                 onChange={(e) => { setLastWorkingDate(e.target.value); setLwdManuallySet(true); }}
                 min={resignationDate || undefined}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
               {resignationDate && !lwdManuallySet && lastWorkingDate && !dateError && (
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Suggested from resignation date + {noticePeriodWaived ? "0 (waived)" : `${noticePeriodDays || 0}`} day notice.
                 </p>
               )}
@@ -339,7 +339,7 @@ export function InitiateExitPage() {
           </div>
 
           {dateError && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            <div className="rounded-md border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-700 dark:text-red-300">
               {dateError}
             </div>
           )}
@@ -347,7 +347,7 @@ export function InitiateExitPage() {
           {/* Notice Period */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="notice_period_days" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="notice_period_days" className="block text-sm font-medium text-muted-foreground mb-1">
                 Notice Period (days)
               </label>
               <input
@@ -356,7 +356,7 @@ export function InitiateExitPage() {
                 min={0}
                 value={noticePeriodDays}
                 onChange={(e) => setNoticePeriodDays(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <div className="flex items-end pb-1">
@@ -365,9 +365,9 @@ export function InitiateExitPage() {
                   type="checkbox"
                   checked={noticePeriodWaived}
                   onChange={(e) => setNoticePeriodWaived(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                  className="h-4 w-4 rounded border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
                 />
-                <span className="text-sm text-gray-700">Waive notice period</span>
+                <span className="text-sm text-muted-foreground">Waive notice period</span>
               </label>
             </div>
           </div>
@@ -390,7 +390,7 @@ export function InitiateExitPage() {
           <button
             type="button"
             onClick={() => navigate("/exits")}
-            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
           >
             Cancel
           </button>

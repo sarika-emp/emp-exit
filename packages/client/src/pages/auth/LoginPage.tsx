@@ -37,7 +37,7 @@ export function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center bg-gradient-to-br from-rose-600 to-rose-800 p-12">
         <div className="max-w-md text-white">
           <div className="flex items-center gap-3 mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card/20">
               <DoorOpen className="h-7 w-7 text-white" />
             </div>
             <span className="text-2xl font-bold">EMP Exit</span>
@@ -70,22 +70,22 @@ export function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center bg-gray-50 px-4">
+      <div className="flex w-full lg:w-1/2 items-center justify-center bg-muted/50 px-4">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600">
               <DoorOpen className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">EMP Exit</span>
+            <span className="text-xl font-bold text-foreground">EMP Exit</span>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
-            <p className="mt-1 text-sm text-gray-500">Sign in to manage employee exits</p>
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Sign in to manage employee exits</p>
 
             {sessionExpired && (
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/40 px-3 py-2.5 text-sm text-amber-800 dark:text-amber-300">
                 <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                 <span>Your session has expired. Please log in again.</span>
               </div>
@@ -93,7 +93,7 @@ export function LoginPage() {
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-muted-foreground">
                   Email address
                 </label>
                 <input
@@ -103,12 +103,12 @@ export function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2.5 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="you@company.com"
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
                   Password
                 </label>
                 <div className="relative mt-1">
@@ -119,12 +119,12 @@ export function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="block w-full rounded-lg border border-border px-3 py-2.5 pr-10 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -142,7 +142,7 @@ export function LoginPage() {
             </form>
           </div>
 
-          <p className="mt-6 text-center text-xs text-gray-400">
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             Part of the EMP HRMS ecosystem
           </p>
         </div>

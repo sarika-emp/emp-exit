@@ -226,7 +226,7 @@ export function AppRoutes() {
       </Route>
 
       {/* 404 */}
-      <Route path="*" element={<div className="p-8"><h1 className="text-2xl font-bold text-gray-900">Page Not Found</h1></div>} />
+      <Route path="*" element={<div className="p-8"><h1 className="text-2xl font-bold text-foreground">Page Not Found</h1></div>} />
     </>
   );
 }

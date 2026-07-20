@@ -224,7 +224,7 @@ export function ChecklistTemplatesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -233,8 +233,8 @@ export function ChecklistTemplatesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Checklist Templates</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage exit checklist templates and items.</p>
+          <h1 className="text-2xl font-bold text-foreground">Checklist Templates</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage exit checklist templates and items.</p>
         </div>
         <button
           onClick={() => {
@@ -250,34 +250,34 @@ export function ChecklistTemplatesPage() {
 
       {/* Create / Edit Template Form */}
       {(showCreateForm || editingTemplateId) && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-5">
+        <div className="rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">
+            <h3 className="text-sm font-semibold text-foreground">
               {editingTemplateId ? "Edit Template" : "Create Template"}
             </h3>
-            <button onClick={resetTemplateForm} className="text-gray-400 hover:text-gray-600">
+            <button onClick={resetTemplateForm} className="text-muted-foreground hover:text-muted-foreground">
               <X className="h-4 w-4" />
             </button>
           </div>
           <form onSubmit={handleSubmitTemplateForm} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
                 <input
                   type="text"
                   required
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="e.g. Standard Exit Checklist"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Exit Type</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Exit Type</label>
                 <select
                   value={formExitType}
                   onChange={(e) => setFormExitType(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 >
                   {EXIT_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
@@ -286,13 +286,13 @@ export function ChecklistTemplatesPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
               <input
                 type="text"
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="Optional description"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
@@ -300,9 +300,9 @@ export function ChecklistTemplatesPage() {
                 type="checkbox"
                 checked={formIsDefault}
                 onChange={(e) => setFormIsDefault(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                className="h-4 w-4 rounded border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
               />
-              <span className="text-sm text-gray-700">Set as default template</span>
+              <span className="text-sm text-muted-foreground">Set as default template</span>
             </label>
             <div className="flex gap-2">
               <button
@@ -315,7 +315,7 @@ export function ChecklistTemplatesPage() {
               <button
                 type="button"
                 onClick={resetTemplateForm}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
               >
                 Cancel
               </button>
@@ -326,36 +326,36 @@ export function ChecklistTemplatesPage() {
 
       {/* Templates List */}
       {templates.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-          <ClipboardCheck className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-          <p className="text-sm text-gray-500">No checklist templates yet.</p>
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <ClipboardCheck className="mx-auto h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-sm text-muted-foreground">No checklist templates yet.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {templates.map((tmpl) => (
-            <div key={tmpl.id} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+            <div key={tmpl.id} className="rounded-xl border border-border bg-card overflow-hidden">
               {/* Template header */}
               <div
-                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50"
+                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-muted/50"
                 onClick={() => toggleExpand(tmpl.id)}
               >
                 <div className="flex items-center gap-3">
                   {expandedId === tmpl.id ? (
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   )}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900">{tmpl.name}</h3>
-                    <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+                    <h3 className="text-sm font-semibold text-foreground">{tmpl.name}</h3>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                       {tmpl.item_count > 0 && <span>{tmpl.item_count} items</span>}
                       {tmpl.exit_type && (
-                        <span className="rounded bg-gray-100 px-1.5 py-0.5">
+                        <span className="rounded bg-muted px-1.5 py-0.5">
                           {tmpl.exit_type.replace(/_/g, " ")}
                         </span>
                       )}
                       {Boolean(tmpl.is_default) && (
-                        <span className="rounded bg-rose-100 px-1.5 py-0.5 text-rose-700">Default</span>
+                        <span className="rounded bg-rose-100 dark:bg-rose-950/40 px-1.5 py-0.5 text-rose-700 dark:text-rose-300">Default</span>
                       )}
                     </div>
                   </div>
@@ -363,14 +363,14 @@ export function ChecklistTemplatesPage() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); startEditTemplate(tmpl); }}
-                    className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                     title="Edit template"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteTemplate(tmpl.id); }}
-                    className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 dark:bg-red-950/40 hover:text-red-500"
                     title="Delete template"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -380,35 +380,35 @@ export function ChecklistTemplatesPage() {
 
               {/* Expanded items */}
               {expandedId === tmpl.id && (
-                <div className="border-t border-gray-100 bg-gray-50/50 px-5 py-4">
+                <div className="border-t border-border bg-muted/50/50 px-5 py-4">
                   {loadingItems ? (
                     <div className="flex justify-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin text-rose-600" />
+                      <Loader2 className="h-5 w-5 animate-spin text-rose-600 dark:text-rose-400" />
                     </div>
                   ) : (
                     <>
                       {expandedItems.length === 0 ? (
-                        <p className="text-sm text-gray-500 py-2">No items in this template.</p>
+                        <p className="text-sm text-muted-foreground py-2">No items in this template.</p>
                       ) : (
                         <div className="space-y-2 mb-4">
                           {expandedItems.map((item, idx) => (
                             <div
                               key={item.id}
-                              className="flex items-center justify-between rounded-lg bg-white border border-gray-100 px-4 py-2.5"
+                              className="flex items-center justify-between rounded-lg bg-card border border-border px-4 py-2.5"
                             >
                               <div>
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-foreground">
                                   {idx + 1}. {item.title}
                                 </p>
                                 {item.description && (
-                                  <p className="text-xs text-gray-500">{item.description}</p>
+                                  <p className="text-xs text-muted-foreground">{item.description}</p>
                                 )}
                                 <div className="flex gap-2 mt-0.5">
                                   {Boolean(item.is_mandatory) && (
-                                    <span className="text-xs text-red-600">Required</span>
+                                    <span className="text-xs text-red-600 dark:text-red-400">Required</span>
                                   )}
                                   {item.assigned_role && (
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-xs text-muted-foreground">
                                       Assigned: {item.assigned_role}
                                     </span>
                                   )}
@@ -417,14 +417,14 @@ export function ChecklistTemplatesPage() {
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => startEditItem(item)}
-                                  className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                                   title="Edit item"
                                 >
                                   <Edit2 className="h-3.5 w-3.5" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteItem(item.id)}
-                                  className="rounded p-1 text-gray-400 hover:text-red-500"
+                                  className="rounded p-1 text-muted-foreground hover:text-red-500"
                                   title="Delete item"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -439,9 +439,9 @@ export function ChecklistTemplatesPage() {
                       {addingItemToId === tmpl.id || (editingItemId && expandedItems.some((i) => i.id === editingItemId)) ? (
                         <form
                           onSubmit={(e) => handleSubmitItemForm(e, tmpl.id)}
-                          className="space-y-3 rounded-lg border border-rose-200 bg-white p-4"
+                          className="space-y-3 rounded-lg border border-rose-200 dark:border-rose-900 bg-card p-4"
                         >
-                          <p className="text-xs font-semibold text-gray-700">
+                          <p className="text-xs font-semibold text-muted-foreground">
                             {editingItemId ? "Edit item" : "Add item"}
                           </p>
                           <input
@@ -450,23 +450,23 @@ export function ChecklistTemplatesPage() {
                             value={itemTitle}
                             onChange={(e) => setItemTitle(e.target.value)}
                             placeholder="Item title"
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                           />
                           <input
                             type="text"
                             value={itemDescription}
                             onChange={(e) => setItemDescription(e.target.value)}
                             placeholder="Description (optional)"
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                           />
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
                               checked={itemIsMandatory}
                               onChange={(e) => setItemIsMandatory(e.target.checked)}
-                              className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                              className="h-4 w-4 rounded border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
                             />
-                            <span className="text-sm text-gray-700">Mandatory</span>
+                            <span className="text-sm text-muted-foreground">Mandatory</span>
                           </label>
                           <div className="flex gap-2">
                             <button
@@ -479,7 +479,7 @@ export function ChecklistTemplatesPage() {
                             <button
                               type="button"
                               onClick={resetItemForm}
-                              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+                              className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted/50"
                             >
                               Cancel
                             </button>
@@ -491,7 +491,7 @@ export function ChecklistTemplatesPage() {
                             resetItemForm();
                             setAddingItemToId(tmpl.id);
                           }}
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300"
                         >
                           <Plus className="h-4 w-4" />
                           Add Item
