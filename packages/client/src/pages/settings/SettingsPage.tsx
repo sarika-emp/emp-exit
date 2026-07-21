@@ -218,7 +218,7 @@ export function SettingsPage() {
                 max={365}
                 value={form.default_notice_period_days}
                 onChange={(e) => set({ default_notice_period_days: Number(e.target.value) })}
-                className="w-28 rounded-lg border border-border py-2 pl-8 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-28 rounded-lg border border-border bg-card text-foreground py-2 pl-8 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <span className="text-xs text-muted-foreground">days</span>

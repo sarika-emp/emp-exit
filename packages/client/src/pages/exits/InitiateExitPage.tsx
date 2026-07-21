@@ -206,7 +206,7 @@ export function InitiateExitPage() {
                     onFocus={() => setShowResults(true)}
                     onBlur={() => setTimeout(() => setShowResults(false), 150)}
                     placeholder="Search by name, email, or employee code (e.g. E-101)..."
-                    className="w-full rounded-lg border border-border py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="w-full rounded-lg border border-border bg-card text-foreground py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   />
                 </div>
                 {showResults && employeeQuery.trim() && (

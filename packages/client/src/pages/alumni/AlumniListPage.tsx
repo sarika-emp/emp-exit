@@ -160,7 +160,7 @@ export function AlumniListPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search alumni by name, email, or designation..."
-            className="block w-full rounded-lg border border-border pl-10 pr-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+            className="block w-full rounded-lg border border-border bg-card text-foreground pl-10 pr-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
           />
         </div>
         <button

@@ -1593,7 +1593,7 @@ function InterviewTab({
                       onFocus={() => setShowIntvResults(true)}
                       onBlur={() => setTimeout(() => setShowIntvResults(false), 150)}
                       placeholder="Search employee by name or email…"
-                      className="w-full rounded-lg border border-border py-2 pl-9 pr-3 text-sm focus:border-rose-400 focus:outline-none"
+                      className="w-full rounded-lg border border-border bg-card text-foreground py-2 pl-9 pr-3 text-sm focus:border-rose-400 focus:outline-none"
                     />
                     {showIntvResults && (intvSearching || intvResults.length > 0) && (
                       <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
