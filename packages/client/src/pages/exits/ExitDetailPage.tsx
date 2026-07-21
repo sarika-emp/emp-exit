@@ -2386,7 +2386,7 @@ function BuyoutTab({
           {!showReject ? (
             <button
               onClick={() => setShowReject(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 dark:border-red-900 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
             >
               <XCircle className="h-4 w-4" />
               Reject
@@ -2398,7 +2398,7 @@ function BuyoutTab({
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Rejection reason..."
-                className="flex-1 rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500 focus:outline-none"
               />
               <button
                 onClick={handleReject}

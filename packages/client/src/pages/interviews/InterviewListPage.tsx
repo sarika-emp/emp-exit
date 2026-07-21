@@ -97,7 +97,7 @@ export function InterviewListPage() {
         </div>
         <button
           onClick={() => navigate("/interviews/templates")}
-          className="inline-flex items-center gap-2 rounded-lg border border-rose-300 bg-card px-4 py-2 text-sm font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg border border-rose-300 dark:border-rose-900 bg-card px-4 py-2 text-sm font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
         >
           <Calendar className="h-4 w-4" />
           Manage Templates

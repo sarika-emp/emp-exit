@@ -456,7 +456,7 @@ export function InterviewDetailPage() {
           </button>
           <button
             onClick={handleComplete}
-            className="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-card px-4 py-2.5 text-sm font-medium text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/40 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-green-300 dark:border-green-900 bg-card px-4 py-2.5 text-sm font-medium text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/40 transition-colors"
           >
             <CheckCircle2 className="h-4 w-4" />
             Complete Interview

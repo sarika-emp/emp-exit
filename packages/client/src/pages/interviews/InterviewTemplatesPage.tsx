@@ -446,7 +446,7 @@ export function InterviewTemplatesPage() {
                         resetQuestionForm();
                         setShowAddQuestion(true);
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-card px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-300 dark:border-rose-900 bg-card px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                     >
                       <Plus className="h-3 w-3" />
                       Add Question
