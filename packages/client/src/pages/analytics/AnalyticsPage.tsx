@@ -210,7 +210,7 @@ export function AnalyticsPage() {
       {/* NPS Summary Card */}
       <Link
         to="/analytics/nps"
-        className="block rounded-lg border border-border bg-card p-6 hover:shadow-md transition-shadow"
+        className="block rounded-lg border border-border bg-card p-6 transition-colors duration-150 hover:border-brand-400"
       >
         <div className="flex items-center justify-between">
           <div>

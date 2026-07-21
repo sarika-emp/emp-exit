@@ -370,7 +370,7 @@ export function ChecklistTemplatesPage() {
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteTemplate(tmpl.id); }}
-                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 dark:bg-red-950/40 hover:text-red-500"
+                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500"
                     title="Delete template"
                   >
                     <Trash2 className="h-4 w-4" />

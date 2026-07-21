@@ -164,7 +164,7 @@ export function DashboardPage() {
           <Link
             key={card.label}
             to={card.link}
-            className="rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
+            className="rounded-xl border border-border bg-card p-5 transition-colors duration-150 hover:border-brand-400"
           >
             <div className="flex items-center justify-between">
               <div>

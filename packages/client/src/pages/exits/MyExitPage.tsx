@@ -202,7 +202,7 @@ export function MyExitPage() {
           {canWithdraw && (
             <button
               onClick={() => setConfirmWithdraw(true)}
-              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-red-200 dark:border-red-900 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-950/40"
+              className="inline-flex items-center gap-1.5 self-start rounded-lg border border-red-200 dark:border-red-900 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
             >
               <UserMinus className="h-3.5 w-3.5" />
               Withdraw Resignation

@@ -138,7 +138,7 @@ export function MyExitInterviewPage() {
             onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
             rows={4}
             disabled={isReadOnly}
-            className="w-full rounded-lg border border-border px-4 py-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
+            className="w-full rounded-lg border border-border bg-card text-foreground px-4 py-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
             placeholder="Share your thoughts..."
           />
         );

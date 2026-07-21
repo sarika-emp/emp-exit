@@ -260,7 +260,7 @@ export function LetterTemplatesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((t: any) => (
-            <div key={t.id} className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow">
+            <div key={t.id} className="rounded-lg border border-border bg-card p-5 transition-colors duration-150 hover:border-brand-400">
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="text-sm font-semibold text-foreground">{t.name}</h4>
@@ -289,7 +289,7 @@ export function LetterTemplatesPage() {
                 </button>
                 <button
                   onClick={() => setDeleteTarget(t)}
-                  className="inline-flex items-center gap-1 rounded bg-red-50 dark:bg-red-950/40 px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:bg-red-950/40"
+                  className="inline-flex items-center gap-1 rounded bg-red-50 dark:bg-red-950/40 px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40"
                 >
                   <Trash2 className="h-3 w-3" />
                   Delete

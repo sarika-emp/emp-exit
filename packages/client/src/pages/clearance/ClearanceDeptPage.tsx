@@ -251,7 +251,7 @@ export function ClearanceDeptPage() {
                           <button
                             onClick={() => handleSaveEdit(dept.id)}
                             disabled={saving}
-                            className="rounded p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:bg-green-950/40"
+                            className="rounded p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/40"
                           >
                             <Check className="h-4 w-4" />
                           </button>
@@ -272,7 +272,7 @@ export function ClearanceDeptPage() {
                           </button>
                           <button
                             onClick={() => handleDelete(dept.id)}
-                            className="rounded p-1.5 text-muted-foreground hover:bg-red-50 dark:bg-red-950/40 hover:text-red-500"
+                            className="rounded p-1.5 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

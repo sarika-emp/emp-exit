@@ -173,14 +173,14 @@ export function ClearanceRecordsPage() {
                         <button
                           onClick={() => handleApprove(c.id)}
                           disabled={actionLoading === c.id}
-                          className="rounded-lg bg-green-50 dark:bg-green-950/40 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:bg-green-950/40 disabled:opacity-50"
+                          className="rounded-lg bg-green-50 dark:bg-green-950/40 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950/40 disabled:opacity-50"
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => { setRejectTarget(c); setRejectReason(""); }}
                           disabled={actionLoading === c.id}
-                          className="rounded-lg bg-red-50 dark:bg-red-950/40 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:bg-red-950/40 disabled:opacity-50"
+                          className="rounded-lg bg-red-50 dark:bg-red-950/40 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 disabled:opacity-50"
                         >
                           Reject
                         </button>

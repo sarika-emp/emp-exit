@@ -260,7 +260,7 @@ export function EmployeeRiskDetailPage() {
             return (
               <div
                 key={i}
-                className="rounded-lg border border-border p-4 hover:shadow-sm transition-shadow"
+                className="rounded-lg border border-border p-4 transition-colors duration-150 hover:border-brand-400"
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-semibold text-foreground">{f.name}</h4>

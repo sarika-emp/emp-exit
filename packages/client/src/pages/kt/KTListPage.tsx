@@ -327,7 +327,7 @@ export function KTListPage() {
                       key={exit.id}
                       type="button"
                       onClick={() => selectExit(exit.id)}
-                      className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-rose-200 dark:border-rose-900 hover:shadow-md"
+                      className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-brand-400"
                     >
                       <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-sm font-semibold text-rose-700 dark:text-rose-300">
                         {initials(exit.employee?.first_name, exit.employee?.last_name)}
@@ -555,7 +555,7 @@ export function KTListPage() {
                       onClick={() => toggleItemStatus(item.id, item.status)}
                       title={item.status === "completed" ? "Reopen item" : "Mark item complete"}
                       aria-label={item.status === "completed" ? "Reopen item" : "Mark item complete"}
-                      className="mt-0.5 flex-shrink-0 cursor-pointer rounded-full transition-colors hover:bg-rose-50 dark:bg-rose-950/40 p-0.5"
+                      className="mt-0.5 flex-shrink-0 cursor-pointer rounded-full transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/40 p-0.5"
                     >
                       {item.status === "completed" ? (
                         <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />

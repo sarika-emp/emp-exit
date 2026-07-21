@@ -190,7 +190,7 @@ export function BuyoutListPage() {
                             <button
                               onClick={() => handleApprove(b.id)}
                               disabled={actionLoading === b.id}
-                              className="inline-flex items-center gap-1 rounded-md bg-green-50 dark:bg-green-950/40 px-2.5 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:bg-green-950/40 disabled:opacity-50"
+                              className="inline-flex items-center gap-1 rounded-md bg-green-50 dark:bg-green-950/40 px-2.5 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950/40 disabled:opacity-50"
                             >
                               {actionLoading === b.id ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -202,7 +202,7 @@ export function BuyoutListPage() {
                             <button
                               onClick={() => setRejectId(b.id)}
                               disabled={actionLoading === b.id}
-                              className="inline-flex items-center gap-1 rounded-md bg-red-50 dark:bg-red-950/40 px-2.5 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:bg-red-950/40 disabled:opacity-50"
+                              className="inline-flex items-center gap-1 rounded-md bg-red-50 dark:bg-red-950/40 px-2.5 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 disabled:opacity-50"
                             >
                               <XCircle className="h-3 w-3" />
                               Reject

@@ -152,7 +152,7 @@ export function InterviewDetailPage() {
             onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
             rows={3}
             disabled={isReadOnly}
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
+            className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
             placeholder="Type your answer..."
           />
         );
@@ -456,7 +456,7 @@ export function InterviewDetailPage() {
           </button>
           <button
             onClick={handleComplete}
-            className="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-card px-4 py-2.5 text-sm font-medium text-green-700 dark:text-green-300 hover:bg-green-50 dark:bg-green-950/40 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-card px-4 py-2.5 text-sm font-medium text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-950/40 transition-colors"
           >
             <CheckCircle2 className="h-4 w-4" />
             Complete Interview

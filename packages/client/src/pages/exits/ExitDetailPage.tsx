@@ -432,7 +432,7 @@ export function ExitDetailPage() {
             <button
               onClick={openEdit}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
             >
               <Pencil className="h-4 w-4" />
               Edit
@@ -440,7 +440,7 @@ export function ExitDetailPage() {
             <button
               onClick={handleCancel}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
             >
               <XCircle className="h-4 w-4" />
               Cancel Exit
@@ -589,7 +589,7 @@ export function ExitDetailPage() {
             </div>
             <div className="flex justify-end gap-2 border-t border-border px-5 py-4">
               <button onClick={() => setShowEdit(false)} disabled={actionLoading}
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50">
+                className="rounded-lg border border-border bg-card text-foreground px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50">
                 Cancel
               </button>
               <button onClick={handleSaveEdit} disabled={actionLoading}
@@ -748,7 +748,7 @@ function ChecklistTab({
               {item.status === "pending" && (
                 <button
                   onClick={() => onUpdateItem(item.id, "completed")}
-                  className="rounded-md bg-green-50 dark:bg-green-950/40 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:bg-green-950/40"
+                  className="rounded-md bg-green-50 dark:bg-green-950/40 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40"
                   title="Mark complete"
                 >
                   <CheckCircle className="h-4 w-4" />
@@ -861,7 +861,7 @@ function KtTab({
                 {item.status === "not_started" && (
                   <button
                     onClick={() => onUpdateItem(item.id, "in_progress")}
-                    className="rounded-md bg-blue-50 dark:bg-blue-950/40 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:bg-blue-950/40"
+                    className="rounded-md bg-blue-50 dark:bg-blue-950/40 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/40"
                   >
                     Start
                   </button>
@@ -869,7 +869,7 @@ function KtTab({
                 {item.status !== "completed" && (
                   <button
                     onClick={() => onUpdateItem(item.id, "completed")}
-                    className="rounded-md bg-green-50 dark:bg-green-950/40 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:bg-green-950/40"
+                    className="rounded-md bg-green-50 dark:bg-green-950/40 p-1 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/40"
                     title="Mark complete"
                   >
                     <CheckCircle className="h-4 w-4" />
@@ -1102,7 +1102,7 @@ function FnFTab({
           disabled={!isEditable}
           readOnly={!isEditable}
           step="0.01"
-          className="w-32 rounded border border-border px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground read-only:bg-muted/50 read-only:text-muted-foreground"
+          className="w-32 rounded border border-border bg-card text-foreground px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground read-only:bg-muted/50 read-only:text-muted-foreground"
         />
       </div>
     </div>
@@ -1194,7 +1194,7 @@ function FnFTab({
           onChange={(e) => setRemarks(e.target.value)}
           disabled={!isEditable}
           rows={2}
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-muted/50"
+          className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-muted/50"
         />
       </div>
 
@@ -1227,7 +1227,7 @@ function FnFTab({
           <button
             onClick={() => { setShowPay(false); setPayRef(""); }}
             disabled={actionLoading}
-            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+            className="rounded-lg border border-border bg-card text-foreground px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -1533,7 +1533,7 @@ function InterviewTab({
         disabled={isReadOnly}
         onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
         rows={2}
-        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-muted/50"
+        className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none disabled:bg-muted/50"
       />
     );
   }
@@ -1736,7 +1736,7 @@ function InterviewTab({
           <button
             onClick={() => setPendingAction("skip")}
             disabled={actionLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card text-foreground px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <SkipForward className="h-4 w-4" /> Skip
           </button>
@@ -1864,7 +1864,7 @@ function AssetsTab({
         <h3 className="text-sm font-semibold text-muted-foreground">Company Assets</h3>
         <button
           onClick={() => setShowAdd((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card text-foreground px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
         >
           <Package className="h-3.5 w-3.5" />
           {showAdd ? "Close" : "Add Asset"}
@@ -2207,7 +2207,7 @@ function LettersTab({
                 <button
                   onClick={() => handleView(l.id)}
                   disabled={busyId === l.id}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card text-foreground px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <Eye className="h-3.5 w-3.5" />
                   View
@@ -2215,7 +2215,7 @@ function LettersTab({
                 <button
                   onClick={() => handleDownload(l.id, l.letter_type)}
                   disabled={busyId === l.id}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card text-foreground px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   {busyId === l.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Download
@@ -2223,7 +2223,7 @@ function LettersTab({
                 <button
                   onClick={() => setPendingSendId(l.id)}
                   disabled={busyId === l.id}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:bg-rose-950/40 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950/40 disabled:opacity-50"
                 >
                   Send
                 </button>
@@ -2386,7 +2386,7 @@ function BuyoutTab({
           {!showReject ? (
             <button
               onClick={() => setShowReject(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:bg-red-950/40"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40"
             >
               <XCircle className="h-4 w-4" />
               Reject
@@ -2409,7 +2409,7 @@ function BuyoutTab({
               </button>
               <button
                 onClick={() => { setShowReject(false); setRejectReason(""); }}
-                className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted/50"
+                className="rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm text-muted-foreground hover:bg-muted/50"
               >
                 Cancel
               </button>

@@ -200,7 +200,7 @@ export function AlumniListPage() {
               return (
                 <div
                   key={a.id}
-                  className="rounded-lg border border-border bg-card p-5 hover:shadow-sm transition-shadow"
+                  className="rounded-lg border border-border bg-card p-5 transition-colors duration-150 hover:border-brand-400"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-sm font-semibold">
@@ -250,7 +250,7 @@ export function AlumniListPage() {
                         setRehireModal(a);
                         setRehireForm({ position: "", department: "", salary: "", notes: "" });
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:bg-rose-950/40 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-950/40 transition-colors"
                     >
                       <UserPlus className="h-3.5 w-3.5" />
                       Propose Rehire

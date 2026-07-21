@@ -231,7 +231,7 @@ export function FnFDetailPage() {
           onChange={(e) => onChange(Math.round(parseFloat(e.target.value || "0") * 100))}
           disabled={disabled || !isEditable}
           readOnly={!isEditable}
-          className="w-32 rounded border border-border px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground read-only:bg-muted/50 read-only:text-muted-foreground"
+          className="w-32 rounded border border-border bg-card text-foreground px-2 py-1 text-right text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground read-only:bg-muted/50 read-only:text-muted-foreground"
           step="0.01"
         />
       </div>
@@ -424,7 +424,7 @@ export function FnFDetailPage() {
               onChange={(e) => setRemarks(e.target.value)}
               disabled={!isEditable}
               rows={3}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
               placeholder="Optional remarks..."
             />
           </div>
@@ -515,7 +515,7 @@ export function FnFDetailPage() {
                   setShowPayModal(false);
                   setPayRef("");
                 }}
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+                className="rounded-lg border border-border bg-card text-foreground px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
               >
                 Cancel
               </button>

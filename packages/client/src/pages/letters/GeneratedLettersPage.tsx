@@ -282,7 +282,7 @@ export function GeneratedLettersPage() {
                         <tr
                           key={exit.id}
                           onClick={() => selectExit(exit.id)}
-                          className="cursor-pointer transition-colors hover:bg-rose-50 dark:bg-rose-950/40"
+                          className="cursor-pointer transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/40"
                         >
                           <td className="whitespace-nowrap px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -397,7 +397,7 @@ export function GeneratedLettersPage() {
           {letters.map((letter: any) => (
             <div
               key={letter.id}
-              className="flex items-center justify-between rounded-lg border border-border bg-card p-4 hover:shadow-sm"
+              className="flex items-center justify-between rounded-lg border border-border bg-card p-4 hover:border-brand-400"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/40">

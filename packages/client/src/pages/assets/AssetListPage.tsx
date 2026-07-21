@@ -309,19 +309,19 @@ export function AssetListPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleStatusUpdate(asset.id, "returned")}
-                            className="rounded bg-green-50 dark:bg-green-950/40 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:bg-green-950/40"
+                            className="rounded bg-green-50 dark:bg-green-950/40 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950/40"
                           >
                             Returned
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(asset.id, "damaged")}
-                            className="rounded bg-orange-50 dark:bg-orange-950/40 px-2 py-1 text-xs font-medium text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:bg-orange-950/40"
+                            className="rounded bg-orange-50 dark:bg-orange-950/40 px-2 py-1 text-xs font-medium text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-950/40"
                           >
                             Damaged
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(asset.id, "lost")}
-                            className="rounded bg-red-50 dark:bg-red-950/40 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:bg-red-950/40"
+                            className="rounded bg-red-50 dark:bg-red-950/40 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40"
                           >
                             Lost
                           </button>

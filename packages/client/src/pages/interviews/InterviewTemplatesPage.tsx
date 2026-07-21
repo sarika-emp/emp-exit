@@ -426,7 +426,7 @@ export function InterviewTemplatesPage() {
                       e.stopPropagation();
                       handleDeleteTemplate(t.id, t.name);
                     }}
-                    className="rounded p-1.5 text-muted-foreground hover:bg-red-50 dark:bg-red-950/40 hover:text-red-600 dark:text-red-400"
+                    className="rounded p-1.5 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:text-red-400"
                     title="Delete template"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -446,7 +446,7 @@ export function InterviewTemplatesPage() {
                         resetQuestionForm();
                         setShowAddQuestion(true);
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-card px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:bg-rose-950/40 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-card px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                     >
                       <Plus className="h-3 w-3" />
                       Add Question
@@ -508,7 +508,7 @@ export function InterviewTemplatesPage() {
                           </button>
                           <button
                             onClick={() => handleDeleteQuestion(q.id)}
-                            className="rounded p-1 text-muted-foreground hover:bg-red-50 dark:bg-red-950/40 hover:text-red-600 dark:text-red-400"
+                            className="rounded p-1 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:text-red-400"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
