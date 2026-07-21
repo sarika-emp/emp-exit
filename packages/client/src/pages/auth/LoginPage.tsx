@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { DoorOpen, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useLogin } from "@/api/hooks";
 import { useAuthStore, homeFor } from "@/lib/auth-store";
 import toast from "react-hot-toast";
@@ -70,7 +71,11 @@ export function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center bg-muted/50 px-4">
+      <div className="relative flex w-full lg:w-1/2 items-center justify-center bg-muted/50 px-4">
+        {/* Theme toggle — pinned top-right (login is outside DashboardLayout) */}
+        <div className="absolute right-4 top-4">
+          <ThemeToggle />
+        </div>
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
