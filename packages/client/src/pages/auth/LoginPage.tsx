@@ -103,7 +103,7 @@ export function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2.5 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2.5 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="you@company.com"
                 />
               </div>
@@ -119,7 +119,7 @@ export function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
-                    className="block w-full rounded-lg border border-border px-3 py-2.5 pr-10 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2.5 pr-10 text-sm shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   />
                   <button
                     type="button"

@@ -318,7 +318,7 @@ export function InterviewTemplatesPage() {
                 type="text"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="e.g. Standard Exit Interview"
               />
             </div>
@@ -328,7 +328,7 @@ export function InterviewTemplatesPage() {
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
                 rows={2}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="Optional description..."
               />
             </div>
@@ -532,7 +532,7 @@ export function InterviewTemplatesPage() {
                             value={qText}
                             onChange={(e) => setQText(e.target.value)}
                             rows={2}
-                            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                             placeholder="Enter your question..."
                           />
                         </div>
@@ -580,7 +580,7 @@ export function InterviewTemplatesPage() {
                               type="text"
                               value={qOptions}
                               onChange={(e) => setQOptions(e.target.value)}
-                              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                               placeholder="e.g. Very Satisfied, Satisfied, Neutral, Dissatisfied"
                             />
                           </div>

@@ -269,7 +269,7 @@ export function ChecklistTemplatesPage() {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="e.g. Standard Exit Checklist"
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
               <div>
@@ -277,7 +277,7 @@ export function ChecklistTemplatesPage() {
                 <select
                   value={formExitType}
                   onChange={(e) => setFormExitType(e.target.value)}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 >
                   {EXIT_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
@@ -292,7 +292,7 @@ export function ChecklistTemplatesPage() {
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="Optional description"
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
@@ -450,14 +450,14 @@ export function ChecklistTemplatesPage() {
                             value={itemTitle}
                             onChange={(e) => setItemTitle(e.target.value)}
                             placeholder="Item title"
-                            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                           />
                           <input
                             type="text"
                             value={itemDescription}
                             onChange={(e) => setItemDescription(e.target.value)}
                             placeholder="Description (optional)"
-                            className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                           />
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input

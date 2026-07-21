@@ -123,7 +123,7 @@ export function ChecklistInstancePage() {
             <select
               value={selectedTemplate}
               onChange={(e) => setSelectedTemplate(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               {templates.map((t) => (
                 <option key={t.id} value={t.id}>

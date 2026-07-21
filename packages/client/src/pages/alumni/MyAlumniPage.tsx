@@ -127,7 +127,7 @@ export function MyAlumniPage() {
                 onChange={(e) => setOptInExitId(e.target.value)}
                 required
                 placeholder="Enter your exit request UUID"
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <button
@@ -153,7 +153,7 @@ export function MyAlumniPage() {
                 type="email"
                 value={form.personal_email}
                 onChange={(e) => setForm({ ...form, personal_email: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="your.email@gmail.com"
               />
             </div>
@@ -163,7 +163,7 @@ export function MyAlumniPage() {
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="+91 98765 43210"
               />
             </div>
@@ -173,7 +173,7 @@ export function MyAlumniPage() {
                 type="url"
                 value={form.linkedin_url}
                 onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="https://linkedin.com/in/yourprofile"
               />
             </div>

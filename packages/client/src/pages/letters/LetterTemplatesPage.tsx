@@ -186,7 +186,7 @@ export function LetterTemplatesPage() {
               <select
                 value={form.letter_type}
                 onChange={(e) => setForm({ ...form, letter_type: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               >
                 {LETTER_TYPES.map((lt) => (
                   <option key={lt.key} value={lt.key}>{lt.label}</option>
@@ -200,7 +200,7 @@ export function LetterTemplatesPage() {
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="Standard Experience Letter"
               />
             </div>
@@ -214,7 +214,7 @@ export function LetterTemplatesPage() {
               value={form.body_template}
               onChange={(e) => setForm({ ...form, body_template: e.target.value })}
               rows={12}
-              className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm font-mono focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               placeholder="<h1>Experience Letter</h1>&#10;<p>This is to certify that {{employee.fullName}} was employed at {{organization.name}}...</p>"
             />
           </div>

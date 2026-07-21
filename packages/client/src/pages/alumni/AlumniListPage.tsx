@@ -306,7 +306,7 @@ export function AlumniListPage() {
                   required
                   value={rehireForm.position}
                   onChange={(e) => setRehireForm({ ...rehireForm, position: e.target.value })}
-                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="e.g. Senior Engineer"
                 />
               </div>
@@ -316,7 +316,7 @@ export function AlumniListPage() {
                   type="text"
                   value={rehireForm.department}
                   onChange={(e) => setRehireForm({ ...rehireForm, department: e.target.value })}
-                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="e.g. Engineering"
                 />
               </div>
@@ -329,7 +329,7 @@ export function AlumniListPage() {
                   step="0.01"
                   value={rehireForm.salary}
                   onChange={(e) => setRehireForm({ ...rehireForm, salary: e.target.value })}
-                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Monthly salary"
                 />
               </div>
@@ -339,7 +339,7 @@ export function AlumniListPage() {
                   value={rehireForm.notes}
                   onChange={(e) => setRehireForm({ ...rehireForm, notes: e.target.value })}
                   rows={2}
-                  className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Additional notes..."
                 />
               </div>
@@ -392,7 +392,7 @@ export function AlumniListPage() {
                     required
                     value={selectedExitId}
                     onChange={(e) => setSelectedExitId(e.target.value)}
-                    className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   >
                     <option value="">Select an exit...</option>
                     {exits.map((ex: any) => {

@@ -422,7 +422,7 @@ export function KTListPage() {
                   <select
                     value={planForm.assignee_id}
                     onChange={(e) => setPlanForm((f) => ({ ...f, assignee_id: e.target.value }))}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   >
                     <option value="">Not assigned</option>
                     {employees.map((emp) => (
@@ -438,7 +438,7 @@ export function KTListPage() {
                     type="date"
                     value={planForm.due_date}
                     onChange={(e) => setPlanForm((f) => ({ ...f, due_date: e.target.value }))}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   />
                 </div>
                 <div className="flex gap-3 sm:col-span-2">
@@ -491,7 +491,7 @@ export function KTListPage() {
                   required
                   value={itemForm.title}
                   onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Handover API documentation"
                 />
               </div>
@@ -501,7 +501,7 @@ export function KTListPage() {
                   value={itemForm.description}
                   onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
                   rows={3}
-                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Details about this KT item..."
                 />
               </div>
@@ -511,7 +511,7 @@ export function KTListPage() {
                   type="url"
                   value={itemForm.document_url}
                   onChange={(e) => setItemForm({ ...itemForm, document_url: e.target.value })}
-                  className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="https://docs.google.com/..."
                 />
               </div>

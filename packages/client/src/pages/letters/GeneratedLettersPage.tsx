@@ -343,7 +343,7 @@ export function GeneratedLettersPage() {
                     letter_type: tpl?.letter_type || "experience",
                   });
                 }}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               >
                 <option value="">Select a template...</option>
                 {templates.map((t: any) => (

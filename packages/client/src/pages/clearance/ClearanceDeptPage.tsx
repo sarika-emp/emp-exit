@@ -149,7 +149,7 @@ export function ClearanceDeptPage() {
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
                   placeholder="e.g. IT / Systems"
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
               <div>
@@ -161,7 +161,7 @@ export function ClearanceDeptPage() {
                   value={createApproverRole}
                   onChange={(e) => setCreateApproverRole(e.target.value)}
                   placeholder="e.g. it_admin"
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export function ClearanceDeptPage() {
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="rounded border border-border px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
+                        className="rounded border border-border bg-card text-foreground px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
                       />
                     ) : (
                       <span className="font-medium text-foreground">{dept.name}</span>
@@ -225,7 +225,7 @@ export function ClearanceDeptPage() {
                         type="text"
                         value={editApproverRole}
                         onChange={(e) => setEditApproverRole(e.target.value)}
-                        className="rounded border border-border px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
+                        className="rounded border border-border bg-card text-foreground px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
                       />
                     ) : (
                       <span className="text-muted-foreground">{dept.approver_role || "--"}</span>

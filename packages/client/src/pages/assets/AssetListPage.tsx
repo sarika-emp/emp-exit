@@ -206,7 +206,7 @@ export function AssetListPage() {
                 required
                 value={form.asset_name}
                 onChange={(e) => setForm({ ...form, asset_name: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="MacBook Pro 14"
               />
             </div>
@@ -216,7 +216,7 @@ export function AssetListPage() {
                 type="text"
                 value={form.asset_tag}
                 onChange={(e) => setForm({ ...form, asset_tag: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="IT-LAP-0042"
               />
             </div>
@@ -225,7 +225,7 @@ export function AssetListPage() {
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c.key} value={c.key}>{c.label}</option>
@@ -240,7 +240,7 @@ export function AssetListPage() {
                 step="0.01"
                 value={form.replacement_cost}
                 onChange={(e) => setForm({ ...form, replacement_cost: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="0"
               />
             </div>

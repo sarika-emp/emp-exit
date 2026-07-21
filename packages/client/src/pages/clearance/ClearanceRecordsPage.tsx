@@ -225,7 +225,7 @@ export function ClearanceRecordsPage() {
               rows={3}
               autoFocus
               placeholder="Explain why this clearance is being rejected…"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
             <div className="mt-5 flex justify-end gap-3">
               <button

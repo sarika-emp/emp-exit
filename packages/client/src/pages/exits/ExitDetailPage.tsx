@@ -538,7 +538,7 @@ export function ExitDetailPage() {
                 <select
                   value={editForm.reason_category}
                   onChange={(e) => setEditForm({ ...editForm, reason_category: e.target.value })}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 >
                   {REASON_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -551,7 +551,7 @@ export function ExitDetailPage() {
                   value={editForm.reason_detail}
                   onChange={(e) => setEditForm({ ...editForm, reason_detail: e.target.value })}
                   rows={3}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -559,25 +559,25 @@ export function ExitDetailPage() {
                   <label className="mb-1 block text-sm font-medium text-muted-foreground">Notice Start</label>
                   <input type="date" value={editForm.notice_start_date}
                     onChange={(e) => setEditForm({ ...editForm, notice_start_date: e.target.value })}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-muted-foreground">Last Working Date</label>
                   <input type="date" value={editForm.last_working_date}
                     onChange={(e) => setEditForm({ ...editForm, last_working_date: e.target.value })}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-muted-foreground">Actual Exit Date</label>
                   <input type="date" value={editForm.actual_exit_date}
                     onChange={(e) => setEditForm({ ...editForm, actual_exit_date: e.target.value })}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-muted-foreground">Notice Period (days)</label>
                   <input type="number" min={0} value={editForm.notice_period_days}
                     onChange={(e) => setEditForm({ ...editForm, notice_period_days: e.target.value })}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none" />
                 </div>
               </div>
               <label className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -1213,7 +1213,7 @@ function FnFTab({
               value={payRef}
               onChange={(e) => setPayRef(e.target.value)}
               placeholder="e.g. NEFT-FNF-2026-0042"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <button
@@ -1558,7 +1558,7 @@ function InterviewTab({
                 <select
                   value={templateId}
                   onChange={(e) => setTemplateId(e.target.value)}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 >
                   <option value="" disabled>Select a template…</option>
                   {templates.map((t) => (
@@ -1623,7 +1623,7 @@ function InterviewTab({
                   type="date"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
                 />
               </div>
               <div className="flex justify-end">
@@ -1878,7 +1878,7 @@ function AssetsTab({
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             >
               {ASSET_CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -1891,7 +1891,7 @@ function AssetsTab({
               value={form.asset_name}
               onChange={(e) => setForm({ ...form, asset_name: e.target.value })}
               placeholder="e.g. Dell Latitude 5430"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <div>
@@ -1900,7 +1900,7 @@ function AssetsTab({
               value={form.asset_tag}
               onChange={(e) => setForm({ ...form, asset_tag: e.target.value })}
               placeholder="e.g. LAP-2231"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <div>
@@ -1911,7 +1911,7 @@ function AssetsTab({
               onChange={(e) => setForm({ ...form, replacement_cost: e.target.value })}
               placeholder="0"
               step="0.01"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
             />
           </div>
           <div className="sm:col-span-2 flex justify-end">
@@ -1971,7 +1971,7 @@ function AssetsTab({
                     <select
                       value={a.status}
                       onChange={(e) => handleStatusChange(a.id, e.target.value)}
-                      className="rounded-md border border-border px-2 py-1 text-xs focus:border-rose-400 focus:outline-none"
+                      className="rounded-md border border-border bg-card text-foreground px-2 py-1 text-xs focus:border-rose-400 focus:outline-none"
                     >
                       {ASSET_STATUSES.map((s) => (
                         <option key={s} value={s}>{s}</option>
@@ -2153,7 +2153,7 @@ function LettersTab({
               <select
                 value={selectedTemplateId}
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-400 focus:outline-none"
               >
                 <option value="" disabled>Select a template…</option>
                 {templates.map((t) => (
@@ -2398,7 +2398,7 @@ function BuyoutTab({
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="Rejection reason..."
-                className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
               />
               <button
                 onClick={handleReject}

@@ -92,7 +92,7 @@ export function ResignationPage() {
               required
               value={reasonCategory}
               onChange={(e) => setReasonCategory(e.target.value)}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               <option value="" disabled>Select a reason…</option>
               {REASON_CATEGORIES.map((r) => (
@@ -112,7 +112,7 @@ export function ResignationPage() {
               onChange={(e) => setReasonDetail(e.target.value)}
               rows={4}
               placeholder="Please share any additional details about your decision..."
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
@@ -128,7 +128,7 @@ export function ResignationPage() {
                 required
                 value={resignationDate}
                 onChange={(e) => setResignationDate(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <div>
@@ -140,7 +140,7 @@ export function ResignationPage() {
                 type="date"
                 value={lastWorkingDate}
                 onChange={(e) => setLastWorkingDate(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 Subject to notice period requirements.

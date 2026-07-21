@@ -264,7 +264,7 @@ export function InitiateExitPage() {
               id="exit_type"
               value={exitType}
               onChange={(e) => setExitType(e.target.value)}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               {EXIT_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -281,7 +281,7 @@ export function InitiateExitPage() {
               id="reason_category"
               value={reasonCategory}
               onChange={(e) => setReasonCategory(e.target.value)}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               {REASON_CATEGORIES.map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -300,7 +300,7 @@ export function InitiateExitPage() {
               onChange={(e) => setReasonDetail(e.target.value)}
               rows={3}
               placeholder="Additional details about the reason for exit..."
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
@@ -315,7 +315,7 @@ export function InitiateExitPage() {
                 type="date"
                 value={resignationDate}
                 onChange={(e) => setResignationDate(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <div>
@@ -328,7 +328,7 @@ export function InitiateExitPage() {
                 value={lastWorkingDate}
                 onChange={(e) => { setLastWorkingDate(e.target.value); setLwdManuallySet(true); }}
                 min={resignationDate || undefined}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
               {resignationDate && !lwdManuallySet && lastWorkingDate && !dateError && (
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -356,7 +356,7 @@ export function InitiateExitPage() {
                 min={0}
                 value={noticePeriodDays}
                 onChange={(e) => setNoticePeriodDays(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <div className="flex items-end pb-1">

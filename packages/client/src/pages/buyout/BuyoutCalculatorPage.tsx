@@ -321,7 +321,7 @@ export function BuyoutCalculatorPage() {
               onChange={(e) => setRequestedDate(e.target.value)}
               min={minDate}
               max={maxDate}
-              className="block w-full max-w-xs rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
+              className="block w-full max-w-xs rounded-lg border border-border bg-card text-foreground px-3 py-2.5 text-sm text-foreground focus:border-rose-500 focus:ring-2 focus:ring-rose-200 focus:outline-none"
             />
             {minDate && maxDate && (
               <p className="mt-2 text-xs text-muted-foreground">
