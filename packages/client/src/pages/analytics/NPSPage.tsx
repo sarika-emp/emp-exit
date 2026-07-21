@@ -114,7 +114,7 @@ export function NPSPage() {
               <path
                 d="M 20 100 A 80 80 0 0 1 180 100"
                 fill="none"
-                stroke="#e5e7eb"
+                stroke="hsl(var(--border))"
                 strokeWidth="14"
                 strokeLinecap="round"
               />
@@ -304,10 +304,10 @@ export function NPSPage() {
         ) : (
           <ResponsiveContainer width="100%" height={320}>
             <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="month"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                 tickFormatter={(v) => {
                   const [y, m] = v.split("-");
                   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -315,11 +315,12 @@ export function NPSPage() {
                 }}
               />
               <YAxis
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                 domain={[-100, 100]}
                 ticks={[-100, -50, 0, 50, 100]}
               />
               <Tooltip
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }}
                 formatter={(value: number, name: string) => [
                   value,
                   name === "nps" ? "NPS" : "Responses",

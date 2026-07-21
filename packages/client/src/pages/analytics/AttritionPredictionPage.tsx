@@ -155,7 +155,7 @@ function EmployeeRiskModal({
                   cy="50"
                   r="42"
                   fill="none"
-                  stroke="#e5e7eb"
+                  stroke="hsl(var(--border))"
                   strokeWidth="10"
                 />
                 <circle
@@ -408,7 +408,7 @@ export function AttritionPredictionPage() {
                         <Cell key={i} fill={entry.color} />
                       ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -426,15 +426,16 @@ export function AttritionPredictionPage() {
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={dashboard!.departmentBreakdown} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
                     <YAxis
                       type="category"
                       dataKey="department"
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       width={120}
                     />
                     <Tooltip
+                      contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }}
                       formatter={(value: number) => [`${value}`, "Avg Risk Score"]}
                     />
                     <Bar dataKey="avgScore" name="Avg Risk Score" radius={[0, 4, 4, 0]}>
@@ -459,10 +460,10 @@ export function AttritionPredictionPage() {
               </h3>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={trends}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} stroke="hsl(var(--border))" />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} stroke="hsl(var(--border))" allowDecimals={false} />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }} />
                   <Legend />
                   <Line
                     type="monotone"

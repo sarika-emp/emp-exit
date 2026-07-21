@@ -220,7 +220,7 @@ export function EmployeeRiskDetailPage() {
                 cy="50"
                 r="42"
                 fill="none"
-                stroke="#e5e7eb"
+                stroke="hsl(var(--border))"
                 strokeWidth="10"
               />
               <circle
@@ -305,10 +305,10 @@ export function EmployeeRiskDetailPage() {
                 score: h.score,
               }))}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} stroke="hsl(var(--border))" />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }} />
               <Line
                 type="monotone"
                 dataKey="score"
