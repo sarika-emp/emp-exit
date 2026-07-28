@@ -21,46 +21,50 @@ import {
   UserPlus,
   UserMinus,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { isLoggedIn, getUser, useAuthStore, isAdmin } from "@/lib/auth-store";
 import { cn, getInitials } from "@/lib/utils";
 import { BackToDashboard } from "@/components/BackToDashboard";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface NavItem {
   to: string;
+  // i18n key under the `nav` namespace, resolved via t() at render time.
   label: string;
   icon: any;
 }
 
 // Full management console — shown to admin / HR roles.
 const ADMIN_NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/exits", label: "Exits", icon: DoorOpen },
-  { to: "/checklists", label: "Checklists", icon: ClipboardCheck },
-  { to: "/clearance", label: "Clearance", icon: ShieldCheck },
-  { to: "/interviews", label: "Interviews", icon: MessageSquare },
-  { to: "/fnf", label: "FnF", icon: Calculator },
-  { to: "/buyout", label: "Notice Buyout", icon: DollarSign },
-  { to: "/assets", label: "Assets", icon: Package },
-  { to: "/kt", label: "KT", icon: BookOpen },
-  { to: "/letters", label: "Letters", icon: FileSignature },
-  { to: "/alumni", label: "Alumni", icon: GraduationCap },
-  { to: "/rehire", label: "Rehire", icon: UserPlus },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/analytics/flight-risk", label: "Flight Risk", icon: AlertTriangle },
-  { to: "/settings", label: "Settings", icon: Settings },
+  { to: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
+  { to: "/exits", label: "nav.exits", icon: DoorOpen },
+  { to: "/checklists", label: "nav.checklists", icon: ClipboardCheck },
+  { to: "/clearance", label: "nav.clearance", icon: ShieldCheck },
+  { to: "/interviews", label: "nav.interviews", icon: MessageSquare },
+  { to: "/fnf", label: "nav.fnf", icon: Calculator },
+  { to: "/buyout", label: "nav.buyout", icon: DollarSign },
+  { to: "/assets", label: "nav.assets", icon: Package },
+  { to: "/kt", label: "nav.kt", icon: BookOpen },
+  { to: "/letters", label: "nav.letters", icon: FileSignature },
+  { to: "/alumni", label: "nav.alumni", icon: GraduationCap },
+  { to: "/rehire", label: "nav.rehire", icon: UserPlus },
+  { to: "/analytics", label: "nav.analytics", icon: BarChart3 },
+  { to: "/analytics/flight-risk", label: "nav.flightRisk", icon: AlertTriangle },
+  { to: "/settings", label: "nav.settings", icon: Settings },
 ];
 
 // Self-service hub — shown to the employee role. Every link points at a
 // "my own" page; no org-wide management views.
 const EMPLOYEE_NAV: NavItem[] = [
-  { to: "/exits/my", label: "My Exit", icon: UserMinus },
-  { to: "/interviews/my", label: "My Interview", icon: MessageSquare },
-  { to: "/kt/my", label: "My KT", icon: BookOpen },
-  { to: "/alumni/my", label: "Alumni", icon: GraduationCap },
+  { to: "/exits/my", label: "nav.myExit", icon: UserMinus },
+  { to: "/interviews/my", label: "nav.myInterview", icon: MessageSquare },
+  { to: "/kt/my", label: "nav.myKt", icon: BookOpen },
+  { to: "/alumni/my", label: "nav.alumni", icon: GraduationCap },
 ];
 
 export function DashboardLayout() {
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const logout = useAuthStore((s) => s.logout);
@@ -72,14 +76,14 @@ export function DashboardLayout() {
 
   if (!isLoggedIn()) return <Navigate to="/login" replace />;
   const displayName = user ? `${user.firstName} ${user.lastName}` : "User";
-  const ROLE_LABELS: Record<string, string> = {
-    super_admin: "Super Admin",
-    org_admin: "Org Admin",
-    hr_admin: "HR Admin",
-    hr_manager: "HR Manager",
-    employee: "Employee",
+  const ROLE_KEYS: Record<string, string> = {
+    super_admin: "roles.superAdmin",
+    org_admin: "roles.orgAdmin",
+    hr_admin: "roles.hrAdmin",
+    hr_manager: "roles.hrManager",
+    employee: "roles.employee",
   };
-  const roleLabel = ROLE_LABELS[user?.role || "employee"] || "Employee";
+  const roleLabel = t(ROLE_KEYS[user?.role || "employee"] || "roles.employee");
   const navItems = isAdmin(user) ? ADMIN_NAV : EMPLOYEE_NAV;
 
   function SidebarContent() {
@@ -90,7 +94,7 @@ export function DashboardLayout() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600">
             <DoorOpen className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-foreground">EMP Exit</span>
+          <span className="text-lg font-bold text-foreground">{t("nav.brand")}</span>
         </div>
 
         {/* Nav */}
@@ -114,7 +118,7 @@ export function DashboardLayout() {
               }
             >
               <item.icon className="h-5 w-5" />
-              {item.label}
+              {t(item.label)}
             </NavLink>
           ))}
         </nav>
@@ -132,7 +136,7 @@ export function DashboardLayout() {
             <button
               onClick={logout}
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
-              title="Logout"
+              title={t("nav.logout")}
             >
               <LogOutIcon className="h-4 w-4" />
             </button>
@@ -171,6 +175,7 @@ export function DashboardLayout() {
           <BackToDashboard />
           <div className="flex-1" />
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <ThemeToggle />
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 text-xs font-semibold">
               {getInitials(displayName)}
