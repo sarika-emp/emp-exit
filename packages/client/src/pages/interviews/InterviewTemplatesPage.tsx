@@ -263,7 +263,7 @@ export function InterviewTemplatesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 dark:border-rose-900 border-t-rose-600" />
       </div>
     );
   }
@@ -273,11 +273,11 @@ export function InterviewTemplatesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-rose-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-rose-600 dark:text-rose-400" />
             Interview Templates
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Manage exit interview question templates.
           </p>
         </div>
@@ -297,7 +297,7 @@ export function InterviewTemplatesPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
             dismiss
@@ -307,28 +307,28 @@ export function InterviewTemplatesPage() {
 
       {/* Create / Edit Template Form */}
       {(showCreate || editingTemplate) && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             {editingTemplate ? "Edit Template" : "Create Template"}
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Name</label>
               <input
                 type="text"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="e.g. Standard Exit Interview"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
               <textarea
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
                 rows={2}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="Optional description..."
               />
             </div>
@@ -337,9 +337,9 @@ export function InterviewTemplatesPage() {
                 type="checkbox"
                 checked={formDefault}
                 onChange={(e) => setFormDefault(e.target.checked)}
-                className="rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                className="rounded border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
               />
-              <span className="text-gray-700">Set as default template</span>
+              <span className="text-muted-foreground">Set as default template</span>
             </label>
             <div className="flex gap-2">
               <button
@@ -357,7 +357,7 @@ export function InterviewTemplatesPage() {
                   setShowCreate(false);
                   setEditingTemplate(null);
                 }}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
               >
                 Cancel
               </button>
@@ -368,45 +368,45 @@ export function InterviewTemplatesPage() {
 
       {/* Templates List */}
       {templates.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">No templates yet</h3>
-          <p className="mt-1 text-sm text-gray-500">Create your first exit interview template.</p>
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-sm font-medium text-foreground">No templates yet</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Create your first exit interview template.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {templates.map((t) => (
             <div
               key={t.id}
-              className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden"
+              className="rounded-lg border border-border bg-card shadow-sm overflow-hidden"
             >
               {/* Template header row */}
               <div
-                className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => setExpandedId(expandedId === t.id ? null : t.id)}
               >
                 <div className="flex items-center gap-3">
                   {expandedId === t.id ? (
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   )}
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">{t.name}</span>
+                      <span className="font-medium text-foreground">{t.name}</span>
                       {Boolean(t.is_default) && (
-                        <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700">
+                        <span className="inline-flex items-center rounded-full bg-rose-100 dark:bg-rose-950/40 px-2 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-300">
                           Default
                         </span>
                       )}
                       {!t.is_active && (
-                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                           Inactive
                         </span>
                       )}
                     </div>
                     {t.description && (
-                      <p className="mt-0.5 text-sm text-gray-500">{t.description}</p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{t.description}</p>
                     )}
                   </div>
                 </div>
@@ -416,7 +416,7 @@ export function InterviewTemplatesPage() {
                       e.stopPropagation();
                       startEditTemplate(t);
                     }}
-                    className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                     title="Edit template"
                   >
                     <Pencil className="h-4 w-4" />
@@ -426,7 +426,7 @@ export function InterviewTemplatesPage() {
                       e.stopPropagation();
                       handleDeleteTemplate(t.id, t.name);
                     }}
-                    className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded p-1.5 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:text-red-400"
                     title="Delete template"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -436,9 +436,9 @@ export function InterviewTemplatesPage() {
 
               {/* Expanded: Questions */}
               {expandedId === t.id && expandedTemplate && (
-                <div className="border-t border-gray-100 bg-gray-50 px-6 py-4">
+                <div className="border-t border-border bg-muted/50 px-6 py-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-700">
+                    <h3 className="text-sm font-semibold text-muted-foreground">
                       Questions ({expandedTemplate.questions.length})
                     </h3>
                     <button
@@ -446,7 +446,7 @@ export function InterviewTemplatesPage() {
                         resetQuestionForm();
                         setShowAddQuestion(true);
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-300 dark:border-rose-900 bg-card px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                     >
                       <Plus className="h-3 w-3" />
                       Add Question
@@ -455,7 +455,7 @@ export function InterviewTemplatesPage() {
 
                   {/* Question list */}
                   {expandedTemplate.questions.length === 0 && !showAddQuestion && (
-                    <p className="text-sm text-gray-500 py-4 text-center">
+                    <p className="text-sm text-muted-foreground py-4 text-center">
                       No questions yet. Add your first question.
                     </p>
                   )}
@@ -472,19 +472,19 @@ export function InterviewTemplatesPage() {
                         }}
                         onDragEnd={handleDragEnd}
                         className={cn(
-                          "flex items-start gap-3 rounded-lg border bg-white px-4 py-3 transition-colors",
+                          "flex items-start gap-3 rounded-lg border bg-card px-4 py-3 transition-colors",
                           dragOverIndex === idx && dragIndex !== idx
-                            ? "border-rose-300 bg-rose-50"
-                            : "border-gray-200",
+                            ? "border-rose-300 bg-rose-50 dark:bg-rose-950/40"
+                            : "border-border",
                         )}
                       >
-                        <GripVertical className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-grab text-gray-400" />
+                        <GripVertical className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-grab text-muted-foreground" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-gray-400">
+                            <span className="text-xs font-medium text-muted-foreground">
                               Q{idx + 1}
                             </span>
-                            <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+                            <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
                               {QUESTION_TYPES.find((qt) => qt.value === q.question_type)?.icon}
                               {QUESTION_TYPES.find((qt) => qt.value === q.question_type)?.label}
                             </span>
@@ -492,9 +492,9 @@ export function InterviewTemplatesPage() {
                               <span className="text-xs text-red-500">Required</span>
                             )}
                           </div>
-                          <p className="mt-1 text-sm text-gray-900">{q.question_text}</p>
+                          <p className="mt-1 text-sm text-foreground">{q.question_text}</p>
                           {q.options && (
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-1 text-xs text-muted-foreground">
                               Options: {q.options}
                             </p>
                           )}
@@ -502,13 +502,13 @@ export function InterviewTemplatesPage() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => startEditQuestion(q)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteQuestion(q.id)}
-                            className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                            className="rounded p-1 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:text-red-400"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -519,26 +519,26 @@ export function InterviewTemplatesPage() {
 
                   {/* Add / Edit Question Form */}
                   {showAddQuestion && (
-                    <div className="mt-3 rounded-lg border border-rose-200 bg-white p-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">
+                    <div className="mt-3 rounded-lg border border-rose-200 dark:border-rose-900 bg-card p-4">
+                      <h4 className="text-sm font-medium text-foreground mb-3">
                         {editingQuestionId ? "Edit Question" : "Add Question"}
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <label className="block text-xs font-medium text-muted-foreground mb-1">
                             Question Text
                           </label>
                           <textarea
                             value={qText}
                             onChange={(e) => setQText(e.target.value)}
                             rows={2}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                             placeholder="Enter your question..."
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-muted-foreground mb-1">
                               Question Type
                             </label>
                             <div className="grid grid-cols-2 gap-1">
@@ -549,8 +549,8 @@ export function InterviewTemplatesPage() {
                                   className={cn(
                                     "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors",
                                     qType === qt.value
-                                      ? "border-rose-300 bg-rose-50 text-rose-700"
-                                      : "border-gray-200 text-gray-600 hover:bg-gray-50",
+                                      ? "border-rose-300 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300"
+                                      : "border-border text-muted-foreground hover:bg-muted/50",
                                   )}
                                 >
                                   {qt.icon}
@@ -565,22 +565,22 @@ export function InterviewTemplatesPage() {
                                 type="checkbox"
                                 checked={qRequired}
                                 onChange={(e) => setQRequired(e.target.checked)}
-                                className="rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                                className="rounded border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
                               />
-                              <span className="text-gray-700">Required</span>
+                              <span className="text-muted-foreground">Required</span>
                             </label>
                           </div>
                         </div>
                         {qType === "multiple_choice" && (
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-medium text-muted-foreground mb-1">
                               Options (comma-separated)
                             </label>
                             <input
                               type="text"
                               value={qOptions}
                               onChange={(e) => setQOptions(e.target.value)}
-                              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                               placeholder="e.g. Very Satisfied, Satisfied, Neutral, Dissatisfied"
                             />
                           </div>
@@ -595,7 +595,7 @@ export function InterviewTemplatesPage() {
                           </button>
                           <button
                             onClick={resetQuestionForm}
-                            className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
                           >
                             <X className="h-3 w-3" />
                             Cancel

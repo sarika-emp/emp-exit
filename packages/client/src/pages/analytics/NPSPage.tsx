@@ -58,7 +58,7 @@ export function NPSPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -90,13 +90,13 @@ export function NPSPage() {
       <div className="flex items-center gap-3">
         <Link
           to="/analytics"
-          className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Exit Survey NPS</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Exit Survey NPS</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Net Promoter Score from exit interviews ({totalResponses} responses)
           </p>
         </div>
@@ -104,8 +104,8 @@ export function NPSPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* NPS Score Card with Gauge */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 text-center">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-6">NPS Score</h3>
+        <div className="rounded-lg border border-border bg-card p-6 text-center">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-6">NPS Score</h3>
 
           {/* SVG Gauge */}
           <div className="relative mx-auto" style={{ width: 200, height: 120 }}>
@@ -114,7 +114,7 @@ export function NPSPage() {
               <path
                 d="M 20 100 A 80 80 0 0 1 180 100"
                 fill="none"
-                stroke="#e5e7eb"
+                stroke="hsl(var(--border))"
                 strokeWidth="14"
                 strokeLinecap="round"
               />
@@ -163,7 +163,7 @@ export function NPSPage() {
             </p>
           </div>
 
-          <div className="flex justify-center gap-4 mt-4 text-xs text-gray-400">
+          <div className="flex justify-center gap-4 mt-4 text-xs text-muted-foreground">
             <span>-100</span>
             <span>0</span>
             <span>+50</span>
@@ -172,12 +172,12 @@ export function NPSPage() {
         </div>
 
         {/* Breakdown Card */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-4">Breakdown</h3>
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-4">Breakdown</h3>
 
           {/* Stacked horizontal bar */}
           <div className="mb-6">
-            <div className="flex h-8 rounded-full overflow-hidden bg-gray-100">
+            <div className="flex h-8 rounded-full overflow-hidden bg-muted">
               {promoterPct > 0 && (
                 <div
                   className="bg-green-500 flex items-center justify-center text-xs font-semibold text-white"
@@ -209,44 +209,44 @@ export function NPSPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-green-500" />
-                <span className="text-sm text-gray-700">Promoters (9-10)</span>
+                <span className="text-sm text-muted-foreground">Promoters (9-10)</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-gray-900">{promoters}</span>
-                <span className="text-xs text-gray-400 ml-1">({promoterPct}%)</span>
+                <span className="text-sm font-semibold text-foreground">{promoters}</span>
+                <span className="text-xs text-muted-foreground ml-1">({promoterPct}%)</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-yellow-400" />
-                <span className="text-sm text-gray-700">Passives (7-8)</span>
+                <span className="text-sm text-muted-foreground">Passives (7-8)</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-gray-900">{passives}</span>
-                <span className="text-xs text-gray-400 ml-1">({passivePct}%)</span>
+                <span className="text-sm font-semibold text-foreground">{passives}</span>
+                <span className="text-xs text-muted-foreground ml-1">({passivePct}%)</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-red-500" />
-                <span className="text-sm text-gray-700">Detractors (1-6)</span>
+                <span className="text-sm text-muted-foreground">Detractors (1-6)</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-gray-900">{detractors}</span>
-                <span className="text-xs text-gray-400 ml-1">({detractorPct}%)</span>
+                <span className="text-sm font-semibold text-foreground">{detractors}</span>
+                <span className="text-xs text-muted-foreground ml-1">({detractorPct}%)</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-            <p className="text-xs text-gray-400">Total responses</p>
-            <p className="text-2xl font-bold text-gray-900">{totalResponses}</p>
+          <div className="mt-4 pt-4 border-t border-border text-center">
+            <p className="text-xs text-muted-foreground">Total responses</p>
+            <p className="text-2xl font-bold text-foreground">{totalResponses}</p>
           </div>
         </div>
 
         {/* Industry Benchmark Card */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-4">Industry Benchmarks</h3>
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-4">Industry Benchmarks</h3>
           <div className="space-y-4">
             {[
               { label: "Your NPS", value: nps, color: npsColor },
@@ -255,12 +255,12 @@ export function NPSPage() {
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-700">{item.label}</span>
+                  <span className="text-sm text-muted-foreground">{item.label}</span>
                   <span className="text-sm font-semibold" style={{ color: item.color }}>
                     {item.value}
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -273,16 +273,16 @@ export function NPSPage() {
             ))}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-gray-100">
+          <div className="mt-6 pt-4 border-t border-border">
             <div className="flex items-center gap-2">
               {nps > 32 ? (
-                <TrendingUp className="h-4 w-4 text-green-600" />
+                <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
               ) : nps < 32 ? (
-                <TrendingDown className="h-4 w-4 text-red-600" />
+                <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
               ) : (
-                <Minus className="h-4 w-4 text-gray-400" />
+                <Minus className="h-4 w-4 text-muted-foreground" />
               )}
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {nps > 32
                   ? "Above industry average"
                   : nps < 32
@@ -295,19 +295,19 @@ export function NPSPage() {
       </div>
 
       {/* Monthly NPS Trend */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">Monthly NPS Trend (Last 12 Months)</h3>
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Monthly NPS Trend (Last 12 Months)</h3>
         {trendData.length === 0 ? (
-          <div className="flex h-48 items-center justify-center text-sm text-gray-400">
+          <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
             No trend data available
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={320}>
             <LineChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="month"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                 tickFormatter={(v) => {
                   const [y, m] = v.split("-");
                   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -315,11 +315,12 @@ export function NPSPage() {
                 }}
               />
               <YAxis
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                 domain={[-100, 100]}
                 ticks={[-100, -50, 0, 50, 100]}
               />
               <Tooltip
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }}
                 formatter={(value: number, name: string) => [
                   value,
                   name === "nps" ? "NPS" : "Responses",

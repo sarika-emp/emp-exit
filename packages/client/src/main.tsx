@@ -7,6 +7,7 @@ import App from "./App";
 import "./styles/globals.css";
 import "./lib/i18n";
 import { useAuthStore } from "./lib/auth-store";
+import { ThemeProvider } from "@/lib/theme";
 
 // Load existing session from localStorage
 useAuthStore.getState().loadFromStorage();
@@ -19,11 +20,13 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-        <Toaster position="top-right" />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+          <Toaster position="top-right" />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );

@@ -40,10 +40,10 @@ interface EmployeeRiskDetail {
 
 function riskBadge(level: RiskLevel) {
   const colors: Record<RiskLevel, string> = {
-    low: "bg-green-100 text-green-700",
-    medium: "bg-yellow-100 text-yellow-700",
-    high: "bg-orange-100 text-orange-700",
-    critical: "bg-red-100 text-red-700",
+    low: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+    medium: "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300",
+    high: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300",
+    critical: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300",
   };
   return (
     <span
@@ -124,7 +124,7 @@ export function EmployeeRiskDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -134,15 +134,15 @@ export function EmployeeRiskDetailPage() {
       <div className="space-y-4">
         <button
           onClick={() => navigate("/analytics/flight-risk")}
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Flight Risk Dashboard
         </button>
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <AlertTriangle className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">No Risk Data</h3>
-          <p className="mt-2 text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-lg font-semibold text-foreground">No Risk Data</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
             Risk scores have not been calculated for this employee yet.
           </p>
         </div>
@@ -175,7 +175,7 @@ export function EmployeeRiskDetailPage() {
       {/* Back link */}
       <button
         onClick={() => navigate("/analytics/flight-risk")}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-muted-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Flight Risk Dashboard
@@ -184,35 +184,35 @@ export function EmployeeRiskDetailPage() {
       {/* Employee Info Card + Score */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Info */}
-        <div className="lg:col-span-2 rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="text-xl font-bold text-gray-900">
+        <div className="lg:col-span-2 rounded-lg border border-border bg-card p-6">
+          <h2 className="text-xl font-bold text-foreground">
             {data.first_name} {data.last_name}
           </h2>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Mail className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Mail className="h-4 w-4 text-muted-foreground" />
               {data.email}
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Briefcase className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
               {data.designation || "No designation"}
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Building className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Building className="h-4 w-4 text-muted-foreground" />
               {data.department_name || "No department"}
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Calendar className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
               Tenure: {tenure}
             </div>
           </div>
-          <div className="mt-3 text-xs text-gray-400">
+          <div className="mt-3 text-xs text-muted-foreground">
             Last calculated: {new Date(data.calculated_at).toLocaleDateString()}
           </div>
         </div>
 
         {/* Score Gauge */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 flex flex-col items-center justify-center">
+        <div className="rounded-lg border border-border bg-card p-6 flex flex-col items-center justify-center">
           <div className="relative h-36 w-36">
             <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
               <circle
@@ -220,7 +220,7 @@ export function EmployeeRiskDetailPage() {
                 cy="50"
                 r="42"
                 fill="none"
-                stroke="#e5e7eb"
+                stroke="hsl(var(--border))"
                 strokeWidth="10"
               />
               <circle
@@ -238,7 +238,7 @@ export function EmployeeRiskDetailPage() {
               <span className="text-4xl font-bold" style={{ color: gaugeColor }}>
                 {data.score}
               </span>
-              <span className="text-[10px] font-medium text-gray-500 uppercase">
+              <span className="text-[10px] font-medium text-muted-foreground uppercase">
                 Risk Score
               </span>
             </div>
@@ -248,8 +248,8 @@ export function EmployeeRiskDetailPage() {
       </div>
 
       {/* Risk Factors */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Risk Factor Breakdown</h3>
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Risk Factor Breakdown</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {(data.factors || []).map((f, i) => {
             let factorColor = "#22c55e";
@@ -260,10 +260,10 @@ export function EmployeeRiskDetailPage() {
             return (
               <div
                 key={i}
-                className="rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow"
+                className="rounded-lg border border-border p-4 transition-colors duration-150 hover:border-brand-400"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-gray-800">{f.name}</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{f.name}</h4>
                   <span
                     className="text-lg font-bold"
                     style={{ color: factorColor }}
@@ -271,7 +271,7 @@ export function EmployeeRiskDetailPage() {
                     {f.impact}
                   </span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-gray-200 mb-2">
+                <div className="h-2 w-full rounded-full bg-muted mb-2">
                   <div
                     className="h-2 rounded-full transition-all"
                     style={{
@@ -280,9 +280,9 @@ export function EmployeeRiskDetailPage() {
                     }}
                   />
                 </div>
-                <p className="text-xs text-gray-500">{f.description}</p>
+                <p className="text-xs text-muted-foreground">{f.description}</p>
                 {f.value !== undefined && f.value !== null && (
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Value: {f.value}
                   </p>
                 )}
@@ -294,8 +294,8 @@ export function EmployeeRiskDetailPage() {
 
       {/* Historical Score Trend */}
       {data.history && data.history.length > 1 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
             Score History
           </h3>
           <ResponsiveContainer width="100%" height={220}>
@@ -305,10 +305,10 @@ export function EmployeeRiskDetailPage() {
                 score: h.score,
               }))}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} stroke="hsl(var(--border))" />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", borderRadius: "0.5rem" }} labelStyle={{ color: "hsl(var(--foreground))" }} itemStyle={{ color: "hsl(var(--foreground))" }} />
               <Line
                 type="monotone"
                 dataKey="score"
@@ -323,14 +323,14 @@ export function EmployeeRiskDetailPage() {
       )}
 
       {/* Recommended Actions */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">{recs.title}</h3>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-1">{recs.title}</h3>
+        <p className="text-sm text-muted-foreground mb-4">
           Based on the {data.risk_level} risk level for this employee.
         </p>
         <ul className="space-y-3">
           {recs.items.map((item, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
+            <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
               <ChevronRight className="h-4 w-4 mt-0.5 text-brand-500 flex-shrink-0" />
               {item}
             </li>

@@ -26,6 +26,7 @@ import { isLoggedIn, getUser, useAuthStore, isAdmin } from "@/lib/auth-store";
 import { cn, getInitials } from "@/lib/utils";
 import { BackToDashboard } from "@/components/BackToDashboard";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface NavItem {
   to: string;
@@ -87,13 +88,13 @@ export function DashboardLayout() {
 
   function SidebarContent() {
     return (
-      <div className="flex h-full w-64 flex-col bg-white border-r border-gray-200">
+      <div className="flex h-full w-64 flex-col bg-card border-r border-border">
         {/* Logo */}
-        <div className="flex h-16 items-center gap-3 px-6 border-b border-gray-100">
+        <div className="flex h-16 items-center gap-3 px-6 border-b border-border">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600">
             <DoorOpen className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-900">{t("nav.brand")}</span>
+          <span className="text-lg font-bold text-foreground">{t("nav.brand")}</span>
         </div>
 
         {/* Nav */}
@@ -111,8 +112,8 @@ export function DashboardLayout() {
                 cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 )
               }
             >
@@ -123,18 +124,18 @@ export function DashboardLayout() {
         </nav>
 
         {/* User card */}
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-border p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-brand-700 text-sm font-semibold">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 text-sm font-semibold">
               {getInitials(displayName)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
-              <p className="text-xs text-gray-500">{roleLabel}</p>
+              <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground">{roleLabel}</p>
             </div>
             <button
               onClick={logout}
-              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
               title={t("nav.logout")}
             >
               <LogOutIcon className="h-4 w-4" />
@@ -146,7 +147,7 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-muted/50">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <SidebarContent />
@@ -164,10 +165,10 @@ export function DashboardLayout() {
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-8">
+        <header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:px-8">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 lg:hidden"
+            className="rounded-lg p-2 text-muted-foreground hover:bg-muted lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -175,10 +176,11 @@ export function DashboardLayout() {
           <div className="flex-1" />
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-semibold">
+            <ThemeToggle />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 text-xs font-semibold">
               {getInitials(displayName)}
             </div>
-            <span className="hidden md:block text-sm font-medium text-gray-700">{displayName}</span>
+            <span className="hidden md:block text-sm font-medium text-muted-foreground">{displayName}</span>
           </div>
         </header>
 

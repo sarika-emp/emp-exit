@@ -105,7 +105,7 @@ export function ClearanceDeptPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -114,8 +114,8 @@ export function ClearanceDeptPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clearance Departments</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Clearance Departments</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Manage departments that must sign off during employee exit clearance.
           </p>
         </div>
@@ -130,17 +130,17 @@ export function ClearanceDeptPage() {
 
       {/* Create Form */}
       {showCreate && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-5">
+        <div className="rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/30 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Add Department</h3>
-            <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600">
+            <h3 className="text-sm font-semibold text-foreground">Add Department</h3>
+            <button onClick={() => setShowCreate(false)} className="text-muted-foreground hover:text-muted-foreground">
               <X className="h-4 w-4" />
             </button>
           </div>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Department Name *
                 </label>
                 <input
@@ -149,11 +149,11 @@ export function ClearanceDeptPage() {
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
                   placeholder="e.g. IT / Systems"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Approver Role
                 </label>
                 <input
@@ -161,7 +161,7 @@ export function ClearanceDeptPage() {
                   value={createApproverRole}
                   onChange={(e) => setCreateApproverRole(e.target.value)}
                   placeholder="e.g. it_admin"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
             </div>
@@ -176,7 +176,7 @@ export function ClearanceDeptPage() {
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
               >
                 Cancel
               </button>
@@ -187,15 +187,15 @@ export function ClearanceDeptPage() {
 
       {/* Departments List */}
       {departments.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
-          <Shield className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-          <p className="text-sm text-gray-500">No clearance departments configured yet.</p>
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <Shield className="mx-auto h-12 w-12 text-muted-foreground/50 mb-3" />
+          <p className="text-sm text-muted-foreground">No clearance departments configured yet.</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto -mx-4 lg:mx-0">
+        <div className="rounded-xl border border-border bg-card overflow-x-auto -mx-4 lg:mx-0">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-3">Order</th>
                 <th className="px-6 py-3">Department</th>
                 <th className="px-6 py-3">Approver Role</th>
@@ -203,20 +203,20 @@ export function ClearanceDeptPage() {
                 <th className="px-6 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {departments.map((dept) => (
-                <tr key={dept.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-3 text-gray-500">{dept.sort_order + 1}</td>
+                <tr key={dept.id} className="hover:bg-muted/50">
+                  <td className="px-6 py-3 text-muted-foreground">{dept.sort_order + 1}</td>
                   <td className="px-6 py-3">
                     {editingId === dept.id ? (
                       <input
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
+                        className="rounded border border-border bg-card text-foreground px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
                       />
                     ) : (
-                      <span className="font-medium text-gray-900">{dept.name}</span>
+                      <span className="font-medium text-foreground">{dept.name}</span>
                     )}
                   </td>
                   <td className="px-6 py-3">
@@ -225,10 +225,10 @@ export function ClearanceDeptPage() {
                         type="text"
                         value={editApproverRole}
                         onChange={(e) => setEditApproverRole(e.target.value)}
-                        className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
+                        className="rounded border border-border bg-card text-foreground px-2 py-1 text-sm focus:border-rose-500 focus:outline-none"
                       />
                     ) : (
-                      <span className="text-gray-600">{dept.approver_role || "--"}</span>
+                      <span className="text-muted-foreground">{dept.approver_role || "--"}</span>
                     )}
                   </td>
                   <td className="px-6 py-3">
@@ -237,8 +237,8 @@ export function ClearanceDeptPage() {
                       className={cn(
                         "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium cursor-pointer",
                         dept.is_active
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500",
+                          ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300"
+                          : "bg-muted text-muted-foreground",
                       )}
                     >
                       {dept.is_active ? "Active" : "Inactive"}
@@ -251,13 +251,13 @@ export function ClearanceDeptPage() {
                           <button
                             onClick={() => handleSaveEdit(dept.id)}
                             disabled={saving}
-                            className="rounded p-1.5 text-green-600 hover:bg-green-50"
+                            className="rounded p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/40"
                           >
                             <Check className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => setEditingId(null)}
-                            className="rounded p-1.5 text-gray-400 hover:bg-gray-100"
+                            className="rounded p-1.5 text-muted-foreground hover:bg-muted"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -266,13 +266,13 @@ export function ClearanceDeptPage() {
                         <>
                           <button
                             onClick={() => startEdit(dept)}
-                            className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                            className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(dept.id)}
-                            className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                            className="rounded p-1.5 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
