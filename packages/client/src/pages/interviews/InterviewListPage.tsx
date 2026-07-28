@@ -34,17 +34,17 @@ const STATUS_FILTERS = [
 
 const STATUS_CONFIG: Record<string, { bg: string; label: string; icon: React.ReactNode }> = {
   scheduled: {
-    bg: "bg-blue-100 text-blue-700",
+    bg: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
     label: "Scheduled",
     icon: <Clock className="h-3.5 w-3.5" />,
   },
   completed: {
-    bg: "bg-green-100 text-green-700",
+    bg: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
     label: "Completed",
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
   },
   skipped: {
-    bg: "bg-gray-100 text-gray-600",
+    bg: "bg-muted text-muted-foreground",
     label: "Skipped",
     icon: <SkipForward className="h-3.5 w-3.5" />,
   },
@@ -77,7 +77,7 @@ export function InterviewListPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 dark:border-rose-900 border-t-rose-600" />
       </div>
     );
   }
@@ -87,17 +87,17 @@ export function InterviewListPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-rose-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-rose-600 dark:text-rose-400" />
             Exit Interviews
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             View and manage scheduled exit interviews.
           </p>
         </div>
         <button
           onClick={() => navigate("/interviews/templates")}
-          className="inline-flex items-center gap-2 rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg border border-rose-300 dark:border-rose-900 bg-card px-4 py-2 text-sm font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
         >
           <Calendar className="h-4 w-4" />
           Manage Templates
@@ -109,23 +109,23 @@ export function InterviewListPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+          className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
         >
           {STATUS_FILTERS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-muted-foreground">
           {interviews.length} interview{interviews.length === 1 ? "" : "s"}
         </span>
       </div>
 
       {/* List */}
       {interviews.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-10 text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">No exit interviews yet</h3>
-          <p className="mt-2 mx-auto max-w-md text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card p-10 text-center">
+          <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-sm font-medium text-foreground">No exit interviews yet</h3>
+          <p className="mt-2 mx-auto max-w-md text-sm text-muted-foreground">
             Interviews are scheduled from an exit request. Open an exit and use its Interview tab to
             schedule one.
           </p>
@@ -137,35 +137,35 @@ export function InterviewListPage() {
           </button>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Employee</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Scheduled</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Rating</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Employee</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Scheduled</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Rating</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
                 <th className="px-6 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {interviews.map((iv) => {
                 const cfg = STATUS_CONFIG[iv.status] || STATUS_CONFIG.scheduled;
                 const name = iv.employee
                   ? `${iv.employee.first_name} ${iv.employee.last_name}`
                   : "—";
                 return (
-                  <tr key={iv.id} className="hover:bg-gray-50">
+                  <tr key={iv.id} className="hover:bg-muted/50">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">{name}</p>
+                      <p className="text-sm font-medium text-foreground">{name}</p>
                       {iv.employee?.designation && (
-                        <p className="text-xs text-gray-500">{iv.employee.designation}</p>
+                        <p className="text-xs text-muted-foreground">{iv.employee.designation}</p>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       {iv.scheduled_date ? formatDate(iv.scheduled_date) : "—"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       {iv.overall_rating != null ? `${iv.overall_rating}/10` : "—"}
                     </td>
                     <td className="px-6 py-4">
@@ -182,7 +182,7 @@ export function InterviewListPage() {
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => navigate(`/interviews/${iv.exit_request_id}`)}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 hover:text-rose-700"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300"
                       >
                         <Eye className="h-4 w-4" />
                         View

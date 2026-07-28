@@ -24,11 +24,11 @@ const CATEGORIES = [
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
-  pending: { label: "Pending", color: "bg-amber-100 text-amber-700", icon: Clock },
-  returned: { label: "Returned", color: "bg-green-100 text-green-700", icon: CheckCircle2 },
-  damaged: { label: "Damaged", color: "bg-orange-100 text-orange-700", icon: AlertTriangle },
-  lost: { label: "Lost", color: "bg-red-100 text-red-700", icon: XCircle },
-  waived: { label: "Waived", color: "bg-gray-100 text-gray-600", icon: CheckCircle2 },
+  pending: { label: "Pending", color: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300", icon: Clock },
+  returned: { label: "Returned", color: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300", icon: CheckCircle2 },
+  damaged: { label: "Damaged", color: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300", icon: AlertTriangle },
+  lost: { label: "Lost", color: "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300", icon: XCircle },
+  waived: { label: "Waived", color: "bg-muted text-muted-foreground", icon: CheckCircle2 },
 };
 
 export function AssetListPage() {
@@ -106,8 +106,8 @@ export function AssetListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Asset Returns</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Asset Returns</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Track company asset returns for exiting employees.
           </p>
         </div>
@@ -126,33 +126,33 @@ export function AssetListPage() {
       {!exitId && (
         loading ? (
           <div className="flex h-32 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+            <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
           </div>
         ) : allAssets.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-            <Package className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-            <p className="text-sm font-medium text-gray-900">No assets tracked yet</p>
-            <p className="mt-1 text-sm text-gray-500">
+          <div className="rounded-lg border border-border bg-card p-8 text-center">
+            <Package className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+            <p className="text-sm font-medium text-foreground">No assets tracked yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
               Asset returns are tracked per exit. Open an exit from the{" "}
-              <a href="/exits" className="font-medium text-rose-600 hover:text-rose-700 underline">
+              <a href="/exits" className="font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300 underline">
                 Exits list
               </a>{" "}
               and add the assets to be returned.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white -mx-4 lg:mx-0">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto rounded-lg border border-border bg-card -mx-4 lg:mx-0">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Employee</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Asset</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Category</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500"></th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Employee</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Asset</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Category</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Status</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {allAssets.map((asset: any) => {
                   const sc = STATUS_CONFIG[asset.status] || STATUS_CONFIG.pending;
                   const Icon = sc.icon;
@@ -160,18 +160,18 @@ export function AssetListPage() {
                     ? `${asset.employee.first_name} ${asset.employee.last_name}`
                     : "—";
                   return (
-                    <tr key={asset.id} className="hover:bg-gray-50">
+                    <tr key={asset.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3">
-                        <p className="text-sm font-medium text-gray-900">{name}</p>
+                        <p className="text-sm font-medium text-foreground">{name}</p>
                         {asset.employee?.designation && (
-                          <p className="text-xs text-gray-500">{asset.employee.designation}</p>
+                          <p className="text-xs text-muted-foreground">{asset.employee.designation}</p>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {asset.asset_name}
-                        {asset.asset_tag && <span className="ml-1 text-xs text-gray-400">({asset.asset_tag})</span>}
+                        {asset.asset_tag && <span className="ml-1 text-xs text-muted-foreground">({asset.asset_tag})</span>}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500 capitalize">{asset.category?.replace("_", " ")}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground capitalize">{asset.category?.replace("_", " ")}</td>
                       <td className="px-4 py-3">
                         <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sc.color)}>
                           <Icon className="h-3 w-3" />
@@ -181,7 +181,7 @@ export function AssetListPage() {
                       <td className="px-4 py-3 text-right">
                         <Link
                           to={`/assets?exitId=${asset.exit_request_id}`}
-                          className="text-sm font-medium text-rose-600 hover:text-rose-700"
+                          className="text-sm font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300"
                         >
                           Manage
                         </Link>
@@ -196,36 +196,36 @@ export function AssetListPage() {
       )}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Add Asset</h3>
+        <form onSubmit={handleAdd} className="rounded-lg border border-border bg-card p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-foreground">Add Asset</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Asset Name</label>
+              <label className="block text-sm font-medium text-muted-foreground">Asset Name</label>
               <input
                 type="text"
                 required
                 value={form.asset_name}
                 onChange={(e) => setForm({ ...form, asset_name: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="MacBook Pro 14"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Asset Tag</label>
+              <label className="block text-sm font-medium text-muted-foreground">Asset Tag</label>
               <input
                 type="text"
                 value={form.asset_tag}
                 onChange={(e) => setForm({ ...form, asset_tag: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="IT-LAP-0042"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Category</label>
+              <label className="block text-sm font-medium text-muted-foreground">Category</label>
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c.key} value={c.key}>{c.label}</option>
@@ -233,14 +233,14 @@ export function AssetListPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Damage / Replacement Cost</label>
+              <label className="block text-sm font-medium text-muted-foreground">Damage / Replacement Cost</label>
               <input
                 type="number"
                 min={0}
                 step="0.01"
                 value={form.replacement_cost}
                 onChange={(e) => setForm({ ...form, replacement_cost: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 placeholder="0"
               />
             </div>
@@ -256,7 +256,7 @@ export function AssetListPage() {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
             >
               Cancel
             </button>
@@ -266,42 +266,42 @@ export function AssetListPage() {
 
       {!exitId ? null : loading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
         </div>
       ) : assets.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500">
-          <Package className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+        <div className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground">
+          <Package className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
           No assets tracked yet.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white -mx-4 lg:mx-0">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto rounded-lg border border-border bg-card -mx-4 lg:mx-0">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Asset</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Tag</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Category</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Return Date</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Asset</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Tag</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Category</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Return Date</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {assets.map((asset: any) => {
                 const sc = STATUS_CONFIG[asset.status] || STATUS_CONFIG.pending;
                 const Icon = sc.icon;
                 return (
-                  <tr key={asset.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{asset.asset_name}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{asset.asset_tag || "-"}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500 capitalize">{asset.category?.replace("_", " ")}</td>
+                  <tr key={asset.id} className="hover:bg-muted/50">
+                    <td className="px-4 py-3 text-sm font-medium text-foreground">{asset.asset_name}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{asset.asset_tag || "-"}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground capitalize">{asset.category?.replace("_", " ")}</td>
                     <td className="px-4 py-3">
                       <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sc.color)}>
                         <Icon className="h-3 w-3" />
                         {sc.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
                       {asset.returned_date ? formatDate(asset.returned_date) : "-"}
                     </td>
                     <td className="px-4 py-3">
@@ -309,19 +309,19 @@ export function AssetListPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleStatusUpdate(asset.id, "returned")}
-                            className="rounded bg-green-50 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-100"
+                            className="rounded bg-green-50 dark:bg-green-950/40 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950/40"
                           >
                             Returned
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(asset.id, "damaged")}
-                            className="rounded bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 hover:bg-orange-100"
+                            className="rounded bg-orange-50 dark:bg-orange-950/40 px-2 py-1 text-xs font-medium text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-950/40"
                           >
                             Damaged
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(asset.id, "lost")}
-                            className="rounded bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+                            className="rounded bg-red-50 dark:bg-red-950/40 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40"
                           >
                             Lost
                           </button>

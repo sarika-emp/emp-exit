@@ -42,7 +42,7 @@ export function ConfirmDialog({
       onClick={loading ? undefined : onCancel}
     >
       <div
-        className="w-full max-w-md rounded-xl bg-white shadow-xl"
+        className="w-full max-w-md rounded-xl bg-card shadow-xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -51,21 +51,21 @@ export function ConfirmDialog({
           <div
             className={
               "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full " +
-              (tone === "danger" ? "bg-red-50 text-red-600" : "bg-rose-50 text-rose-600")
+              (tone === "danger" ? "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400" : "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400")
             }
           >
             <AlertTriangle className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-            <p className="mt-1 text-sm text-gray-600">{message}</p>
+            <h3 className="text-base font-semibold text-foreground">{title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{message}</p>
           </div>
         </div>
-        <div className="mt-5 flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
+        <div className="mt-5 flex justify-end gap-2 border-t border-border px-5 py-4">
           <button
             onClick={onCancel}
             disabled={loading}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             {cancelLabel}
           </button>

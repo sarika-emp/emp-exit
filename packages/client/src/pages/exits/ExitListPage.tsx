@@ -17,13 +17,13 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  initiated: "bg-blue-100 text-blue-700",
-  notice_period: "bg-amber-100 text-amber-700",
-  clearance_pending: "bg-orange-100 text-orange-700",
-  fnf_pending: "bg-purple-100 text-purple-700",
-  fnf_processed: "bg-indigo-100 text-indigo-700",
-  completed: "bg-green-100 text-green-700",
-  cancelled: "bg-gray-100 text-gray-500",
+  initiated: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  notice_period: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  clearance_pending: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300",
+  fnf_pending: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300",
+  fnf_processed: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300",
+  completed: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -118,8 +118,8 @@ export function ExitListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Exit Requests</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Exit Requests</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             View and manage all employee exit requests.
           </p>
         </div>
@@ -137,34 +137,34 @@ export function ExitListPage() {
         <select
           value={statusFilter}
           onChange={(e) => handleStatusChange(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+          className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
         >
           {STATUS_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {total} exit request{total !== 1 ? "s" : ""} found
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="rounded-xl border border-border bg-card">
         {loading ? (
           <div className="flex h-48 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+            <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
           </div>
         ) : exits.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-            <UserMinus className="h-12 w-12 text-gray-300 mb-3" />
-            <p className="text-sm text-gray-500">No exit requests found.</p>
+            <UserMinus className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <p className="text-sm text-muted-foreground">No exit requests found.</p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <tr className="border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     <th className="px-6 py-3">Employee</th>
                     <th className="px-6 py-3">Type</th>
                     <th className="px-6 py-3">Status</th>
@@ -173,45 +173,45 @@ export function ExitListPage() {
                     <th className="px-6 py-3">Initiated</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-border">
                   {exits.map((exit) => (
-                    <tr key={exit.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={exit.id} className="hover:bg-muted/50 transition-colors">
                       <td className="px-6 py-4">
                         <Link
                           to={`/exits/${exit.id}`}
-                          className="font-medium text-gray-900 hover:text-rose-600"
+                          className="font-medium text-foreground hover:text-rose-600 dark:text-rose-400"
                         >
                           {exit.employee
                             ? `${exit.employee.first_name} ${exit.employee.last_name}`
                             : `Deleted employee #${exit.employee_id}`}
                         </Link>
                         {exit.employee?.designation && (
-                          <p className="text-xs text-gray-500">{exit.employee.designation}</p>
+                          <p className="text-xs text-muted-foreground">{exit.employee.designation}</p>
                         )}
                         {exit.employee?.emp_code && (
-                          <p className="text-xs text-gray-400">{exit.employee.emp_code}</p>
+                          <p className="text-xs text-muted-foreground">{exit.employee.emp_code}</p>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-gray-600">
+                      <td className="px-6 py-4 text-muted-foreground">
                         {TYPE_LABELS[exit.exit_type] || exit.exit_type}
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className={cn(
                             "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
-                            STATUS_COLORS[exit.status] || "bg-gray-100 text-gray-600",
+                            STATUS_COLORS[exit.status] || "bg-muted text-muted-foreground",
                           )}
                         >
                           {STATUS_LABELS[exit.status] || exit.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-600">
+                      <td className="px-6 py-4 text-muted-foreground">
                         {exit.resignation_date ? formatDate(exit.resignation_date) : "--"}
                       </td>
-                      <td className="px-6 py-4 text-gray-600">
+                      <td className="px-6 py-4 text-muted-foreground">
                         {exit.last_working_date ? formatDate(exit.last_working_date) : "--"}
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-6 py-4 text-muted-foreground">
                         {formatDate(exit.created_at)}
                       </td>
                     </tr>
@@ -222,22 +222,22 @@ export function ExitListPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-gray-100 px-6 py-3">
-                <p className="text-sm text-gray-500">
+              <div className="flex items-center justify-between border-t border-border px-6 py-3">
+                <p className="text-sm text-muted-foreground">
                   Page {page} of {totalPages}
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>

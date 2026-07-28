@@ -18,20 +18,20 @@ import toast from "react-hot-toast";
 import { cn, formatDate } from "@/lib/utils";
 
 const KT_STATUS: Record<string, { label: string; color: string }> = {
-  not_started: { label: "Not Started", color: "bg-gray-100 text-gray-600" },
-  in_progress: { label: "In Progress", color: "bg-blue-100 text-blue-700" },
-  completed: { label: "Completed", color: "bg-green-100 text-green-700" },
+  not_started: { label: "Not Started", color: "bg-muted text-muted-foreground" },
+  in_progress: { label: "In Progress", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300" },
+  completed: { label: "Completed", color: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
 };
 
 // Exit lifecycle status → badge colour + readable label.
 const EXIT_STATUS: Record<string, { label: string; color: string }> = {
-  initiated: { label: "Initiated", color: "bg-blue-100 text-blue-700" },
-  notice_period: { label: "Notice Period", color: "bg-amber-100 text-amber-700" },
-  clearance_pending: { label: "Clearance Pending", color: "bg-orange-100 text-orange-700" },
-  fnf_pending: { label: "FnF Pending", color: "bg-purple-100 text-purple-700" },
-  fnf_processed: { label: "FnF Processed", color: "bg-indigo-100 text-indigo-700" },
-  completed: { label: "Completed", color: "bg-green-100 text-green-700" },
-  cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-500" },
+  initiated: { label: "Initiated", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300" },
+  notice_period: { label: "Notice Period", color: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300" },
+  clearance_pending: { label: "Clearance Pending", color: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300" },
+  fnf_pending: { label: "FnF Pending", color: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300" },
+  fnf_processed: { label: "FnF Processed", color: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300" },
+  completed: { label: "Completed", color: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
+  cancelled: { label: "Cancelled", color: "bg-muted text-muted-foreground" },
 };
 
 function initials(first?: string, last?: string): string {
@@ -234,8 +234,8 @@ export function KTListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Knowledge Transfer</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage knowledge transfer plans and items.</p>
+          <h1 className="text-2xl font-bold text-foreground">Knowledge Transfer</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage knowledge transfer plans and items.</p>
         </div>
         <div className="flex items-center gap-2">
           {exitId && (
@@ -246,7 +246,7 @@ export function KTListPage() {
                 next.delete("exitId");
                 setSearchParams(next);
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
             >
               Switch exit
             </button>
@@ -286,30 +286,30 @@ export function KTListPage() {
           <div className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Select an exit</h2>
-                <p className="mt-0.5 text-sm text-gray-500">
+                <h2 className="text-base font-semibold text-foreground">Select an exit</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   Pick the exit you want to manage knowledge transfer for.
                 </p>
               </div>
               <div className="relative w-full sm:w-72">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
                   value={exitSearch}
                   onChange={(e) => setExitSearch(e.target.value)}
                   placeholder="Search by name, code, designation…"
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                 />
               </div>
             </div>
 
             {loadingExits ? (
-              <div className="flex h-40 items-center justify-center rounded-xl border border-gray-200 bg-white">
+              <div className="flex h-40 items-center justify-center rounded-xl border border-border bg-card">
                 <Loader2 className="h-6 w-6 animate-spin text-rose-500" />
               </div>
             ) : visible.length === 0 ? (
-              <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-                <BookOpen className="mx-auto h-10 w-10 text-gray-300" />
-                <p className="mt-3 text-sm text-gray-500">
+              <div className="rounded-xl border border-border bg-card p-10 text-center">
+                <BookOpen className="mx-auto h-10 w-10 text-muted-foreground/50" />
+                <p className="mt-3 text-sm text-muted-foreground">
                   {exitSearch
                     ? "No exits match your search."
                     : "No active exits found. Initiate an exit first to manage its KT plan."}
@@ -321,34 +321,34 @@ export function KTListPage() {
                   const name = exit.employee
                     ? `${exit.employee.first_name} ${exit.employee.last_name}`
                     : "Unknown employee";
-                  const st = EXIT_STATUS[exit.status] || { label: exit.status, color: "bg-gray-100 text-gray-600" };
+                  const st = EXIT_STATUS[exit.status] || { label: exit.status, color: "bg-muted text-muted-foreground" };
                   return (
                     <button
                       key={exit.id}
                       type="button"
                       onClick={() => selectExit(exit.id)}
-                      className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-all hover:border-rose-200 hover:shadow-md"
+                      className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-brand-400"
                     >
-                      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-700">
+                      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-sm font-semibold text-rose-700 dark:text-rose-300">
                         {initials(exit.employee?.first_name, exit.employee?.last_name)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-gray-900">{name}</p>
+                        <p className="truncate text-sm font-semibold text-foreground">{name}</p>
                         {exit.employee?.designation && (
-                          <p className="truncate text-xs text-gray-500">{exit.employee.designation}</p>
+                          <p className="truncate text-xs text-muted-foreground">{exit.employee.designation}</p>
                         )}
                         <div className="mt-1.5 flex items-center gap-2">
                           <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", st.color)}>
                             {st.label}
                           </span>
                           {exit.last_working_date && (
-                            <span className="text-[11px] text-gray-400">
+                            <span className="text-[11px] text-muted-foreground">
                               LWD {formatDate(exit.last_working_date)}
                             </span>
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-300 transition-colors group-hover:text-rose-500" />
+                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground/50 transition-colors group-hover:text-rose-500" />
                     </button>
                   );
                 })}
@@ -360,12 +360,12 @@ export function KTListPage() {
 
       {loading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-rose-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-rose-600 dark:text-rose-400" />
         </div>
       ) : !kt && exitId ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <BookOpen className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-          <p className="text-gray-500 mb-4">No KT plan exists for this exit yet.</p>
+        <div className="rounded-lg border border-border bg-card p-8 text-center">
+          <BookOpen className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+          <p className="text-muted-foreground mb-4">No KT plan exists for this exit yet.</p>
           <button
             onClick={handleCreateKT}
             disabled={creating}
@@ -377,9 +377,9 @@ export function KTListPage() {
       ) : kt ? (
         <>
           {/* KT Summary */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
+          <div className="rounded-lg border border-border bg-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">KT Plan</h3>
+              <h3 className="text-lg font-semibold text-foreground">KT Plan</h3>
               <div className="flex items-center gap-3">
                 {/* "Mark plan complete" — only enabled when at least one
                     item exists AND every item is completed. The button
@@ -403,7 +403,7 @@ export function KTListPage() {
                   <button
                     type="button"
                     onClick={openEditPlan}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     Edit
@@ -418,11 +418,11 @@ export function KTListPage() {
             {editingPlan ? (
               <form onSubmit={handleSavePlan} className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-700">Successor</label>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">Successor</label>
                   <select
                     value={planForm.assignee_id}
                     onChange={(e) => setPlanForm((f) => ({ ...f, assignee_id: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   >
                     <option value="">Not assigned</option>
                     {employees.map((emp) => (
@@ -433,12 +433,12 @@ export function KTListPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-700">Due date</label>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">Due date</label>
                   <input
                     type="date"
                     value={planForm.due_date}
                     onChange={(e) => setPlanForm((f) => ({ ...f, due_date: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   />
                 </div>
                 <div className="flex gap-3 sm:col-span-2">
@@ -453,7 +453,7 @@ export function KTListPage() {
                   <button
                     type="button"
                     onClick={() => setEditingPlan(false)}
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
                   >
                     Cancel
                   </button>
@@ -461,7 +461,7 @@ export function KTListPage() {
               </form>
             ) : (
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <User className="h-4 w-4" />
                   <span>
                     Successor:{" "}
@@ -472,7 +472,7 @@ export function KTListPage() {
                     })()}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-4 w-4" />
                   <span>Due: {kt.due_date ? formatDate(kt.due_date) : "Not set"}</span>
                 </div>
@@ -482,36 +482,36 @@ export function KTListPage() {
 
           {/* Add item form */}
           {showItemForm && (
-            <form onSubmit={handleAddItem} className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Add KT Item</h3>
+            <form onSubmit={handleAddItem} className="rounded-lg border border-border bg-card p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-foreground">Add KT Item</h3>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Title</label>
+                <label className="block text-sm font-medium text-muted-foreground">Title</label>
                 <input
                   type="text"
                   required
                   value={itemForm.title}
                   onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Handover API documentation"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <label className="block text-sm font-medium text-muted-foreground">Description</label>
                 <textarea
                   value={itemForm.description}
                   onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
                   rows={3}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="Details about this KT item..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Document URL</label>
+                <label className="block text-sm font-medium text-muted-foreground">Document URL</label>
                 <input
                   type="url"
                   value={itemForm.document_url}
                   onChange={(e) => setItemForm({ ...itemForm, document_url: e.target.value })}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="mt-1 block w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
                   placeholder="https://docs.google.com/..."
                 />
               </div>
@@ -526,7 +526,7 @@ export function KTListPage() {
                 <button
                   type="button"
                   onClick={() => setShowItemForm(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50"
                 >
                   Cancel
                 </button>
@@ -536,11 +536,11 @@ export function KTListPage() {
 
           {/* Items list */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-700">
+            <h3 className="text-sm font-medium text-muted-foreground">
               Items ({kt.items?.length || 0})
             </h3>
             {!kt.items || kt.items.length === 0 ? (
-              <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-500">
+              <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
                 No KT items yet. Add items to track knowledge transfer progress.
               </div>
             ) : (
@@ -548,41 +548,41 @@ export function KTListPage() {
                 {kt.items.map((item: any) => (
                   <div
                     key={item.id}
-                    className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 hover:bg-gray-50"
+                    className="flex items-start gap-3 rounded-lg border border-border bg-card p-4 hover:bg-muted/50"
                   >
                     <button
                       type="button"
                       onClick={() => toggleItemStatus(item.id, item.status)}
                       title={item.status === "completed" ? "Reopen item" : "Mark item complete"}
                       aria-label={item.status === "completed" ? "Reopen item" : "Mark item complete"}
-                      className="mt-0.5 flex-shrink-0 cursor-pointer rounded-full transition-colors hover:bg-rose-50 p-0.5"
+                      className="mt-0.5 flex-shrink-0 cursor-pointer rounded-full transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/40 p-0.5"
                     >
                       {item.status === "completed" ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                       ) : (
-                        <Circle className="h-5 w-5 text-gray-400 hover:text-rose-500" />
+                        <Circle className="h-5 w-5 text-muted-foreground hover:text-rose-500" />
                       )}
                     </button>
                     <div className="flex-1 min-w-0">
-                      <p className={cn("text-sm font-medium", item.status === "completed" ? "text-gray-400 line-through" : "text-gray-900")}>
+                      <p className={cn("text-sm font-medium", item.status === "completed" ? "text-muted-foreground line-through" : "text-foreground")}>
                         {item.title}
                       </p>
                       {item.description && (
-                        <p className="mt-1 text-xs text-gray-500">{item.description}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
                       )}
                       {item.document_url && (
                         <a
                           href={item.document_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-1 inline-flex items-center gap-1 text-xs text-rose-600 hover:underline"
+                          className="mt-1 inline-flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400 hover:underline"
                         >
                           <FileText className="h-3 w-3" />
                           Document
                         </a>
                       )}
                     </div>
-                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", KT_STATUS[item.status]?.color || "bg-gray-100 text-gray-600")}>
+                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", KT_STATUS[item.status]?.color || "bg-muted text-muted-foreground")}>
                       {KT_STATUS[item.status]?.label || item.status}
                     </span>
                   </div>

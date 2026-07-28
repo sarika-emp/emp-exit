@@ -27,13 +27,13 @@ interface DashboardStats {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  initiated: "bg-blue-100 text-blue-700",
-  notice_period: "bg-amber-100 text-amber-700",
-  clearance_pending: "bg-orange-100 text-orange-700",
-  fnf_pending: "bg-purple-100 text-purple-700",
-  fnf_processed: "bg-indigo-100 text-indigo-700",
-  completed: "bg-green-100 text-green-700",
-  cancelled: "bg-gray-100 text-gray-500",
+  initiated: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300",
+  notice_period: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+  clearance_pending: "bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300",
+  fnf_pending: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300",
+  fnf_processed: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300",
+  completed: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -111,7 +111,7 @@ export function DashboardPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -121,32 +121,32 @@ export function DashboardPage() {
       label: "Active Exits",
       value: stats?.activeExits ?? 0,
       icon: UserMinus,
-      color: "bg-rose-50 text-rose-600",
-      iconBg: "bg-rose-100",
+      color: "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400",
+      iconBg: "bg-rose-100 dark:bg-rose-950/40",
       link: "/exits?status=active",
     },
     {
       label: "Clearance Pending",
       value: stats?.clearancePending ?? 0,
       icon: Shield,
-      color: "bg-amber-50 text-amber-600",
-      iconBg: "bg-amber-100",
+      color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400",
+      iconBg: "bg-amber-100 dark:bg-amber-950/40",
       link: "/clearance",
     },
     {
       label: "FnF Pending",
       value: stats?.fnfPending ?? 0,
       icon: DollarSign,
-      color: "bg-purple-50 text-purple-600",
-      iconBg: "bg-purple-100",
+      color: "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400",
+      iconBg: "bg-purple-100 dark:bg-purple-950/40",
       link: "/fnf",
     },
     {
       label: "Completed (Month)",
       value: stats?.completedThisMonth ?? 0,
       icon: ClipboardCheck,
-      color: "bg-green-50 text-green-600",
-      iconBg: "bg-green-100",
+      color: "bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400",
+      iconBg: "bg-green-100 dark:bg-green-950/40",
       link: "/exits?status=completed",
     },
   ];
@@ -154,8 +154,8 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">Exit management overview and metrics.</p>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Exit management overview and metrics.</p>
       </div>
 
       {/* Stat Cards */}
@@ -164,12 +164,12 @@ export function DashboardPage() {
           <Link
             key={card.label}
             to={card.link}
-            className="rounded-xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md"
+            className="rounded-xl border border-border bg-card p-5 transition-colors duration-150 hover:border-brand-400"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">{card.label}</p>
-                <p className="mt-1 text-3xl font-bold text-gray-900">{card.value}</p>
+                <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
+                <p className="mt-1 text-3xl font-bold text-foreground">{card.value}</p>
               </div>
               <div className={cn("flex h-12 w-12 items-center justify-center rounded-lg", card.iconBg)}>
                 <card.icon className={cn("h-6 w-6", card.color.split(" ")[1])} />
@@ -180,26 +180,26 @@ export function DashboardPage() {
       </div>
 
       {/* Recent Exits */}
-      <div className="rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Exits</h2>
+      <div className="rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h2 className="text-lg font-semibold text-foreground">Recent Exits</h2>
           <Link
             to="/exits"
-            className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 hover:text-rose-700"
+            className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 hover:text-rose-700 dark:text-rose-300"
           >
             View all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         {recentExits.length === 0 ? (
-          <div className="px-6 py-12 text-center text-sm text-gray-500">
+          <div className="px-6 py-12 text-center text-sm text-muted-foreground">
             No exit requests yet. Start by initiating an exit.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-500">
+                <tr className="border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   <th className="px-6 py-3">Employee</th>
                   <th className="px-6 py-3">Type</th>
                   <th className="px-6 py-3">Status</th>
@@ -207,36 +207,36 @@ export function DashboardPage() {
                   <th className="px-6 py-3">Initiated</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-border">
                 {recentExits.map((exit) => (
-                  <tr key={exit.id} className="hover:bg-gray-50">
+                  <tr key={exit.id} className="hover:bg-muted/50">
                     <td className="px-6 py-3">
-                      <Link to={`/exits/${exit.id}`} className="font-medium text-gray-900 hover:text-rose-600">
+                      <Link to={`/exits/${exit.id}`} className="font-medium text-foreground hover:text-rose-600 dark:text-rose-400">
                         {exit.employee
                           ? `${exit.employee.first_name} ${exit.employee.last_name}`
                           : `Employee #${exit.id.slice(0, 8)}`}
                       </Link>
                       {exit.employee?.designation && (
-                        <p className="text-xs text-gray-500">{exit.employee.designation}</p>
+                        <p className="text-xs text-muted-foreground">{exit.employee.designation}</p>
                       )}
                     </td>
-                    <td className="px-6 py-3 text-gray-600">
+                    <td className="px-6 py-3 text-muted-foreground">
                       {TYPE_LABELS[exit.exit_type] || exit.exit_type}
                     </td>
                     <td className="px-6 py-3">
                       <span
                         className={cn(
                           "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
-                          STATUS_COLORS[exit.status] || "bg-gray-100 text-gray-600",
+                          STATUS_COLORS[exit.status] || "bg-muted text-muted-foreground",
                         )}
                       >
                         {STATUS_LABELS[exit.status] || exit.status}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-gray-600">
+                    <td className="px-6 py-3 text-muted-foreground">
                       {exit.last_working_date ? formatDate(exit.last_working_date) : "--"}
                     </td>
-                    <td className="px-6 py-3 text-gray-500">{formatDate(exit.created_at)}</td>
+                    <td className="px-6 py-3 text-muted-foreground">{formatDate(exit.created_at)}</td>
                   </tr>
                 ))}
               </tbody>

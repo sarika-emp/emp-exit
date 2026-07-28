@@ -78,7 +78,7 @@ function SSOGate({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
           <a href="/login" className="text-brand-600 underline">Go to login</a>
         </div>
       </div>

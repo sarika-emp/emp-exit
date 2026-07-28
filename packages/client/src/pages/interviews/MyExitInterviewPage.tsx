@@ -138,7 +138,7 @@ export function MyExitInterviewPage() {
             onChange={(e) => handleAnswerChange(q.id, "text", e.target.value)}
             rows={4}
             disabled={isReadOnly}
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full rounded-lg border border-border bg-card text-foreground px-4 py-3 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500 disabled:bg-muted/50 disabled:text-muted-foreground"
             placeholder="Share your thoughts..."
           />
         );
@@ -161,13 +161,13 @@ export function MyExitInterviewPage() {
                     "h-8 w-8",
                     (answer.rating || 0) >= star
                       ? "fill-amber-400 text-amber-400"
-                      : "text-gray-300 hover:text-amber-200",
+                      : "text-muted-foreground/50 hover:text-amber-200",
                   )}
                 />
               </button>
             ))}
             {answer.rating && (
-              <span className="ml-3 text-sm font-medium text-gray-600">{answer.rating} / 5</span>
+              <span className="ml-3 text-sm font-medium text-muted-foreground">{answer.rating} / 5</span>
             )}
           </div>
         );
@@ -182,8 +182,8 @@ export function MyExitInterviewPage() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
                   answer.text === opt
-                    ? "border-rose-300 bg-rose-50"
-                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50",
+                    ? "border-rose-300 bg-rose-50 dark:bg-rose-950/40"
+                    : "border-border hover:border-border hover:bg-muted/50",
                   isReadOnly && "cursor-default",
                 )}
               >
@@ -194,9 +194,9 @@ export function MyExitInterviewPage() {
                   checked={answer.text === opt}
                   onChange={() => handleAnswerChange(q.id, "text", opt)}
                   disabled={isReadOnly}
-                  className="border-gray-300 text-rose-600 focus:ring-rose-500"
+                  className="border-border text-rose-600 dark:text-rose-400 focus:ring-rose-500"
                 />
-                <span className="text-sm text-gray-700">{opt}</span>
+                <span className="text-sm text-muted-foreground">{opt}</span>
               </label>
             ))}
           </div>
@@ -207,8 +207,8 @@ export function MyExitInterviewPage() {
         return (
           <div className="flex gap-4">
             {[
-              { val: "Yes", bg: "border-green-300 bg-green-50 text-green-700" },
-              { val: "No", bg: "border-red-300 bg-red-50 text-red-700" },
+              { val: "Yes", bg: "border-green-300 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
+              { val: "No", bg: "border-red-300 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300" },
             ].map((opt) => (
               <button
                 key={opt.val}
@@ -218,7 +218,7 @@ export function MyExitInterviewPage() {
                   "flex-1 rounded-lg border-2 px-6 py-3 text-sm font-medium transition-all",
                   answer.text === opt.val
                     ? opt.bg
-                    : "border-gray-200 text-gray-500 hover:border-gray-300",
+                    : "border-border text-muted-foreground hover:border-border",
                   isReadOnly && "cursor-default",
                 )}
               >
@@ -236,7 +236,7 @@ export function MyExitInterviewPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 dark:border-rose-900 border-t-rose-600" />
       </div>
     );
   }
@@ -247,16 +247,16 @@ export function MyExitInterviewPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-rose-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-rose-600 dark:text-rose-400" />
             My Exit Interview
           </h1>
-          <p className="mt-1 text-sm text-gray-500">Submit your exit interview responses.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Submit your exit interview responses.</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-          <Clock className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-sm font-medium text-gray-900">Interview not yet scheduled</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <Clock className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <h3 className="mt-4 text-sm font-medium text-foreground">Interview not yet scheduled</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
             Your exit interview has not been scheduled yet. HR will reach out soon.
           </p>
         </div>
@@ -268,15 +268,15 @@ export function MyExitInterviewPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Header */}
       <div className="text-center">
-        <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 mb-3">
-          <MessageSquare className="h-7 w-7 text-rose-600" />
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 mb-3">
+          <MessageSquare className="h-7 w-7 text-rose-600 dark:text-rose-400" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Exit Interview</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">Exit Interview</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           {template?.name || "Please share your feedback"} — your responses help us improve.
         </p>
         {interview.scheduled_date && (
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             Scheduled: {formatDate(interview.scheduled_date)}
           </p>
         )}
@@ -284,26 +284,26 @@ export function MyExitInterviewPage() {
 
       {/* Success message */}
       {(submitted || isCompleted) && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4 flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+        <div className="rounded-lg border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 p-4 flex items-center gap-3">
+          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
           <div>
-            <p className="text-sm font-medium text-green-800">
+            <p className="text-sm font-medium text-green-800 dark:text-green-300">
               {isCompleted ? "Interview completed" : "Responses submitted successfully"}
             </p>
-            <p className="text-xs text-green-600">Thank you for your feedback.</p>
+            <p className="text-xs text-green-600 dark:text-green-400">Thank you for your feedback.</p>
           </div>
         </div>
       )}
 
       {isSkipped && (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-gray-500 flex-shrink-0" />
-          <p className="text-sm text-gray-600">This interview has been skipped.</p>
+        <div className="rounded-lg border border-border bg-muted/50 p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+          <p className="text-sm text-muted-foreground">This interview has been skipped.</p>
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-700 dark:text-red-300">
           {error}
           <button onClick={() => setError(null)} className="ml-2 underline">
             dismiss
@@ -314,13 +314,13 @@ export function MyExitInterviewPage() {
       {/* Questions */}
       <div className="space-y-5">
         {questions.map((q, idx) => (
-          <div key={q.id} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div key={q.id} className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <span className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-sm font-bold text-rose-700 flex-shrink-0">
+              <span className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950/40 text-sm font-bold text-rose-700 dark:text-rose-300 flex-shrink-0">
                 {idx + 1}
               </span>
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-base">
+                <p className="font-medium text-foreground text-base">
                   {q.question_text}
                   {Boolean(Number(q.is_required)) && <span className="ml-1 text-red-500">*</span>}
                 </p>
@@ -333,12 +333,12 @@ export function MyExitInterviewPage() {
 
       {/* Overall feedback */}
       {questions.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="font-semibold text-gray-900 mb-5">Overall Feedback</h3>
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="font-semibold text-foreground mb-5">Overall Feedback</h3>
 
           {/* Overall rating */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-muted-foreground mb-3">
               How would you rate your overall experience? (1-10)
             </label>
             <div className="flex items-center gap-1.5">
@@ -351,7 +351,7 @@ export function MyExitInterviewPage() {
                     "flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold transition-all",
                     overallRating >= num
                       ? "bg-rose-600 text-white shadow-sm"
-                      : "bg-gray-100 text-gray-500 hover:bg-gray-200",
+                      : "bg-muted text-muted-foreground hover:bg-muted",
                     isReadOnly && "cursor-default",
                   )}
                 >
@@ -363,13 +363,13 @@ export function MyExitInterviewPage() {
 
           {/* Would recommend */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-muted-foreground mb-3">
               Would you recommend this company as a good place to work?
             </label>
             <div className="flex gap-4">
               {[
-                { val: true, label: "Yes, I would", color: "border-green-300 bg-green-50 text-green-700" },
-                { val: false, label: "No, I wouldn't", color: "border-red-300 bg-red-50 text-red-700" },
+                { val: true, label: "Yes, I would", color: "border-green-300 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
+                { val: false, label: "No, I wouldn't", color: "border-red-300 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300" },
               ].map((opt) => (
                 <button
                   key={String(opt.val)}
@@ -379,7 +379,7 @@ export function MyExitInterviewPage() {
                     "flex-1 rounded-lg border-2 px-6 py-3 text-sm font-medium transition-all",
                     wouldRecommend === opt.val
                       ? opt.color
-                      : "border-gray-200 text-gray-500 hover:border-gray-300",
+                      : "border-border text-muted-foreground hover:border-border",
                     isReadOnly && "cursor-default",
                   )}
                 >
@@ -402,7 +402,7 @@ export function MyExitInterviewPage() {
             <Send className="h-4 w-4" />
             {submitting ? "Submitting..." : "Submit My Responses"}
           </button>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Your responses are confidential and will be used to improve the workplace.
           </p>
         </div>

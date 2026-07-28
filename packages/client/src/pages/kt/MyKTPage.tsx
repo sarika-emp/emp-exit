@@ -14,9 +14,9 @@ import { cn, formatDate } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const KT_STATUS: Record<string, { label: string; color: string }> = {
-  not_started: { label: "Not Started", color: "bg-gray-100 text-gray-600" },
-  in_progress: { label: "In Progress", color: "bg-blue-100 text-blue-700" },
-  completed: { label: "Completed", color: "bg-green-100 text-green-700" },
+  not_started: { label: "Not Started", color: "bg-muted text-muted-foreground" },
+  in_progress: { label: "In Progress", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300" },
+  completed: { label: "Completed", color: "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-300" },
 };
 
 export function MyKTPage() {
@@ -76,7 +76,7 @@ export function MyKTPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-rose-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-rose-600 dark:text-rose-400" />
       </div>
     );
   }
@@ -84,31 +84,31 @@ export function MyKTPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Knowledge Transfer</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-foreground">My Knowledge Transfer</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Track the knowledge transfer items assigned to you and mark them complete.
         </p>
       </div>
 
       {!kt ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <BookOpen className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-          <p className="text-gray-500">No knowledge transfer has been assigned to you.</p>
-          <p className="mt-1 text-xs text-gray-400">
+        <div className="rounded-lg border border-border bg-card p-8 text-center">
+          <BookOpen className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+          <p className="text-muted-foreground">No knowledge transfer has been assigned to you.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Your HR team will set up a KT plan if one is needed for your exit.
           </p>
         </div>
       ) : (
         <>
           {/* KT info */}
-          <div className="rounded-lg border border-gray-200 bg-white p-5">
+          <div className="rounded-lg border border-border bg-card p-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900">KT Plan Overview</h3>
+              <h3 className="text-sm font-semibold text-foreground">KT Plan Overview</h3>
               <span className={cn("rounded-full px-3 py-1 text-xs font-medium", KT_STATUS[kt.status]?.color)}>
                 {KT_STATUS[kt.status]?.label}
               </span>
             </div>
-            <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+            <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
                 Due: {kt.due_date ? formatDate(kt.due_date) : "Not set"}
@@ -122,14 +122,14 @@ export function MyKTPage() {
           {/* Items */}
           <div className="space-y-2">
             {!kt.items || kt.items.length === 0 ? (
-              <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-500 text-sm">
+              <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground text-sm">
                 No KT items have been assigned yet.
               </div>
             ) : (
               kt.items.map((item: any) => (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4"
+                  className="flex items-start gap-3 rounded-lg border border-border bg-card p-4"
                 >
                   <button
                     onClick={() => toggleItem(item.id, item.status)}
@@ -137,24 +137,24 @@ export function MyKTPage() {
                     className={cn("mt-0.5 flex-shrink-0", planCompleted && "cursor-default")}
                   >
                     {item.status === "completed" ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <Circle className="h-5 w-5 text-gray-300 hover:text-rose-400" />
+                      <Circle className="h-5 w-5 text-muted-foreground/50 hover:text-rose-400" />
                     )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-sm font-medium", item.status === "completed" ? "text-gray-400 line-through" : "text-gray-900")}>
+                    <p className={cn("text-sm font-medium", item.status === "completed" ? "text-muted-foreground line-through" : "text-foreground")}>
                       {item.title}
                     </p>
                     {item.description && (
-                      <p className="mt-1 text-xs text-gray-500">{item.description}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
                     )}
                     {item.document_url && (
                       <a
                         href={item.document_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-1 inline-flex items-center gap-1 text-xs text-rose-600 hover:underline"
+                        className="mt-1 inline-flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400 hover:underline"
                       >
                         <FileText className="h-3 w-3" />
                         Document
@@ -169,11 +169,11 @@ export function MyKTPage() {
           {/* Complete-KT action / completed banner */}
           {items.length > 0 && (
             planCompleted ? (
-              <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
-                <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600" />
+              <div className="flex items-center gap-3 rounded-lg border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 p-4">
+                <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400" />
                 <div>
-                  <p className="text-sm font-medium text-green-800">Knowledge transfer completed</p>
-                  <p className="text-xs text-green-700">
+                  <p className="text-sm font-medium text-green-800 dark:text-green-300">Knowledge transfer completed</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">
                     {kt.completed_date
                       ? `Completed on ${formatDate(kt.completed_date)}`
                       : "All items handed over and signed off."}
@@ -181,8 +181,8 @@ export function MyKTPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-gray-600">
+              <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-muted-foreground">
                   {allItemsDone
                     ? "All items are done. Finish your knowledge transfer to sign it off."
                     : "Complete all the items above to finish your knowledge transfer."}

@@ -54,12 +54,12 @@ export function ResignationPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Submit Resignation</h1>
+          <h1 className="text-2xl font-bold text-foreground">Submit Resignation</h1>
         </div>
-        <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
+        <div className="rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 p-8 text-center">
           <UserMinus className="mx-auto h-12 w-12 text-green-500 mb-4" />
-          <h2 className="text-lg font-semibold text-green-800">Resignation Submitted</h2>
-          <p className="mt-2 text-sm text-green-700">
+          <h2 className="text-lg font-semibold text-green-800 dark:text-green-300">Resignation Submitted</h2>
+          <p className="mt-2 text-sm text-green-700 dark:text-green-300">
             Your resignation has been submitted successfully. Redirecting to your exit status...
           </p>
         </div>
@@ -70,21 +70,21 @@ export function ResignationPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Submit Resignation</h1>
-        <p className="mt-1 text-sm text-gray-500">Submit your resignation request.</p>
+        <h1 className="text-2xl font-bold text-foreground">Submit Resignation</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Submit your resignation request.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}
 
           {/* Reason Category */}
           <div>
-            <label htmlFor="reason_category" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="reason_category" className="block text-sm font-medium text-muted-foreground mb-1">
               Reason for Leaving <span className="text-red-500">*</span>
             </label>
             <select
@@ -92,7 +92,7 @@ export function ResignationPage() {
               required
               value={reasonCategory}
               onChange={(e) => setReasonCategory(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             >
               <option value="" disabled>Select a reason…</option>
               {REASON_CATEGORIES.map((r) => (
@@ -103,7 +103,7 @@ export function ResignationPage() {
 
           {/* Reason Detail */}
           <div>
-            <label htmlFor="reason_detail" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="reason_detail" className="block text-sm font-medium text-muted-foreground mb-1">
               Additional Details
             </label>
             <textarea
@@ -112,14 +112,14 @@ export function ResignationPage() {
               onChange={(e) => setReasonDetail(e.target.value)}
               rows={4}
               placeholder="Please share any additional details about your decision..."
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
             />
           </div>
 
           {/* Dates */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="resignation_date" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="resignation_date" className="block text-sm font-medium text-muted-foreground mb-1">
                 Resignation Date <span className="text-red-500">*</span>
               </label>
               <input
@@ -128,11 +128,11 @@ export function ResignationPage() {
                 required
                 value={resignationDate}
                 onChange={(e) => setResignationDate(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
             </div>
             <div>
-              <label htmlFor="last_working_date" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="last_working_date" className="block text-sm font-medium text-muted-foreground mb-1">
                 Preferred Last Working Date
               </label>
               <input
@@ -140,9 +140,9 @@ export function ResignationPage() {
                 type="date"
                 value={lastWorkingDate}
                 onChange={(e) => setLastWorkingDate(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Subject to notice period requirements.
               </p>
             </div>
@@ -166,7 +166,7 @@ export function ResignationPage() {
           <button
             type="button"
             onClick={() => navigate(homeFor())}
-            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
           >
             Cancel
           </button>
